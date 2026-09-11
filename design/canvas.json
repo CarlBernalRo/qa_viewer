@@ -1,0 +1,18 @@
+{
+  "artboards": [
+    { "file": "Objetivo.dc.html", "title": "1 · Objetivo de la sesión", "x": 0, "y": 0, "w": 1440, "h": 900 },
+    { "file": "NuevaSesion.dc.html", "title": "2 · Captura y análisis (interactiva)", "x": 1540, "y": 0, "w": 1440, "h": 900, "is_interactive": true },
+    { "file": "Main.dc.html", "title": "3 · Sesión · línea de tiempo y apuntes", "x": 3080, "y": 0, "w": 1440, "h": 900 },
+    { "file": "Reproductor.dc.html", "title": "4 · Grabación con overlays (interactiva)", "x": 0, "y": 1060, "w": 1440, "h": 900, "is_interactive": true },
+    { "file": "Agentes.dc.html", "title": "5 · Equipo de agentes", "x": 1540, "y": 1060, "w": 1440, "h": 900 },
+    { "file": "Hallazgos.dc.html", "title": "6 · Informe por objetivo", "x": 3080, "y": 1060, "w": 1440, "h": 900 },
+    { "file": "Integraciones.dc.html", "title": "7 · Reportes e integraciones", "x": 0, "y": 2120, "w": 1440, "h": 900 },
+    { "file": "Identidad.dc.html", "title": "Identidad de los agentes", "x": 1540, "y": 2120, "w": 1440, "h": 900 },
+    { "file": "AlternativaRelato.dc.html", "title": "Alternativa B · relato (boceto)", "x": 3080, "y": 2120, "w": 1440, "h": 900 },
+    { "file": "BarraGrabacion.dc.html", "title": "Barra de grabación", "x": 4620, "y": 520, "w": 640, "h": 560 }
+  ],
+  "annotations": [
+    { "id": "brief", "x": 4620, "y": 0, "w": 440, "text": "Rastro · mockups v3\n\nCada sesión empieza por su objetivo: nombre, objetivo, criterios de aceptación (importables desde Jira), alcance y datos de prueba. El informe responde primero si el objetivo se cumplió, criterio por criterio.\n\nLos agentes son robots con color y forma propios. Dejan apuntes con viñetas, se agrupan cuando coinciden en un punto y muestran cuándo se pasan datos.\n\nLa pantalla 2 es interactiva: elige Sin agentes, Sugeridos o Elegir yo, prende y apaga funciones y mira qué agentes usará cada una.\n\nLa pantalla 4 es interactiva: el video de la sesión con overlays por agente. Prueba los filtros por agente y por tipo, el modo “Al pausar” con play, “Siguiente observación” y “Marcar una zona”.\n\nRecorrido: 1 → 7. Los datos (Mercadito, sesión #148) son de ejemplo." }
+  ],
+  "launch": { "view": "canvas" }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "rastro",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Rastro: grabación y análisis de sesiones de QA web.",
+  "workspaces": [
+    "packages/*",
+    "backend",
+    "frontend",
+    "desktop"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n back,front -c cyan,magenta \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "dev:backend": "npm run dev -w @rastro/backend",
+    "dev:frontend": "npm run dev -w @rastro/frontend",
+    "dev:desktop": "npm run dev -w @rastro/desktop",
+    "build": "npm run build -w @rastro/shared && npm run build -w @rastro/backend && npm run build -w @rastro/frontend",
+    "build:desktop": "npm run build && npm run build -w @rastro/desktop",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "setup:browsers": "npm run setup:browsers -w @rastro/backend"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.13.4",
+    "concurrently": "^10.0.5",
+    "eslint": "^10.10.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.12.0",
+    "prettier": "^3.9.6",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.70.0"
+  }
+}

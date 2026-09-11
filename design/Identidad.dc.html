@@ -1,0 +1,222 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap">
+  <style>
+    body { margin: 0; background: #F1F2EF; }
+    a { color: #2F7FBF; } a:hover { color: #1A1F1C; }
+    .mono { font-family: 'JetBrains Mono', Consolas, 'Courier New', monospace; }
+    .cap { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: #5F6863; }
+    @keyframes rb-loop { 0%, 72% { opacity: 1; transform: none; } 80%, 88% { opacity: 0; transform: translateY(6px) scale(0.97); } 100% { opacity: 1; transform: none; } }
+    .pop-loop { animation: rb-loop 4s cubic-bezier(0.2, 0.8, 0.2, 1) infinite; }
+    @keyframes rb-ring { 0% { transform: scale(0.8); opacity: 0.6; } 100% { transform: scale(2.2); opacity: 0; } }
+    .ring { animation: rb-ring 2s ease-out infinite; }
+    @keyframes rb-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    .bob { animation: rb-bob 1.8s ease-in-out infinite; }
+    @keyframes rb-travel { 0% { left: 0; opacity: 0; } 12% { opacity: 1; } 88% { opacity: 1; } 100% { left: calc(100% - 10px); opacity: 0; } }
+    .travel { animation: rb-travel 1.6s ease-in-out infinite; }
+    @keyframes rb-dash { to { background-position: 16px 0; } }
+    .dash { background-image: linear-gradient(90deg, #9AA39D 50%, transparent 50%); background-size: 8px 2px; background-repeat: repeat-x; animation: rb-dash 0.8s linear infinite; }
+    @keyframes rb-think { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+    .think { animation: rb-think 1.1s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) { .pop-loop, .ring, .bob, .travel, .dash, .think { animation: none !important; } }
+  </style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; display: flex; flex-direction: column; gap: 22px; padding: 36px 44px; background: #F1F2EF; color: #1A1F1C; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-size: 14px; overflow: hidden;">
+
+  <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <span class="cap">Rastro · sistema visual</span>
+      <span style="font-weight: 800; font-stretch: 112%; font-size: 32px; letter-spacing: -0.015em;">Identidad de los agentes</span>
+      <span style="font-size: 15px; color: #3D4540; max-width: 780px; line-height: 1.5;">Cada agente es un robot con color y forma propios. La forma de la cabeza y de los ojos cambia por rol, así se distinguen también sin depender del color.</span>
+    </div>
+    <div style="display: flex; gap: 18px; font-size: 12px; color: #5F6863;">
+      <span>Cabeza: cuadrada · redonda</span>
+      <span>Ojos: redondos · cuadrados · anchos · visor</span>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 18px;">
+    <!-- Lead -->
+    <div style="display: flex; flex-direction: column; gap: 14px; padding: 20px; background: #1A1F1C; color: #E5E8E3; border-radius: 10px;">
+      <div style="width: 104px; height: 104px; border-radius: 18px; background: #FBFBF9; display: flex; align-items: center; justify-content: center;">
+        <svg width="88" height="88" viewBox="0 0 28 28" style="display: block;">
+          <line x1="14" y1="4.5" x2="14" y2="8" stroke="#1A1F1C" stroke-width="1.8"></line>
+          <circle class="think" cx="14" cy="3.6" r="2.1" fill="#F06A3F"></circle>
+          <rect x="2.2" y="12.5" width="2.6" height="6" rx="1.2" fill="#1A1F1C"></rect>
+          <rect x="23.2" y="12.5" width="2.6" height="6" rx="1.2" fill="#1A1F1C"></rect>
+          <rect x="4.5" y="7.5" width="19" height="16" rx="2.5" fill="#1A1F1C"></rect>
+          <rect x="7" y="10.5" width="14" height="8.5" rx="3" fill="#FBFBF9"></rect>
+          <rect x="9" y="13.5" width="10" height="2.6" rx="1.3" fill="#F06A3F"></rect>
+        </svg>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <span style="font-weight: 800; font-size: 22px; color: #FBFBF9;">QA Lead</span>
+        <span class="mono" style="font-size: 11px; color: #F0A58C;">ORQUESTADOR · #1A1F1C + #F06A3F</span>
+      </div>
+      <span style="font-size: 14px; line-height: 1.5; color: #B8C0BA;">Recibe el objetivo, arma el equipo y habla último: fusiona lo que dicen los demás y decide la prioridad. Es el único con visor de color y su apunte siempre va en fondo oscuro.</span>
+    </div>
+
+    <!-- Specialists -->
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;">
+      <sc-for list="{{agents}}" as="a" hint-placeholder-count="12">
+        <div style="display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; align-items: start; height: 106px; box-sizing: border-box; padding: 12px 14px; background: {{a.tint}}; border-radius: 10px;">
+          <svg width="44" height="44" viewBox="0 0 28 28" style="display: block;">
+            <line x1="14" y1="4.5" x2="14" y2="8" stroke="{{a.color}}" stroke-width="1.8"></line>
+            <circle cx="14" cy="3.6" r="2.1" fill="{{a.color}}"></circle>
+            <rect x="2.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{a.color}}"></rect>
+            <rect x="23.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{a.color}}"></rect>
+            <rect x="4.5" y="7.5" width="19" height="16" rx="{{a.headRx}}" fill="{{a.color}}"></rect>
+            <rect x="7" y="10.5" width="14" height="8.5" rx="3" fill="#FBFBF9"></rect>
+            <rect x="{{a.lx}}" y="{{a.ey}}" width="{{a.ew}}" height="{{a.eh}}" rx="{{a.er}}" fill="#1A1F1C"></rect>
+            <rect x="{{a.rx}}" y="{{a.ey}}" width="{{a.rw}}" height="{{a.eh}}" rx="{{a.er}}" fill="#1A1F1C"></rect>
+          </svg>
+          <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+            <span style="font-weight: 750; font-size: 15px;">{{a.name}}</span>
+            <span style="font-size: 12.5px; line-height: 1.35; color: #3D4540;">{{a.role}}</span>
+            <span class="mono" style="font-size: 10.5px; color: #5F6863; margin-top: 2px;">{{a.color}} · {{a.shape}}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- Motion specimens -->
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; flex-grow: 1;">
+
+    <div style="display: flex; flex-direction: column; gap: 12px; padding: 18px 20px; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 10px;">
+      <span style="font-weight: 750; font-size: 16px;">Apunte nuevo</span>
+      <div style="flex-grow: 1; display: flex; align-items: center; padding: 6px 0;">
+        <div class="pop-loop" style="display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 8px; align-items: start; width: 100%;">
+          <svg width="30" height="30" viewBox="0 0 28 28" style="display: block;">
+            <line x1="14" y1="4.5" x2="14" y2="8" stroke="#16907F" stroke-width="1.8"></line>
+            <circle cx="14" cy="3.6" r="2.1" fill="#16907F"></circle>
+            <rect x="2.2" y="12.5" width="2.6" height="6" rx="1.2" fill="#16907F"></rect>
+            <rect x="23.2" y="12.5" width="2.6" height="6" rx="1.2" fill="#16907F"></rect>
+            <rect x="4.5" y="7.5" width="19" height="16" rx="2.5" fill="#16907F"></rect>
+            <rect x="7" y="10.5" width="14" height="8.5" rx="3" fill="#FBFBF9"></rect>
+            <rect x="9.5" y="13.3" width="3" height="3" rx="0.5" fill="#1A1F1C"></rect>
+            <rect x="15.5" y="13.3" width="3" height="3" rx="0.5" fill="#1A1F1C"></rect>
+          </svg>
+          <div style="background: #DDF0EC; border-radius: 3px 10px 10px 10px; padding: 7px 11px 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-size: 12px; font-weight: 700;">API REST</span><span class="mono" style="font-size: 10px; color: #5F6863;">02:31.6</span></div>
+            <ul style="margin: 2px 0 0; padding-left: 15px; font-size: 12.5px; line-height: 1.4;"><li>POST /api/orders → 500</li><li>La respuesta trae orderId: null</li></ul>
+          </div>
+        </div>
+      </div>
+      <span style="font-size: 13px; line-height: 1.5; color: #3D4540;">Entra en 320 ms, subiendo 6 px. Si llegan varios, se escalonan cada 120 ms. Burbuja con el tinte del agente y viñetas cortas, ancladas a un evento.</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px; padding: 18px 20px; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 10px;">
+      <span style="font-weight: 750; font-size: 16px;">Coinciden en un punto</span>
+      <div style="flex-grow: 1; position: relative; display: flex; align-items: center; justify-content: center;">
+        <div style="position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: #C9CEC6;"></div>
+        <div style="position: absolute; left: 50%; top: calc(50% + 8px); width: 3px; height: 16px; background: #B42318;"></div>
+        <div style="position: relative; display: flex; align-items: center; margin-top: -26px;">
+          <span class="ring" style="position: absolute; left: 0; top: 0; width: 32px; height: 32px; border-radius: 50%; border: 2px solid #D9481F; box-sizing: border-box;"></span>
+          <sc-for list="{{cluster}}" as="r" hint-placeholder-count="3">
+            <div class="bob" style="margin-left: {{r.ml}}; width: 32px; height: 32px; border-radius: 50%; background: #FBFBF9; box-shadow: 0 0 0 2px #FBFBF9; animation-delay: {{r.delay}};">
+              <svg width="32" height="32" viewBox="0 0 28 28" style="display: block;">
+                <line x1="14" y1="4.5" x2="14" y2="8" stroke="{{r.color}}" stroke-width="1.8"></line>
+                <circle cx="14" cy="3.6" r="2.1" fill="{{r.color}}"></circle>
+                <rect x="2.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{r.color}}"></rect>
+                <rect x="23.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{r.color}}"></rect>
+                <rect x="4.5" y="7.5" width="19" height="16" rx="{{r.headRx}}" fill="{{r.color}}"></rect>
+                <rect x="7" y="10.5" width="14" height="8.5" rx="3" fill="#FBFBF9"></rect>
+                <rect x="{{r.lx}}" y="{{r.ey}}" width="{{r.ew}}" height="{{r.eh}}" rx="{{r.er}}" fill="#1A1F1C"></rect>
+                <rect x="{{r.rx}}" y="{{r.ey}}" width="{{r.rw}}" height="{{r.eh}}" rx="{{r.er}}" fill="#1A1F1C"></rect>
+              </svg>
+            </div>
+          </sc-for>
+          <span class="mono" style="margin-left: 6px; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 9px; background: #D9481F; color: #FFFFFF;">×3</span>
+        </div>
+      </div>
+      <span style="font-size: 13px; line-height: 1.5; color: #3D4540;">Los avatares se agrupan sobre el evento, flotando con un desfase de 150 ms. Un anillo pulsa cada 2 s hasta que el QA abre el punto; después queda fijo.</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px; padding: 18px 20px; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 10px;">
+      <span style="font-weight: 750; font-size: 16px;">Comparten datos</span>
+      <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <svg width="36" height="36" viewBox="0 0 28 28" style="display: block; flex-shrink: 0;">
+            <line x1="14" y1="4.5" x2="14" y2="8" stroke="#16907F" stroke-width="1.8"></line>
+            <circle cx="14" cy="3.6" r="2.1" fill="#16907F"></circle>
+            <rect x="2.2" y="12.5" width="2.6" height="6" rx="1.2" fill="#16907F"></rect>
+            <rect x="23.2" y="12.5" width="2.6" height="6" rx="1.2" fill="#16907F"></rect>
+            <rect x="4.5" y="7.5" width="19" height="16" rx="2.5" fill="#16907F"></rect>
+            <rect x="7" y="10.5" width="14" height="8.5" rx="3" fill="#FBFBF9"></rect>
+            <rect x="9.5" y="13.3" width="3" height="3" rx="0.5" fill="#1A1F1C"></rect>
+            <rect x="15.5" y="13.3" width="3" height="3" rx="0.5" fill="#1A1F1C"></rect>
+          </svg>
+          <div style="position: relative; flex-grow: 1; height: 14px;">
+            <div class="dash" style="position: absolute; left: 0; right: 0; top: 6px; height: 2px;"></div>
+            <span class="travel" style="position: absolute; top: 2px; width: 10px; height: 10px; border-radius: 50%; background: #16907F;"></span>
+          </div>
+          <svg width="36" height="36" viewBox="0 0 28 28" style="display: block; flex-shrink: 0;">
+            <line x1="14" y1="4.5" x2="14" y2="8" stroke="#B7801A" stroke-width="1.8"></line>
+            <circle class="think" cx="14" cy="3.6" r="2.1" fill="#B7801A"></circle>
+            <rect x="2.2" y="12.5" width="2.6" height="6" rx="1.2" fill="#B7801A"></rect>
+            <rect x="23.2" y="12.5" width="2.6" height="6" rx="1.2" fill="#B7801A"></rect>
+            <rect x="4.5" y="7.5" width="19" height="16" rx="2.5" fill="#B7801A"></rect>
+            <rect x="7" y="10.5" width="14" height="8.5" rx="3" fill="#FBFBF9"></rect>
+            <rect x="9.4" y="13.2" width="3.2" height="3.2" rx="1.6" fill="#1A1F1C"></rect>
+            <rect x="15.4" y="13.2" width="3.2" height="3.2" rx="1.6" fill="#1A1F1C"></rect>
+          </svg>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 650;"><span>API REST</span><span class="mono" style="font-weight: 400; color: #5F6863;">response body · 214 B</span><span>Front-end</span></div>
+      </div>
+      <span style="font-size: 13px; line-height: 1.5; color: #3D4540;">Un punto con el color de quien envía recorre la línea en 1,6 s; la antena de quien recibe parpadea mientras lo procesa. El intercambio queda en la conversación del equipo.</span>
+    </div>
+  </div>
+
+  <span style="font-size: 12.5px; color: #5F6863;">Con “reducir movimiento” activado en el sistema, todo se muestra en su estado final, sin animación.</span>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var list = [
+      ['Funcional', '#2F7FBF', '#E3EEF7', true, 'round', 'Flujos, validaciones y criterios. Lee acciones UI.'],
+      ['API REST', '#16907F', '#DDF0EC', false, 'square', 'Status, contrato y latencias. Lee la red.'],
+      ['Tiempo real', '#7B5CC9', '#ECE6F7', true, 'visor', 'Orden y reconexión de sockets. Lee WS y SSE.'],
+      ['Front-end', '#B7801A', '#F5EBD9', false, 'round', 'Errores JS ligados a su acción. Lee la consola.'],
+      ['Rendimiento', '#B8507A', '#F5E3EA', true, 'wide', 'Web Vitals y tareas largas por pantalla.'],
+      ['Seguridad', '#4B5A9E', '#E4E7F3', false, 'visor', 'Headers, cookies, tokens y datos expuestos.'],
+      ['Accesibilidad', '#5E7F1F', '#EAF0DC', true, 'round', 'WCAG 2.2 sobre el DOM de cada pantalla.'],
+      ['UI/UX', '#8C6A4F', '#EFE8E1', false, 'wide', 'Consistencia visual y heurísticas de Nielsen.'],
+      ['Ambiente', '#5F6863', '#E6E9E5', true, 'square', 'Versiones, flags y diferencias entre ambientes.'],
+      ['Carga', '#3D6B7A', '#E0EAEC', false, 'round', 'Escenarios k6 desde el tráfico real.'],
+      ['Regresión', '#8A7A2A', '#F0ECD8', true, 'visor', 'Compara contra una sesión base.'],
+      ['Reportero', '#2F4858', '#E1E6EA', false, 'wide', 'Bugs y resultados hacia Jira, Xray y Slack.']
+    ];
+    var EYES = { round: [3.2, 3.2, 1.6, 13.2], square: [3, 3, 0.5, 13.3], wide: [4.4, 2, 1, 13.8], visor: [10, 2.6, 1.3, 13.5] };
+    var EYE_NAME = { round: 'ojos redondos', square: 'ojos cuadrados', wide: 'ojos anchos', visor: 'visor' };
+    function shape(round, eyes) {
+      var E = EYES[eyes], single = eyes === 'visor';
+      return { headRx: round ? 7 : 2.5, ew: E[0], eh: E[1], er: E[2], ey: E[3], lx: single ? 9 : 11 - E[0] / 2, rx: single ? 0 : 17 - E[0] / 2, rw: single ? 0 : E[0] };
+    }
+    var agents = list.map(function (a) {
+      var s = shape(a[3], a[4]);
+      s.name = a[0]; s.color = a[1]; s.tint = a[2]; s.role = a[5];
+      s.shape = (a[3] ? 'redonda' : 'cuadrada') + ', ' + EYE_NAME[a[4]];
+      return s;
+    });
+    var cluster = [
+      [list[1], 0], [list[0], 1], [list[3], 2]
+    ].map(function (p) {
+      var a = p[0], s = shape(a[3], a[4]);
+      s.color = a[1]; s.ml = p[1] === 0 ? '0' : '-9px'; s.delay = (p[1] * 0.15) + 's';
+      return s;
+    });
+    return { agents: agents, cluster: cluster };
+  }
+}
+</script>
+</body>
+</html>

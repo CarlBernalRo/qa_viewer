@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap">
+  <style>
+    body { margin: 0; background: #E3E6E0; }
+    a { color: #2F7FBF; } a:hover { color: #1A1F1C; }
+    .mono { font-family: 'JetBrains Mono', Consolas, 'Courier New', monospace; }
+    .cap { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: #5F6863; }
+    @keyframes rb-rec { 0%, 100% { box-shadow: 0 0 0 4px rgba(240,106,63,0.25); } 50% { box-shadow: 0 0 0 7px rgba(240,106,63,0.08); } }
+    .rec { animation: rb-rec 1.4s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) { .rec { animation: none !important; } }
+  </style>
+</helmet>
+<div style="width: 640px; height: 560px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; padding: 28px; background: #E3E6E0; color: #1A1F1C; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-size: 14px;">
+  <div style="display: flex; flex-direction: column; gap: 4px;">
+    <span style="font-weight: 800; font-stretch: 110%; font-size: 22px;">Barra de grabación</span>
+    <span style="font-size: 13px; color: #3D4540; line-height: 1.45;">Flota sobre el navegador controlado y no aparece en el video. Muestra qué agentes analizarán la sesión al detener.</span>
+  </div>
+
+  <span class="cap">Con agentes</span>
+  <div style="display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; background: #1A1F1C; color: #E5E8E3; border-radius: 12px; box-shadow: 0 6px 18px rgba(26,31,28,0.3);">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="rec" style="width: 10px; height: 10px; border-radius: 50%; background: #F06A3F;"></span>
+      <span class="mono" style="font-size: 12px; font-weight: 600; color: #F06A3F;">REC</span>
+      <span class="mono" style="font-size: 20px; font-weight: 600; color: #FBFBF9;">02:41</span>
+      <div style="flex-grow: 1;"></div>
+      <span class="mono" style="font-size: 11px; color: #9AA39D;">27 acciones · 162 req · 2 errores</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: #232A26; border-radius: 8px;">
+      <div style="display: flex; align-items: center;">
+        <sc-for list="{{team}}" as="r" hint-placeholder-count="7">
+          <div style="margin-left: {{r.ml}}; width: 22px; height: 22px; border-radius: 50%; background: #FBFBF9; box-shadow: 0 0 0 1.5px #232A26;">
+            <svg width="22" height="22" viewBox="0 0 28 28" style="display: block;">
+              <line x1="14" y1="4.5" x2="14" y2="8" stroke="{{r.color}}" stroke-width="1.8"></line>
+              <circle cx="14" cy="3.6" r="2.1" fill="{{r.ant}}"></circle>
+              <rect x="2.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{r.color}}"></rect>
+              <rect x="23.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{r.color}}"></rect>
+              <rect x="4.5" y="7.5" width="19" height="16" rx="{{r.headRx}}" fill="{{r.color}}"></rect>
+              <rect x="7" y="10.5" width="14" height="8.5" rx="3" fill="#FBFBF9"></rect>
+              <rect x="{{r.lx}}" y="{{r.ey}}" width="{{r.ew}}" height="{{r.eh}}" rx="{{r.er}}" fill="{{r.eyeFill}}"></rect>
+              <rect x="{{r.rx}}" y="{{r.ey}}" width="{{r.rw}}" height="{{r.eh}}" rx="{{r.er}}" fill="{{r.eyeFill}}"></rect>
+            </svg>
+          </div>
+        </sc-for>
+      </div>
+      <span style="font-size: 12.5px; color: #C9D0CB;">10 agentes analizarán al detener</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="font-size: 12px; color: #9AA39D; margin-right: 4px;">Marcar como evidencia de</span>
+      <span class="mono" style="font-size: 11px; padding: 3px 7px; border-radius: 4px; background: #2A312D;">CA1</span>
+      <span class="mono" style="font-size: 11px; padding: 3px 7px; border-radius: 4px; background: #F06A3F; color: #1A1F1C; font-weight: 600;">CA2</span>
+      <span class="mono" style="font-size: 11px; padding: 3px 7px; border-radius: 4px; background: #2A312D;">CA3</span>
+      <span class="mono" style="font-size: 11px; padding: 3px 7px; border-radius: 4px; background: #2A312D;">CA4</span>
+    </div>
+    <div style="display: flex; gap: 6px;">
+      <span style="flex-grow: 1; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: #2A312D; font-size: 13px; font-weight: 600;">Agregar nota</span>
+      <span style="flex-grow: 1; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: #FBFBF9; color: #1A1F1C; font-size: 13px; font-weight: 700;">Detener y analizar</span>
+    </div>
+  </div>
+
+  <span class="cap">Sin agentes</span>
+  <div style="display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; background: #1A1F1C; color: #E5E8E3; border-radius: 12px; box-shadow: 0 6px 18px rgba(26,31,28,0.3);">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="rec" style="width: 10px; height: 10px; border-radius: 50%; background: #F06A3F;"></span>
+      <span class="mono" style="font-size: 12px; font-weight: 600; color: #F06A3F;">REC</span>
+      <span class="mono" style="font-size: 20px; font-weight: 600; color: #FBFBF9;">02:41</span>
+      <div style="flex-grow: 1;"></div>
+      <span class="mono" style="font-size: 10.5px; padding: 3px 7px; border-radius: 4px; border: 1px solid #3D4540; color: #C9D0CB;">SOLO REGLAS FIJAS</span>
+    </div>
+    <div style="display: flex; gap: 6px;">
+      <span style="flex-grow: 1; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: #2A312D; font-size: 13px; font-weight: 600;">Marcar momento</span>
+      <span style="flex-grow: 1; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: #FBFBF9; color: #1A1F1C; font-size: 13px; font-weight: 700;">Detener</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":640,"height":560}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var AG = {
+      lead: ['#1A1F1C', false, 'visor', '#F06A3F'],
+      func: ['#2F7FBF', true, 'round'],
+      api: ['#16907F', false, 'square'],
+      rt: ['#7B5CC9', true, 'visor'],
+      fe: ['#B7801A', false, 'round'],
+      perf: ['#B8507A', true, 'wide'],
+      sec: ['#4B5A9E', false, 'visor'],
+      a11y: ['#5E7F1F', true, 'round'],
+      ux: ['#8C6A4F', false, 'wide'],
+      rep: ['#2F4858', false, 'wide']
+    };
+    var E = { round: [3.2, 3.2, 1.6, 13.2], square: [3, 3, 0.5, 13.3], wide: [4.4, 2, 1, 13.8], visor: [10, 2.6, 1.3, 13.5] };
+    var team = ['lead', 'func', 'api', 'rt', 'fe', 'perf', 'sec', 'a11y', 'ux', 'rep'].map(function (k, i) {
+      var a = AG[k], e = E[a[2]], single = a[2] === 'visor';
+      return { color: a[0], headRx: a[1] ? 7 : 2.5, ew: e[0], eh: e[1], er: e[2], ey: e[3], lx: single ? 9 : 11 - e[0] / 2, rx: single ? 0 : 17 - e[0] / 2, rw: single ? 0 : e[0],
+        eyeFill: a[3] || '#1A1F1C', ant: a[3] || a[0], ml: i === 0 ? '0' : '-7px' };
+    });
+    return { team: team };
+  }
+}
+</script>
+</body>
+</html>

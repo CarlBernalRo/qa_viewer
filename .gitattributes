@@ -1,0 +1,10 @@
+# Saltos de línea LF en todo el repo, sin importar el sistema operativo.
+* text=auto eol=lf
+
+# Binarios
+*.png binary
+*.ico binary
+*.icns binary
+*.webm binary
+*.mp4 binary
+*.woff2 binary

@@ -1,0 +1,297 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap">
+  <style>
+    body { margin: 0; background: #F1F2EF; }
+    a { color: #2F7FBF; } a:hover { color: #1A1F1C; }
+    .mono { font-family: 'JetBrains Mono', Consolas, 'Courier New', monospace; }
+    .cap { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: #5F6863; }
+    @keyframes rb-pop { from { opacity: 0; transform: translateY(6px) scale(0.97); } to { opacity: 1; transform: none; } }
+    .pop { animation: rb-pop 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+    @keyframes rb-travel { 0% { left: 0; opacity: 0; } 12% { opacity: 1; } 88% { opacity: 1; } 100% { left: calc(100% - 8px); opacity: 0; } }
+    .travel { animation: rb-travel 1.6s ease-in-out infinite; }
+    @keyframes rb-dash { to { background-position: 16px 0; } }
+    .dash { background-image: linear-gradient(90deg, #9AA39D 50%, transparent 50%); background-size: 8px 1.5px; background-repeat: repeat-x; animation: rb-dash 0.8s linear infinite; }
+    @keyframes rb-think { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+    .think { animation: rb-think 1.1s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) { .pop, .travel, .dash, .think { animation: none !important; } }
+  </style>
+</helmet>
+<div style="width: 1440px; height: 900px; display: flex; flex-direction: column; background: #F1F2EF; color: #1A1F1C; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-size: 14px; overflow: hidden;">
+
+  <div style="height: 52px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; padding: 0 20px; background: #FBFBF9; border-bottom: 1px solid #D9DCD6;">
+    <div style="display: flex; align-items: center; gap: 8px; width: 172px;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #D9481F;"></span>
+      <span style="font-weight: 800; font-size: 19px; font-stretch: 115%; letter-spacing: -0.01em;">Rastro</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; color: #5F6863;">
+      <span>Checkout web</span>
+      <span style="color: #B9BEB7;">/</span>
+      <span>Sesión #148</span>
+      <span style="color: #B9BEB7;">/</span>
+      <span style="color: #1A1F1C; font-weight: 600;">Análisis con agentes</span>
+    </div>
+    <div style="flex-grow: 1;"></div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="font-size: 13px; color: #5F6863;">Iniciado 14:02 · 1 min 48 s</span>
+      <div style="height: 34px; padding: 0 14px; display: flex; align-items: center; border: 1px solid #B9BEB7; border-radius: 6px; font-weight: 600;">Detener análisis</div>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0;">
+    <div style="width: 208px; flex-shrink: 0; display: flex; flex-direction: column; gap: 2px; padding: 16px 12px; border-right: 1px solid #D9DCD6; background: #F1F2EF;">
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7"></circle><circle cx="10" cy="10" r="3" fill="currentColor" stroke="none"></circle></svg>Sesiones</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="9" r="5.5"></circle><path d="M13 13l4 4"></path></svg><span style="flex-grow: 1;">Hallazgos</span><span class="mono" style="font-size: 11px; color: #5F6863;">14</span></div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 6px; background: #E1E5DF; font-weight: 650;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="5" r="2.2"></circle><circle cx="4.5" cy="15" r="2.2"></circle><circle cx="15.5" cy="15" r="2.2"></circle><path d="M10 7.2v3.3M10 10.5l-4 2.8M10 10.5l4 2.8"></path></svg>Agentes</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3l7 4-7 4-7-4 7-4z"></path><path d="M3 11l7 4 7-4"></path></svg>Ambientes</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h11l-3-3M16 13H5l3 3"></path></svg>Comparaciones</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h14M3 14h14"></path><circle cx="7" cy="6" r="2" fill="#F1F2EF"></circle><circle cx="13" cy="14" r="2" fill="#F1F2EF"></circle></svg>Ajustes del proyecto</div>
+      <div style="flex-grow: 1;"></div>
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 10px; border-top: 1px solid #D9DCD6;">
+        <span class="cap">Proyecto</span>
+        <span style="font-weight: 600;">Mercadito</span>
+        <span style="color: #5F6863; font-size: 13px;">3 ambientes · 148 sesiones</span>
+      </div>
+    </div>
+
+    <div style="flex-grow: 1; display: flex; gap: 16px; padding: 16px; min-width: 0;">
+
+      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 14px; min-width: 0;">
+        <!-- Phase filter -->
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-weight: 750; font-stretch: 108%; font-size: 22px;">Equipo de agentes</span>
+          <div style="flex-grow: 1;"></div>
+          <span class="cap">Fase QA</span>
+          <div style="display: flex; padding: 3px; gap: 2px; background: #E1E5DF; border-radius: 7px;">
+            <sc-for list="{{phases}}" as="p" hint-placeholder-count="8">
+              <span style="font-size: 12.5px; padding: 5px 10px; border-radius: 5px; background: {{p.bg}}; color: {{p.fg}}; font-weight: {{p.weight}}; box-shadow: {{p.shadow}};">{{p.name}}</span>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- Orchestrator -->
+        <div style="display: grid; grid-template-columns: 52px minmax(0, 1fr) 280px; gap: 18px; align-items: center; padding: 16px 20px; background: #1A1F1C; color: #E5E8E3; border-radius: 8px;">
+          <div style="width: 52px; height: 52px; border-radius: 12px; background: #FBFBF9; display: flex; align-items: center; justify-content: center;">
+            <svg width="44" height="44" viewBox="0 0 28 28" style="display: block;">
+              <line x1="14" y1="4.5" x2="14" y2="8" stroke="#1A1F1C" stroke-width="1.8"></line>
+              <circle class="think" cx="14" cy="3.6" r="2.1" fill="#F06A3F"></circle>
+              <rect x="2.2" y="12.5" width="2.6" height="6" rx="1.2" fill="#1A1F1C"></rect>
+              <rect x="23.2" y="12.5" width="2.6" height="6" rx="1.2" fill="#1A1F1C"></rect>
+              <rect x="4.5" y="7.5" width="19" height="16" rx="2.5" fill="#1A1F1C"></rect>
+              <rect x="7" y="10.5" width="14" height="8.5" rx="3" fill="#FBFBF9"></rect>
+              <rect x="9" y="13.5" width="10" height="2.6" rx="1.3" fill="#F06A3F"></rect>
+            </svg>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-weight: 750; font-size: 18px; color: #FBFBF9;">QA Lead</span>
+              <span class="mono" style="font-size: 11px; padding: 2px 7px; border-radius: 3px; background: #D9481F; color: #FFF;">ORQUESTADOR</span>
+              <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #F0A58C;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #F06A3F;"></span>Consolidando hallazgos</span>
+            </div>
+            <span style="font-size: 13.5px; color: #B8C0BA; line-height: 1.5;"><span style="color: #FBFBF9; font-weight: 600;">Objetivo:</span> un cliente paga con tarjeta y ve su pedido en Mis pedidos. CA1 y CA2 ya tienen evidencia de fallo; falta UI/UX para cerrar el informe.</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; justify-content: space-between; font-size: 13px;"><span>Especialistas activos terminados</span><span class="mono">8 / 10</span></div>
+            <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 3px;">
+              <sc-for list="{{segments}}" as="s" hint-placeholder-count="12"><span style="height: 8px; border-radius: 2px; background: {{s.bg}};"></span></sc-for>
+            </div>
+          </div>
+        </div>
+
+        <!-- Agent grid -->
+        <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;">
+          <sc-for list="{{agents}}" as="a" hint-placeholder-count="12">
+            <div style="display: flex; flex-direction: column; gap: 9px; height: 150px; box-sizing: border-box; padding: 12px 14px 14px; background: {{a.cardBg}}; border: 1px solid {{a.cardBorder}}; border-radius: 8px; opacity: {{a.op}};">
+              <div style="display: flex; align-items: center; gap: 9px;">
+                <svg width="30" height="30" viewBox="0 0 28 28" style="display: block; flex-shrink: 0;">
+                  <line x1="14" y1="4.5" x2="14" y2="8" stroke="{{a.r.color}}" stroke-width="1.8"></line>
+                  <circle class="{{a.r.antClass}}" cx="14" cy="3.6" r="2.1" fill="{{a.r.color}}"></circle>
+                  <rect x="2.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{a.r.color}}"></rect>
+                  <rect x="23.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{a.r.color}}"></rect>
+                  <rect x="4.5" y="7.5" width="19" height="16" rx="{{a.r.headRx}}" fill="{{a.r.color}}"></rect>
+                  <rect x="7" y="10.5" width="14" height="8.5" rx="3" fill="#FBFBF9"></rect>
+                  <rect x="{{a.r.lx}}" y="{{a.r.ey}}" width="{{a.r.ew}}" height="{{a.r.eh}}" rx="{{a.r.er}}" fill="{{a.r.eyeFill}}"></rect>
+                  <rect x="{{a.r.rx}}" y="{{a.r.ey}}" width="{{a.r.rw}}" height="{{a.r.eh}}" rx="{{a.r.er}}" fill="{{a.r.eyeFill}}"></rect>
+                </svg>
+                <span style="font-weight: 700; font-size: 15px; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{a.r.name}}</span>
+                <span style="display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: {{a.stFg}}; white-space: nowrap;"><span style="width: 7px; height: 7px; border-radius: 50%; background: {{a.stDot}};"></span>{{a.status}}</span>
+              </div>
+              <span style="font-size: 12.5px; line-height: 1.4; color: #3D4540; flex-grow: 1;">{{a.note}}</span>
+              <div style="height: 3px; background: #E4E7E1; border-radius: 2px; overflow: hidden;"><div style="height: 100%; width: {{a.progress}}; background: {{a.barBg}};"></div></div>
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; gap: 3px;">
+                  <sc-for list="{{a.channels}}" as="c" hint-placeholder-count="3"><span title="{{c.name}}" style="width: 10px; height: 10px; border-radius: 2px; background: {{c.color}};"></span></sc-for>
+                </div>
+                <span class="mono" style="font-size: 11.5px; color: #3D4540;">{{a.result}}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display: flex; gap: 16px; font-size: 12px; color: #5F6863; flex-wrap: wrap;">
+          <span>Canales que lee cada agente:</span>
+          <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 9px; height: 9px; border-radius: 2px; background: #2F7FBF;"></span>Acciones UI</span>
+          <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 9px; height: 9px; border-radius: 2px; background: #16907F;"></span>Red REST</span>
+          <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 9px; height: 9px; border-radius: 2px; background: #7B5CC9;"></span>WebSocket</span>
+          <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 9px; height: 9px; border-radius: 2px; background: #B7801A;"></span>Consola</span>
+          <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 9px; height: 9px; border-radius: 2px; background: #B8507A;"></span>Rendimiento</span>
+          <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 9px; height: 9px; border-radius: 2px; background: #7A847E;"></span>Capturas y DOM</span>
+        </div>
+      </div>
+
+      <!-- Team conversation -->
+      <div style="width: 356px; flex-shrink: 0; display: flex; flex-direction: column; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 8px; overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #E4E7E1;">
+          <span style="font-weight: 700;">Conversación del equipo</span>
+          <span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #B03A12;"><span class="think" style="width: 7px; height: 7px; border-radius: 50%; background: #D9481F;"></span>en vivo</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: #F1F2EF; border-bottom: 1px solid #E4E7E1;">
+          <span class="cap">Intercambio en curso</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 650; white-space: nowrap;"><span style="width: 10px; height: 10px; border-radius: 3px; background: #16907F;"></span>API REST</span>
+            <div style="position: relative; flex-grow: 1; height: 12px;">
+              <div class="dash" style="position: absolute; left: 0; right: 0; top: 5px; height: 1.5px;"></div>
+              <span class="travel" style="position: absolute; top: 2px; width: 8px; height: 8px; border-radius: 50%; background: #16907F;"></span>
+            </div>
+            <span style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 650; white-space: nowrap;">Front-end<span style="width: 10px; height: 10px; border-radius: 3px; background: #B7801A;"></span></span>
+          </div>
+          <span class="mono" style="font-size: 11px; color: #5F6863;">response body de POST /api/orders · 214 B</span>
+        </div>
+        <div style="flex-grow: 1; display: flex; flex-direction: column; padding: 6px 16px; overflow: hidden;">
+          <sc-for list="{{log}}" as="l" hint-placeholder-count="11">
+            <div class="{{l.cls}}" style="display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; padding: 7px 0; border-bottom: 1px solid #EEF0EC; animation-delay: {{l.delay}};">
+              <svg width="24" height="24" viewBox="0 0 28 28" style="display: block;">
+                <line x1="14" y1="4.5" x2="14" y2="8" stroke="{{l.r.color}}" stroke-width="1.8"></line>
+                <circle class="{{l.r.antClass}}" cx="14" cy="3.6" r="2.1" fill="{{l.r.color}}"></circle>
+                <rect x="2.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{l.r.color}}"></rect>
+                <rect x="23.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{l.r.color}}"></rect>
+                <rect x="4.5" y="7.5" width="19" height="16" rx="{{l.r.headRx}}" fill="{{l.r.color}}"></rect>
+                <rect x="7" y="10.5" width="14" height="8.5" rx="3" fill="#FBFBF9"></rect>
+                <rect x="{{l.r.lx}}" y="{{l.r.ey}}" width="{{l.r.ew}}" height="{{l.r.eh}}" rx="{{l.r.er}}" fill="{{l.r.eyeFill}}"></rect>
+                <rect x="{{l.r.rx}}" y="{{l.r.ey}}" width="{{l.r.rw}}" height="{{l.r.eh}}" rx="{{l.r.er}}" fill="{{l.r.eyeFill}}"></rect>
+              </svg>
+              <div style="display: flex; flex-direction: column; gap: 1px;">
+                <div style="display: flex; align-items: baseline; gap: 8px;">
+                  <span style="font-size: 12px; font-weight: 700;">{{l.r.name}}</span>
+                  <span class="mono" style="font-size: 10.5px; color: #7A847E;">{{l.t}}</span>
+                </div>
+                <span style="font-size: 12.5px; line-height: 1.4; color: #1A1F1C; font-weight: {{l.weight}};">{{l.msg}}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="padding: 12px 16px; border-top: 1px solid #E4E7E1; display: flex; flex-direction: column; gap: 4px;">
+          <span class="cap">Privacidad</span>
+          <span style="font-size: 12.5px; color: #3D4540; line-height: 1.45;">6 campos se ocultaron en tu equipo antes de enviar datos a los agentes.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var AG = {
+      lead: ['QA Lead', '#1A1F1C', false, 'visor', '#F06A3F'],
+      func: ['Funcional', '#2F7FBF', true, 'round'],
+      api: ['API REST', '#16907F', false, 'square'],
+      rt: ['Tiempo real', '#7B5CC9', true, 'visor'],
+      fe: ['Front-end', '#B7801A', false, 'round'],
+      perf: ['Rendimiento', '#B8507A', true, 'wide'],
+      sec: ['Seguridad', '#4B5A9E', false, 'visor'],
+      a11y: ['Accesibilidad', '#5E7F1F', true, 'round'],
+      ux: ['UI/UX', '#8C6A4F', false, 'wide'],
+      env: ['Ambiente', '#5F6863', true, 'square'],
+      load: ['Carga', '#3D6B7A', false, 'round'],
+      reg: ['Regresión', '#8A7A2A', true, 'visor'],
+      rep: ['Reportero', '#2F4858', false, 'wide']
+    };
+    function robot(key, anim) {
+      var a = AG[key];
+      var E = { round: [3.2, 3.2, 1.6, 13.2], square: [3, 3, 0.5, 13.3], wide: [4.4, 2, 1, 13.8], visor: [10, 2.6, 1.3, 13.5] }[a[3]];
+      var single = a[3] === 'visor';
+      return { name: a[0], color: a[1], headRx: a[2] ? 7 : 2.5,
+        ew: E[0], eh: E[1], er: E[2], ey: E[3], lx: single ? 9 : 11 - E[0] / 2, rx: single ? 0 : 17 - E[0] / 2, rw: single ? 0 : E[0],
+        eyeFill: a[4] || '#1A1F1C', antClass: anim ? 'think' : '' };
+    }
+    var C = {
+      ui: { name: 'Acciones UI', color: '#2F7FBF' },
+      net: { name: 'Red REST', color: '#16907F' },
+      ws: { name: 'WebSocket', color: '#7B5CC9' },
+      con: { name: 'Consola', color: '#B7801A' },
+      perf: { name: 'Rendimiento', color: '#B8507A' },
+      dom: { name: 'Capturas y DOM', color: '#7A847E' }
+    };
+    var STATUS = {
+      done: { label: 'Terminado', fg: '#2E7D4F', dot: '#2E7D4F', bar: '#2E7D4F', card: '#FBFBF9', border: '#D9DCD6', op: 1 },
+      run: { label: 'Analizando', fg: '#B03A12', dot: '#D9481F', bar: '#D9481F', card: '#FFFFFF', border: '#E8B9A8', op: 1 },
+      queue: { label: 'En cola', fg: '#5F6863', dot: '#B9BEB7', bar: '#B9BEB7', card: '#F6F7F4', border: '#E1E5DF', op: 1 },
+      skip: { label: 'Omitido', fg: '#8A938D', dot: '#D9DCD6', bar: '#E4E7E1', card: '#F1F2EF', border: '#E1E5DF', op: 0.7 }
+    };
+    var list = [
+      ['env', 'done', 'Ficha: QA, build v2.14.0, API v5.3.1, 2 feature flags activos.', '100%', ['net', 'con'], 'Sin hallazgos'],
+      ['func', 'done', 'Evaluó CA1, CA2 y CA3 en 4 pantallas; propone 6 casos de prueba.', '100%', ['ui', 'net', 'dom'], '2 hallazgos'],
+      ['fe', 'done', 'CA2: agrupó 12 logs en 3 errores ligados a su acción.', '100%', ['con', 'ui'], '2 hallazgos'],
+      ['api', 'done', 'CA1 y CA2: POST /api/orders falla con 500. 96 requests en alcance.', '100%', ['net', 'ui'], '4 hallazgos'],
+      ['rt', 'done', 'CA3: order.status llega por socket, sin id de correlación.', '100%', ['ws', 'net'], '1 hallazgo'],
+      ['perf', 'done', 'CA4 cumplido: “Confirmar pago” respondió en 1,84 s.', '100%', ['perf', 'net'], '2 hallazgos'],
+      ['sec', 'done', 'Revisión base, fuera del objetivo: headers, cookies y payloads.', '100%', ['net', 'con'], '2 hallazgos'],
+      ['a11y', 'done', 'axe-core en 4 pantallas; 1 violación WCAG 2.2 AA.', '100%', ['dom', 'ui'], '1 hallazgo'],
+      ['ux', 'run', 'Revisando 11 capturas de /checkout/pago contra heurísticas de Nielsen.', '64%', ['dom', 'ui'], 'analizando'],
+      ['load', 'skip', 'Omitido: el objetivo no incluye pruebas de carga.', '0%', ['net'], '—'],
+      ['reg', 'skip', 'Omitido: no hay sesión base para este objetivo.', '0%', ['net', 'con', 'dom'], '—'],
+      ['rep', 'queue', 'Enviará a Xray, Jira y Slack cuando confirmes los hallazgos.', '0%', [], '—']
+    ];
+    var agents = list.map(function (a) {
+      var s = STATUS[a[1]];
+      return {
+        r: robot(a[0], a[1] === 'run'), status: s.label, stFg: s.fg, stDot: s.dot, barBg: s.bar, cardBg: s.card, cardBorder: s.border, op: s.op,
+        note: a[2], progress: a[3], channels: a[4].map(function (k) { return C[k]; }), result: a[5]
+      };
+    });
+    var SEG = { done: '#5FBF85', run: '#F06A3F', queue: '#3D4540', skip: '#262C28' };
+    var segments = list.map(function (a) { return { bg: SEG[a[1]] }; });
+    var phaseNames = ['Todas', 'Prep. ambiente', 'Planificación', 'Diseño de casos', 'Ejecución', 'Reporte', 'Regresión', 'Cierre'];
+    var phases = phaseNames.map(function (n, i) {
+      var on = i === 0;
+      return { name: n, bg: on ? '#FBFBF9' : 'transparent', fg: on ? '#1A1F1C' : '#3D4540', weight: on ? 650 : 450, shadow: on ? '0 1px 2px rgba(26,31,28,0.15)' : 'none' };
+    });
+    var logRows = [
+      ['lead', '14:02:01', 'Objetivo de MERC-412: 4 criterios; alcance /checkout/* y /mis-pedidos.', true],
+      ['lead', '14:02:03', '23 señales de reglas fijas; 6 campos sensibles ocultados.'],
+      ['lead', '14:02:04', 'Carga y Regresión quedan fuera: no aportan a este objetivo.'],
+      ['api', '14:02:05', 'Recibí 96 requests en alcance; las 118 de fuera, resumidas.'],
+      ['sec', '14:02:48', 'Token de sesión en la URL. Fuera del objetivo: lo dejo aparte.'],
+      ['api', '14:03:10', 'POST /api/orders → 500 en 02:31.6. Le paso el body a Front-end.'],
+      ['fe', '14:03:11', 'Con ese body: TypeError en OrderSummary.tsx:42.'],
+      ['func', '14:03:12', 'Coincido en 02:31.6: CA2 no se cumple.'],
+      ['lead', '14:03:13', 'Fusiono en H-01 · crítico. CA1 y CA2 no cumplidos; CA4 cumplido.', true],
+      ['ux', '14:03:40', 'Reviso 11 capturas de /checkout/pago; me faltan 4.'],
+      ['lead', '14:03:49', 'Espero a UI/UX para cerrar el informe.']
+    ];
+    var log = logRows.map(function (l, i) {
+      var recent = i >= logRows.length - 3;
+      return { r: robot(l[0], l[0] === 'ux'), t: l[1], msg: l[2], weight: l[3] ? 600 : 400,
+        cls: recent ? 'pop' : '', delay: recent ? ((i - (logRows.length - 3)) * 0.2 + 0.2) + 's' : '0s' };
+    });
+    return { agents: agents, segments: segments, phases: phases, log: log };
+  }
+}
+</script>
+</body>
+</html>

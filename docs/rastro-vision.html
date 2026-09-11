@@ -1,0 +1,552 @@
+<title>Rastro · Visión del producto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #F1F2EF;
+    --surface: #FBFBF9;
+    --ink: #1A1F1C;
+    --muted: #5F6863;
+    --rule: #D9DCD6;
+    --rule-strong: #B9BEB7;
+    --rec: #D9481F;
+    --ch-ui: #2F7FBF;
+    --ch-net: #16907F;
+    --ch-ws: #7B5CC9;
+    --ch-con: #B7801A;
+    --ch-perf: #B8507A;
+    --crit: #B42318;
+    --warn: #B26A00;
+    --ok: #2E7D4F;
+    --code-bg: #E8EAE5;
+    --display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+    --body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #111513;
+      --surface: #181D1A;
+      --ink: #E5E8E3;
+      --muted: #9AA39D;
+      --rule: #2A312D;
+      --rule-strong: #3D4540;
+      --rec: #F06A3F;
+      --ch-ui: #5EA3DE;
+      --ch-net: #3DBBA8;
+      --ch-ws: #A088E6;
+      --ch-con: #DDA540;
+      --ch-perf: #E07AA0;
+      --crit: #F0685C;
+      --warn: #E6A23C;
+      --ok: #5FBF85;
+      --code-bg: #222925;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #111513;
+    --surface: #181D1A;
+    --ink: #E5E8E3;
+    --muted: #9AA39D;
+    --rule: #2A312D;
+    --rule-strong: #3D4540;
+    --rec: #F06A3F;
+    --ch-ui: #5EA3DE;
+    --ch-net: #3DBBA8;
+    --ch-ws: #A088E6;
+    --ch-con: #DDA540;
+    --ch-perf: #E07AA0;
+    --crit: #F0685C;
+    --warn: #E6A23C;
+    --ok: #5FBF85;
+    --code-bg: #222925;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.6;
+    padding-inline: 20px;
+    padding-block: 0 96px;
+  }
+  .page { max-width: 920px; margin: 0 auto; }
+  .prose { max-width: 68ch; }
+
+  a { color: var(--ch-ui); text-underline-offset: 2px; }
+  a:hover { color: var(--ink); }
+  a:focus-visible { outline: 2px solid var(--rec); outline-offset: 2px; border-radius: 2px; }
+
+  /* Masthead */
+  .mast {
+    padding-block: 56px 40px;
+    border-bottom: 1px solid var(--rule-strong);
+    display: grid;
+    gap: 28px;
+  }
+  .kicker {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .rec-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--rec); display: inline-block; }
+  h1 {
+    font-family: var(--display);
+    font-stretch: 112%;
+    font-weight: 800;
+    font-size: clamp(44px, 8vw, 76px);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .lede {
+    font-size: 20px;
+    line-height: 1.5;
+    margin: 0;
+    max-width: 56ch;
+    text-wrap: pretty;
+  }
+
+  /* Channel strip — the product's core idea in miniature */
+  .strip {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 14px 16px;
+    display: grid;
+    gap: 7px;
+    overflow-x: auto;
+  }
+  .lane { display: grid; grid-template-columns: 112px 1fr; align-items: center; gap: 12px; min-width: 520px; }
+  .lane-name { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.04em; }
+  .track { position: relative; height: 14px; border-bottom: 1px dashed var(--rule); }
+  .ev { position: absolute; top: 2px; height: 10px; border-radius: 2px; background: var(--c); }
+  .ev.tick { width: 3px; }
+  .playhead { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--rec); }
+  .strip-foot { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--muted); padding-left: 124px; min-width: 520px; }
+
+  /* Sections */
+  section { padding-block: 48px 8px; display: grid; gap: 18px; }
+  h2 {
+    font-family: var(--display);
+    font-stretch: 108%;
+    font-weight: 750;
+    font-size: 30px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  h3 { font-family: var(--display); font-weight: 700; font-size: 18px; margin: 0; line-height: 1.3; }
+  p { margin: 0; }
+  .label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Verdict */
+  .verdict {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 2px solid var(--ink);
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .verdict > div { padding: 18px 18px 20px 0; display: grid; gap: 6px; align-content: start; }
+  .verdict > div + div { padding-left: 18px; border-left: 1px solid var(--rule); }
+  .verdict .v { font-family: var(--display); font-stretch: 110%; font-weight: 750; font-size: 22px; line-height: 1.2; }
+  .verdict p { font-size: 15px; color: var(--muted); }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; line-height: 1.45; }
+  th, td { text-align: left; vertical-align: top; padding: 11px 14px; border-bottom: 1px solid var(--rule); }
+  tr:last-child td { border-bottom: 0; }
+  th { font-family: var(--mono); font-weight: 500; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: var(--ground); white-space: nowrap; }
+  td strong { font-weight: 650; }
+  .cat { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .comp td:first-child { white-space: nowrap; }
+  .comp { min-width: 760px; }
+
+  /* Gaps */
+  .gaps { display: grid; gap: 0; border-top: 1px solid var(--rule-strong); }
+  .gap-row { display: grid; grid-template-columns: 220px 1fr; gap: 24px; padding-block: 16px; border-bottom: 1px solid var(--rule); }
+  .gap-row p { color: var(--ink); }
+  .gap-row .eg { font-family: var(--mono); font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+  /* Pipeline */
+  .pipe { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0; overflow-x: auto; }
+  .stage { padding: 16px 16px 18px; background: var(--surface); border: 1px solid var(--rule); display: grid; gap: 8px; align-content: start; position: relative; min-width: 138px; }
+  .stage + .stage { border-left: 0; }
+  .stage:first-child { border-radius: 6px 0 0 6px; }
+  .stage:last-child { border-radius: 0 6px 6px 0; }
+  .stage + .stage::before {
+    content: "";
+    position: absolute; left: -7px; top: 22px;
+    width: 12px; height: 12px;
+    background: var(--surface);
+    border-top: 1px solid var(--rule-strong); border-right: 1px solid var(--rule-strong);
+    transform: rotate(45deg);
+  }
+  .stage .step { font-family: var(--mono); font-size: 11px; color: var(--rec); letter-spacing: 0.06em; }
+  .stage ul { margin: 0; padding-left: 16px; font-size: 13.5px; line-height: 1.5; color: var(--muted); display: grid; gap: 3px; }
+  .ai { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+  .ai ul { color: color-mix(in srgb, var(--surface) 78%, transparent); }
+  .ai .step { color: var(--rec); }
+  .stage.ai + .stage::before { border-color: var(--ink); background: var(--ink); }
+
+  /* Matrix */
+  .matrix { min-width: 820px; }
+  .matrix th.ph { text-align: center; white-space: normal; line-height: 1.3; width: 76px; }
+  .matrix td.c { text-align: center; vertical-align: middle; }
+  .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; }
+  .dot.p { background: var(--ink); }
+  .dot.s { border: 1.5px solid var(--muted); }
+  .agent { display: flex; gap: 10px; align-items: baseline; }
+  .agent strong { white-space: nowrap; }
+  .io { font-size: 13px; color: var(--muted); }
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; font-size: 13px; color: var(--muted); align-items: center; }
+  .legend span { display: inline-flex; gap: 8px; align-items: center; }
+  tr.lead td { background: color-mix(in srgb, var(--rec) 7%, var(--surface)); }
+
+  /* Risks */
+  .risks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .risk { border-top: 2px solid var(--ink); padding-top: 12px; display: grid; gap: 6px; align-content: start; }
+  .risk p { font-size: 15px; }
+  .risk .fix { color: var(--muted); }
+  .risk .fix b { color: var(--ink); font-weight: 600; }
+
+  /* Roadmap */
+  .road { display: grid; gap: 0; border-left: 2px solid var(--rule-strong); margin-left: 6px; }
+  .milestone { position: relative; padding: 0 0 26px 26px; display: grid; gap: 6px; }
+  .milestone::before { content: ""; position: absolute; left: -8px; top: 6px; width: 14px; height: 14px; border-radius: 50%; background: var(--ground); border: 2px solid var(--ink); }
+  .milestone.first::before { background: var(--rec); border-color: var(--rec); }
+  .milestone .when { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 0.04em; }
+  .milestone ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 15px; display: grid; gap: 2px; }
+  .milestone .done-when { font-size: 14px; }
+  .milestone .done-when b { font-weight: 600; }
+
+  /* Stack */
+  .stack { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--rule-strong); }
+  .stack > div { display: grid; grid-template-columns: 120px 1fr; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--rule); font-size: 15px; }
+  .stack > div:nth-child(odd) { padding-right: 20px; }
+  .stack > div:nth-child(even) { padding-left: 20px; border-left: 1px solid var(--rule); }
+  code { font-family: var(--mono); font-size: 0.86em; background: var(--code-bg); padding: 1px 5px; border-radius: 3px; }
+
+  .sources { font-size: 14px; color: var(--muted); display: grid; gap: 4px; padding-left: 18px; margin: 0; }
+  footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--rule); font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+  /* Objective */
+  .obj { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; border-top: 1px solid var(--rule-strong); padding-top: 18px; }
+  .obj-col { display: grid; gap: 12px; align-content: start; }
+  .fields { margin: 0; display: grid; grid-template-columns: 150px 1fr; gap: 8px 14px; font-size: 15px; }
+  .fields dt { font-weight: 600; }
+  .fields dd { margin: 0; color: var(--muted); }
+  .guides { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; font-size: 15px; }
+  .guides b { font-weight: 650; }
+  .states { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .state { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.04em; padding: 3px 8px; border-radius: 3px; }
+  .state.ok { background: var(--ok); color: var(--surface); }
+  .state.no { background: var(--crit); color: var(--surface); }
+  .state.na { border: 1px solid var(--rule-strong); color: var(--muted); }
+  .note { font-size: 15px; }
+  .note b { font-weight: 650; }
+
+  @media (max-width: 720px) {
+    .obj { grid-template-columns: 1fr; }
+    .fields { grid-template-columns: 1fr; gap: 2px 0; }
+    .fields dd { margin-bottom: 8px; }
+    .verdict { grid-template-columns: 1fr; }
+    .verdict > div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--rule); }
+    .gap-row { grid-template-columns: 1fr; gap: 4px; }
+    .risks { grid-template-columns: 1fr; }
+    .stack { grid-template-columns: 1fr; }
+    .stack > div:nth-child(even) { padding-left: 0; border-left: 0; }
+    .stack > div:nth-child(odd) { padding-right: 0; }
+    .pipe { grid-template-columns: 1fr; }
+    .stage + .stage { border-left: 1px solid var(--rule); border-top: 0; }
+    .stage:first-child { border-radius: 6px 6px 0 0; }
+    .stage:last-child { border-radius: 0 0 6px 6px; }
+    .stage + .stage::before { left: 22px; top: -7px; transform: rotate(135deg); }
+    .lede { font-size: 18px; }
+  }
+</style>
+
+<div class="page">
+  <header class="mast">
+    <div class="kicker"><span class="rec-dot" aria-hidden="true"></span> Documento de visión · nombre provisional · septiembre 2026</div>
+    <h1>Rastro</h1>
+    <p class="lede">Una caja negra para sesiones de QA web. Defines qué vas a comprobar, navegas la aplicación como siempre, y Rastro graba cada “sentido” de la página en una sola línea de tiempo. Después, un equipo de agentes de IA evalúa si se cumplió el objetivo y reporta a tus herramientas.</p>
+
+    <div class="strip" role="img" aria-label="Ejemplo de línea de tiempo con cinco canales: acciones de UI, red REST, WebSocket, consola y rendimiento, alineados en el mismo eje de tiempo.">
+      <div class="lane"><span class="lane-name">ACCIONES UI</span><div class="track">
+        <i class="ev tick" style="--c: var(--ch-ui); left: 6%"></i><i class="ev tick" style="--c: var(--ch-ui); left: 22%"></i><i class="ev tick" style="--c: var(--ch-ui); left: 41%"></i><i class="ev tick" style="--c: var(--ch-ui); left: 58%"></i><i class="ev tick" style="--c: var(--ch-ui); left: 83%"></i>
+        <i class="playhead" style="left: 58%"></i></div></div>
+      <div class="lane"><span class="lane-name">RED · REST</span><div class="track">
+        <i class="ev" style="--c: var(--ch-net); left: 7%; width: 6%"></i><i class="ev" style="--c: var(--ch-net); left: 23%; width: 3%"></i><i class="ev" style="--c: var(--ch-net); left: 42%; width: 9%"></i><i class="ev" style="--c: var(--crit); left: 59%; width: 14%"></i><i class="ev" style="--c: var(--ch-net); left: 84%; width: 4%"></i>
+        <i class="playhead" style="left: 58%"></i></div></div>
+      <div class="lane"><span class="lane-name">WEBSOCKET</span><div class="track">
+        <i class="ev tick" style="--c: var(--ch-ws); left: 12%"></i><i class="ev tick" style="--c: var(--ch-ws); left: 30%"></i><i class="ev tick" style="--c: var(--ch-ws); left: 31.5%"></i><i class="ev tick" style="--c: var(--ch-ws); left: 50%"></i><i class="ev tick" style="--c: var(--ch-ws); left: 70%"></i><i class="ev tick" style="--c: var(--ch-ws); left: 90%"></i>
+        <i class="playhead" style="left: 58%"></i></div></div>
+      <div class="lane"><span class="lane-name">CONSOLA</span><div class="track">
+        <i class="ev tick" style="--c: var(--ch-con); left: 25%"></i><i class="ev tick" style="--c: var(--crit); left: 74%"></i>
+        <i class="playhead" style="left: 58%"></i></div></div>
+      <div class="lane"><span class="lane-name">RENDIMIENTO</span><div class="track">
+        <i class="ev" style="--c: var(--ch-perf); left: 0%; width: 11%; opacity: .55"></i><i class="ev" style="--c: var(--ch-perf); left: 42%; width: 7%; opacity: .55"></i><i class="ev" style="--c: var(--ch-perf); left: 59%; width: 18%"></i>
+        <i class="playhead" style="left: 58%"></i></div></div>
+      <div class="strip-foot"><span>00:00</span><span>click “Confirmar pago” → POST /orders 500 → TypeError</span><span>04:12</span></div>
+    </div>
+  </header>
+
+  <section>
+    <span class="label">Veredicto</span>
+    <h2>La idea tiene fundamento, y el hueco es real</h2>
+    <div class="verdict">
+      <div><span class="label">Viabilidad técnica</span><span class="v">Alta</span><p>El navegador ya expone todo lo que hay que capturar a través del Chrome DevTools Protocol, Playwright, rrweb, axe-core y Lighthouse.</p></div>
+      <div><span class="label">Mercado</span><span class="v">Existente, pero fragmentado</span><p>Hay grabadores de bugs, session replay y agentes que navegan solos. Ninguno analiza una sesión QA completa y relaciona todas las señales.</p></div>
+      <div><span class="label">Diferenciador</span><span class="v">Correlación + agentes por aspecto</span><p>Un evento de UI, su request, el frame de socket y el error de consola, analizados juntos por especialistas en cada fase del proceso QA.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="label">Panorama</span>
+    <h2>Qué existe hoy</h2>
+    <p class="prose">Las herramientas actuales caen en tres categorías. Cada una resuelve parte de la idea; su enfoque las deja lejos de la auditoría QA integral.</p>
+    <div class="table-wrap">
+      <table class="comp">
+        <thead><tr><th>Herramienta</th><th>Categoría</th><th>Qué captura o hace</th><th>Enfoque (lo que no busca resolver)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Jam.dev</strong></td><td class="cat">Grabador de bugs</td><td>Últimos minutos de pantalla, consola, red y metadatos del dispositivo. La IA genera título y pasos de reproducción.</td><td>Reportar un bug puntual, no auditar una sesión completa.</td></tr>
+          <tr><td><strong>webQsee</strong></td><td class="cat">Extensión de captura</td><td>Red, consola, WebSockets, SSE, capturas de página completa y replay de sesión.</td><td>Captura sin análisis por IA.</td></tr>
+          <tr><td><strong>BugReel</strong></td><td class="cat">Grabador de bugs · open source</td><td>Grabación con análisis por IA: pasos, severidad y complejidad. Autohospedable.</td><td>Centrado en el reporte de un defecto.</td></tr>
+          <tr><td><strong>VibeCheck</strong></td><td class="cat">Grabador de bugs + corrección</td><td>Pantalla, consola y red. La IA propone un pull request con la corrección.</td><td>Orientado al desarrollador, no a pruebas no funcionales.</td></tr>
+          <tr><td><strong>Logspace, LogRocket</strong></td><td class="cat">Session replay</td><td>Sesiones de usuarios reales con resúmenes asistidos.</td><td>Monitoreo en producción, no el flujo de trabajo QA.</td></tr>
+          <tr><td><strong>Playwright Test Agents</strong></td><td class="cat">Agentes de automatización</td><td>Planner, generator y healer: planifican, escriben y reparan tests.</td><td>Producen tests; no analizan la navegación manual del QA.</td></tr>
+          <tr><td><strong>browser-use, agent-browser, explore-qa</strong></td><td class="cat">Agentes exploratorios</td><td>La IA navega sola y reporta lo que encuentra.</td><td>Reemplazan al tester en lugar de potenciar su sesión.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <span class="label">Oportunidad</span>
+    <h2>Dónde está el hueco</h2>
+    <div class="gaps">
+      <div class="gap-row"><h3>Correlación causal</h3><div><p>Una sola línea de tiempo relaciona la acción con todo lo que provocó. Los grabadores actuales muestran pestañas separadas.</p><p class="eg">click → POST /orders 500 → ws "order.failed" → TypeError en checkout.js</p></div></div>
+      <div class="gap-row"><h3>Front contra back</h3><div><p>Detecta cuando la UI no refleja lo que respondió el servidor.</p><p class="eg">La API devuelve 12 ítems y la tabla muestra 10 · toast de “éxito” tras un 500</p></div></div>
+      <div class="gap-row"><h3>Entregables desde la navegación</h3><div><p>Una navegación manual produce material reutilizable para el resto del proceso.</p><p class="eg">Contrato OpenAPI inferido · script k6 con tráfico real · casos de prueba sugeridos</p></div></div>
+      <div class="gap-row"><h3>Comparación entre ambientes</h3><div><p>El mismo flujo grabado en DEV, QA y PROD, o en dos versiones, muestra qué cambió en tráfico, errores y pantallas.</p></div></div>
+      <div class="gap-row"><h3>Agentes por fase QA</h3><div><p>Los especialistas no solo buscan bugs: preparan el ambiente, planifican la carga, diseñan casos y cierran el ciclo con un informe.</p></div></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="label">Objetivo de sesión</span>
+    <h2>Cada sesión empieza con un objetivo</h2>
+    <p class="prose">Antes de abrir el navegador, el QA define qué va a comprobar. El objetivo no es una etiqueta: es la instrucción que reciben los agentes. Todo lo capturado se lee en función de ese objetivo, y el informe responde primero a una pregunta: ¿se cumplió?</p>
+    <div class="obj">
+      <div class="obj-col">
+        <h3>Qué se define</h3>
+        <dl class="fields">
+          <dt>Nombre</dt><dd>“Pago con tarjeta · v2.14.0”</dd>
+          <dt>Objetivo</dt><dd>Una frase verificable: un cliente paga con tarjeta y ve su pedido en Mis pedidos.</dd>
+          <dt>Criterios</dt><dd>CA1…CAn, escritos a mano o importados desde la historia de Jira.</dd>
+          <dt>Tipo de prueba</dt><dd>Funcional, regresión, humo, exploratoria o no funcional.</dd>
+          <dt>Alcance</dt><dd>Pantallas, endpoints y canales dentro y fuera del objetivo.</dd>
+          <dt>Datos de prueba</dt><dd>Tarjetas, usuarios y montos a usar.</dd>
+          <dt>Destinos</dt><dd>Dónde termina el reporte: Xray, Jira, Slack, PDF.</dd>
+        </dl>
+      </div>
+      <div class="obj-col">
+        <h3>Cómo guía a los agentes</h3>
+        <ul class="guides">
+          <li><b>Filtra por alcance.</b> Los eventos dentro del alcance llegan completos; los de fuera, solo como resumen. Menos ruido y menos costo.</li>
+          <li><b>Arma el equipo.</b> El QA Lead sugiere los especialistas que cubren cada criterio y omite los que no aportan.</li>
+          <li><b>Evalúa cada criterio con evidencia.</b> Cada CA termina con un estado y el momento exacto de la sesión que lo respalda.</li>
+          <li><b>No pierde lo demás.</b> Un problema ajeno al objetivo, como un token en la URL, se reporta en una sección aparte.</li>
+        </ul>
+        <div class="states"><span class="state ok">CUMPLIDO</span><span class="state no">NO CUMPLIDO</span><span class="state na">SIN EVIDENCIA</span></div>
+        <p class="note">Durante la grabación, el QA puede marcar un momento como evidencia de un criterio; los agentes lo revisan primero.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <span class="label">Arquitectura</span>
+    <h2>Cómo funciona</h2>
+    <p class="prose">Todo parte del objetivo que define el QA. Con eso, la aplicación abre un Chromium controlado con Playwright. El QA navega normalmente y todo se graba vía CDP. Antes de llegar a la IA, los datos se normalizan y se filtran con reglas fijas, así los agentes reciben evidencia concreta y no miles de eventos crudos.</p>
+    <div class="pipe">
+      <div class="stage"><span class="step">OBJETIVO</span><h3>Qué se comprueba</h3><ul><li>Objetivo y criterios</li><li>Alcance dentro y fuera</li><li>Importable desde Jira</li></ul></div>
+      <div class="stage"><span class="step">CAPTURA</span><h3>Navegador controlado</h3><ul><li>CDP: red, WS/SSE, consola</li><li>rrweb: DOM y acciones</li><li>Video de pantalla con cursor</li><li>Trazas de rendimiento</li></ul></div>
+      <div class="stage"><span class="step">NORMALIZACIÓN</span><h3>Línea de tiempo única</h3><ul><li>Eventos con reloj común</li><li>Enlaces acción → efectos</li><li>Ocultamiento de tokens y datos personales</li></ul></div>
+      <div class="stage"><span class="step">REGLAS</span><h3>Análisis determinista</h3><ul><li>axe-core, Lighthouse</li><li>Reglas de headers y cookies</li><li>Estadísticas del HAR</li><li>Detección de anomalías</li></ul></div>
+      <div class="stage ai"><span class="step">IA</span><h3>Equipo de agentes</h3><ul><li>Orquestador QA Lead</li><li>12 especialistas</li><li>Cada hallazgo con su evidencia</li></ul></div>
+      <div class="stage"><span class="step">SALIDA</span><h3>Informe y entregables</h3><ul><li>Hallazgos priorizados</li><li>Tickets Jira / Linear</li><li>k6, OpenAPI, casos</li></ul></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="label">Grabación interactiva</span>
+    <h2>Video de la pantalla con overlays de cada agente</h2>
+    <p class="prose">Además de los eventos, Rastro graba la pantalla en video. En el reproductor, cada observación aparece como una zona marcada sobre el elemento afectado, con el robot y el color del agente que la hizo. Un click en la zona abre su apunte; desde ahí se crea el bug con el clip recortado.</p>
+    <div class="gaps">
+      <div class="gap-row"><h3>Error</h3><div><p>Borde continuo del color del agente y etiqueta roja. Si queda fuera del objetivo, la etiqueta lo dice.</p><p class="eg">Front-end · TypeError: el resumen no recibe order.id</p></div></div>
+      <div class="gap-row"><h3>Falla de criterio</h3><div><p>Borde continuo y etiqueta con el criterio afectado. Si varios agentes coinciden, sus robots se agrupan con un anillo que pulsa.</p><p class="eg">Funcional + API REST · FALLA CA2 · falso éxito tras un 500</p></div></div>
+      <div class="gap-row"><h3>Sugerencia</h3><div><p>Borde punteado: una mejora, no un defecto.</p><p class="eg">Accesibilidad · CVV sin etiqueta accesible</p></div></div>
+    </div>
+    <p class="prose note"><b>Qué se puede hacer.</b> Filtrar por agente y por tipo; elegir si los overlays se ven siempre, solo al pausar o nunca; saltar a la siguiente observación; ver en la barra de progreso dónde se concentran las observaciones; y marcar una zona del video para preguntarle a los agentes.</p>
+    <p class="prose note"><b>Cómo funciona.</b> El video sale del screencast de CDP (o del video de Playwright). En paralelo, cada evento guarda el rectángulo de los elementos involucrados. Los agentes anclan cada observación a un selector y a un rango de tiempo, y el reproductor escala ese rectángulo al tamaño del video. Así el overlay sigue a su zona aunque haya scroll o cambios de layout.</p>
+  </section>
+
+  <section>
+    <span class="label">Agentes opcionales</span>
+    <h2>Con agentes o sin ellos: lo decide el QA</h2>
+    <p class="prose">Usar IA es una elección por sesión, con tres modos: <b>Sin agentes</b> (solo grabación y reglas fijas), <b>Sugeridos por el objetivo</b> (el QA Lead arma el equipo según los criterios) y <b>Elegir yo</b>. Cada función muestra qué agentes va a usar antes de grabar, y cada canal de captura muestra qué agentes lo leerán. Una sesión grabada sin agentes se puede analizar después.</p>
+    <div class="table-wrap">
+      <table class="comp">
+        <thead><tr><th>Función</th><th>Agentes que usa</th><th>Sin agentes</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Evaluar los criterios del objetivo</strong></td><td>QA Lead, Funcional, API REST, Tiempo real, Rendimiento (según los criterios)</td><td class="cat">Requiere agentes</td></tr>
+          <tr><td><strong>Errores de front y consola</strong></td><td>Front-end</td><td class="cat">Lista de errores, sin relacionar</td></tr>
+          <tr><td><strong>API REST y contrato</strong></td><td>API REST</td><td class="cat">Status y latencias</td></tr>
+          <tr><td><strong>WebSocket y SSE</strong></td><td>Tiempo real</td><td class="cat">Conteo de frames</td></tr>
+          <tr><td><strong>Rendimiento y Web Vitals</strong></td><td>Rendimiento</td><td class="cat">Métricas de Lighthouse</td></tr>
+          <tr><td><strong>Seguridad pasiva</strong></td><td>Seguridad</td><td class="cat">Reglas de headers y cookies</td></tr>
+          <tr><td><strong>Accesibilidad WCAG</strong></td><td>Accesibilidad</td><td class="cat">Reglas de axe-core</td></tr>
+          <tr><td><strong>Revisión visual UI/UX</strong></td><td>UI/UX</td><td class="cat">Requiere agentes</td></tr>
+          <tr><td><strong>Overlays en el video</strong></td><td>Los agentes que revisan</td><td class="cat">Solo errores de consola y axe</td></tr>
+          <tr><td><strong>Script de carga k6</strong></td><td>Carga</td><td class="cat">Exportar el HAR</td></tr>
+          <tr><td><strong>Comparar con sesión base</strong></td><td>Regresión</td><td class="cat">Diferencias de tráfico</td></tr>
+          <tr><td><strong>Redactar bugs y reporte</strong></td><td>Reportero, QA Lead</td><td class="cat">Plantilla con los datos</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="prose note"><b>Por qué importa.</b> Hay equipos que no pueden enviar datos a un LLM, sesiones cortas donde la IA no aporta, o casos donde se quiere controlar el costo. El modo sin agentes coincide con la etapa 1 del MVP, así que es lo primero que existe.</p>
+  </section>
+
+  <section>
+    <span class="label">Agentes dentro de la app</span>
+    <h2>Un agente por aspecto, en cada fase del proceso QA</h2>
+    <p class="prose">El orquestador recibe el objetivo, arma el equipo según los criterios, reparte la sesión, junta los hallazgos, elimina duplicados y prioriza. Cada especialista recibe solo los canales que le corresponden. Así el costo se mantiene bajo control y cada hallazgo apunta a un evento concreto de la línea de tiempo.</p>
+    <p class="prose">Cada agente tiene identidad propia: un robot con color y forma según su rol. Sus intervenciones aparecen como apuntes con viñetas, anclados al evento. Cuando varios coinciden en un mismo punto, sus avatares se agrupan y un anillo pulsa; cuando se pasan datos (por ejemplo, API REST le entrega un response body a Front-end), una animación breve lo muestra y el intercambio queda en la conversación del equipo.</p>
+    <div class="legend"><span><i class="dot p"></i> Participación principal</span><span><i class="dot s"></i> Apoyo</span></div>
+    <div class="table-wrap">
+      <table class="matrix">
+        <thead><tr>
+          <th>Agente · qué entrega</th>
+          <th class="ph">Prep. ambiente</th><th class="ph">Planifi&shy;cación</th><th class="ph">Diseño de casos</th><th class="ph">Ejecu&shy;ción</th><th class="ph">Reporte defectos</th><th class="ph">Regre&shy;sión</th><th class="ph">Cierre</th>
+        </tr></thead>
+        <tbody>
+          <tr class="lead"><td><div class="agent"><strong>QA Lead</strong></div><div class="io">Evalúa cada criterio del objetivo, orquesta, deduplica y prioriza; entrega el informe y el riesgo de release.</div></td><td class="c"></td><td class="c"><i class="dot s"></i></td><td class="c"></td><td class="c"><i class="dot s"></i></td><td class="c"><i class="dot p"></i></td><td class="c"><i class="dot s"></i></td><td class="c"><i class="dot p"></i></td></tr>
+          <tr><td><strong>Ambiente</strong><div class="io">Versiones, URLs base, headers de build, flags y configuración expuesta; diferencias entre ambientes.</div></td><td class="c"><i class="dot p"></i></td><td class="c"></td><td class="c"></td><td class="c"></td><td class="c"></td><td class="c"><i class="dot s"></i></td><td class="c"><i class="dot s"></i></td></tr>
+          <tr><td><strong>Funcional</strong><div class="io">Flujos rotos, validaciones y estados vacíos; sugiere casos de prueba a partir de lo navegado.</div></td><td class="c"></td><td class="c"></td><td class="c"><i class="dot p"></i></td><td class="c"><i class="dot p"></i></td><td class="c"></td><td class="c"><i class="dot s"></i></td><td class="c"></td></tr>
+          <tr><td><strong>Front-end</strong><div class="io">Errores JS agrupados y ligados a la acción que los disparó; recursos fallidos.</div></td><td class="c"></td><td class="c"></td><td class="c"></td><td class="c"><i class="dot p"></i></td><td class="c"><i class="dot s"></i></td><td class="c"></td><td class="c"></td></tr>
+          <tr><td><strong>API REST</strong><div class="io">Contrato inferido, status incoherentes, latencias, llamadas duplicadas, comparación front contra back.</div></td><td class="c"></td><td class="c"></td><td class="c"><i class="dot p"></i></td><td class="c"><i class="dot p"></i></td><td class="c"></td><td class="c"><i class="dot s"></i></td><td class="c"></td></tr>
+          <tr><td><strong>Tiempo real</strong><div class="io">Secuencias WS/SSE, reconexiones, mensajes huérfanos o fuera de orden.</div></td><td class="c"></td><td class="c"></td><td class="c"></td><td class="c"><i class="dot p"></i></td><td class="c"></td><td class="c"></td><td class="c"></td></tr>
+          <tr><td><strong>Rendimiento</strong><div class="io">LCP, INP y CLS por pantalla; cascadas de carga y recursos pesados.</div></td><td class="c"></td><td class="c"></td><td class="c"></td><td class="c"><i class="dot p"></i></td><td class="c"></td><td class="c"></td><td class="c"><i class="dot s"></i></td></tr>
+          <tr><td><strong>Carga</strong><div class="io">Script k6 o JMeter parametrizado desde el tráfico real, con los endpoints críticos identificados.</div></td><td class="c"></td><td class="c"><i class="dot p"></i></td><td class="c"><i class="dot s"></i></td><td class="c"></td><td class="c"></td><td class="c"></td><td class="c"></td></tr>
+          <tr><td><strong>Seguridad</strong><div class="io">Revisión pasiva: headers, cookies, CORS, tokens en URL, datos personales en respuestas.</div></td><td class="c"></td><td class="c"></td><td class="c"></td><td class="c"><i class="dot p"></i></td><td class="c"></td><td class="c"></td><td class="c"><i class="dot p"></i></td></tr>
+          <tr><td><strong>Accesibilidad</strong><div class="io">Violaciones WCAG 2.2 con su selector y la pantalla donde ocurren.</div></td><td class="c"></td><td class="c"></td><td class="c"></td><td class="c"><i class="dot p"></i></td><td class="c"></td><td class="c"></td><td class="c"><i class="dot s"></i></td></tr>
+          <tr><td><strong>UI/UX</strong><div class="io">Inconsistencias visuales, heurísticas de Nielsen y problemas de responsive.</div></td><td class="c"></td><td class="c"></td><td class="c"><i class="dot s"></i></td><td class="c"><i class="dot p"></i></td><td class="c"></td><td class="c"></td><td class="c"></td></tr>
+          <tr><td><strong>Regresión</strong><div class="io">Compara con una sesión base: tráfico nuevo, errores nuevos, cambios visuales.</div></td><td class="c"></td><td class="c"></td><td class="c"></td><td class="c"></td><td class="c"></td><td class="c"><i class="dot p"></i></td><td class="c"></td></tr>
+          <tr><td><strong>Reportero</strong><div class="io">Tickets listos para Jira o Linear con pasos, evidencia y fragmento de la línea de tiempo.</div></td><td class="c"></td><td class="c"></td><td class="c"></td><td class="c"></td><td class="c"><i class="dot p"></i></td><td class="c"></td><td class="c"><i class="dot s"></i></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <span class="label">Integraciones</span>
+    <h2>Cómo se conecta para generar reportes</h2>
+    <p class="prose">Cada sesión produce un resultado: el estado del objetivo, cada criterio, los hallazgos y su evidencia. Rastro lo envía en el formato que entiende cada herramienta. Hay cuatro formas de conectarse, y una misma integración puede combinar varias.</p>
+    <div class="gaps">
+      <div class="gap-row"><h3>API directa</h3><div><p>OAuth o token del proyecto. Crea bugs, sube resultados de prueba y adjunta evidencia.</p><p class="eg">Jira · Azure DevOps · Linear · GitHub Issues · Xray · Zephyr Scale · TestRail · Qase</p></div></div>
+      <div class="gap-row"><h3>Webhooks</h3><div><p>Mensajes de resumen a canales de chat o a sistemas propios. En Teams se usan los webhooks de Workflows: los conectores de Office 365 se retiraron en mayo de 2026.</p><p class="eg">Slack · Microsoft Teams · Google Chat · webhook firmado propio</p></div></div>
+      <div class="gap-row"><h3>Archivos estándar</h3><div><p>PDF o HTML para personas; JUnit XML y el JSON de resultados de Xray para CI y gestores de prueba.</p><p class="eg">informe.pdf · resultados.xml · sesion-148.json · orders.har</p></div></div>
+      <div class="gap-row"><h3>MCP</h3><div><p>Rastro lee historias y criterios desde Jira y Confluence con el servidor MCP remoto de Atlassian. También puede exponer su propio servidor MCP para que Claude u otros asistentes consulten sesiones y hallazgos.</p></div></div>
+    </div>
+    <div class="table-wrap">
+      <table class="comp">
+        <thead><tr><th>Destino</th><th>Qué recibe de Rastro</th><th>Cómo se conecta</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Jira, Azure DevOps, Linear, GitHub Issues</strong></td><td>Un bug por hallazgo confirmado, con pasos, clip de video, HAR recortado y vínculo a la historia.</td><td class="cat">API REST o GraphQL</td></tr>
+          <tr><td><strong>Xray, Zephyr Scale</strong></td><td>Una Test Execution con un resultado por criterio (PASS, FAIL, TODO).</td><td class="cat">API REST · JSON de resultados</td></tr>
+          <tr><td><strong>TestRail, Qase</strong></td><td>Resultado por caso dentro de un run de pruebas.</td><td class="cat">API REST</td></tr>
+          <tr><td><strong>Slack, Teams, Google Chat</strong></td><td>Resumen del QA Lead, estado del objetivo y enlace a la sesión.</td><td class="cat">App o webhook</td></tr>
+          <tr><td><strong>Confluence, Notion</strong></td><td>Página de informe por sesión o por sprint.</td><td class="cat">API REST</td></tr>
+          <tr><td><strong>CI/CD</strong></td><td>Veredicto del objetivo como JUnit XML, para frenar un deploy si un criterio falla.</td><td class="cat">Archivo · API de Rastro</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="prose note"><b>Reglas de envío.</b> Cada proyecto define qué sale y cuándo: al cerrar la sesión, al confirmar un hallazgo crítico o al terminar el sprint. Los bugs solo se crean después de que el QA confirma el hallazgo.</p>
+    <p class="prose note"><b>Por dónde empezar.</b> Jira para los bugs, Xray o Zephyr Scale (el que use tu equipo) para el resultado por criterio, Slack o Teams para el resumen y PDF para compartir fuera. Con eso se cubre el circuito completo: defecto, resultado de prueba, aviso al equipo y archivo.</p>
+  </section>
+
+  <section>
+    <span class="label">Riesgos</span>
+    <h2>Qué puede salir mal y cómo evitarlo</h2>
+    <div class="risks">
+      <div class="risk"><h3>Volumen y costo de IA</h3><p>Una sesión de 10 minutos puede tener miles de eventos.</p><p class="fix"><b>Mitigación:</b> reglas fijas primero; a los agentes solo les llegan resúmenes, anomalías y ventanas de contexto alrededor de cada evento sospechoso.</p></div>
+      <div class="risk"><h3>Datos sensibles</h3><p>Tokens, cookies y datos personales viajan en los payloads.</p><p class="fix"><b>Mitigación:</b> ocultamiento local antes de enviar nada al LLM, con reglas configurables por proyecto.</p></div>
+      <div class="risk"><h3>Falsos positivos</h3><p>Un agente puede interpretar mal un comportamiento esperado.</p><p class="fix"><b>Mitigación:</b> cada hallazgo enlaza su evidencia, el QA lo confirma o descarta, y lo descartado alimenta el contexto del proyecto.</p></div>
+      <div class="risk"><h3>Expectativa sobre carga</h3><p>Una sesión manual no mide cómo responde el sistema con muchos usuarios.</p><p class="fix"><b>Mitigación:</b> presentarlo como generador de escenarios de carga, no como ejecutor.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="label">Plan</span>
+    <h2>MVP por etapas</h2>
+    <div class="road">
+      <div class="milestone first"><span class="when">ETAPA 1</span><h3>Grabar y reproducir, sin IA</h3><ul><li>Formulario de objetivo: nombre, criterios y alcance</li><li>Lanzador de Chromium con captura CDP y rrweb</li><li>Grabación de video de la pantalla</li><li>Paquete de sesión (JSON + capturas) guardado localmente</li><li>Visor con línea de tiempo por canales y detalle de cada evento</li></ul><p class="done-when"><b>Lista cuando</b> una sesión real se reproduce con acción, request, frame y error alineados.</p></div>
+      <div class="milestone"><span class="when">ETAPA 2</span><h3>Reglas y primeros tres agentes</h3><ul><li>axe-core, reglas de headers, estadísticas de red</li><li>Agentes API REST, Front-end y Reportero, evaluando cada criterio</li><li>Exportación a PDF y a Jira</li><li>Panel de hallazgos con evidencia enlazada</li><li>Overlays por agente sobre el video</li></ul></div>
+      <div class="milestone"><span class="when">ETAPA 3</span><h3>Equipo completo</h3><ul><li>Orquestador QA Lead y los especialistas restantes</li><li>Informe ejecutivo por sesión</li></ul></div>
+      <div class="milestone"><span class="when">ETAPA 4</span><h3>Comparar y exportar</h3><ul><li>Diferencias entre ambientes y regresión contra sesión base</li><li>Integraciones: Xray, Zephyr Scale, TestRail, Slack, Teams y Confluence</li><li>Exportes k6 y OpenAPI; servidor MCP de Rastro</li></ul></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="label">Stack sugerido</span>
+    <h2>Con qué construirlo</h2>
+    <div class="stack">
+      <div><span class="label">Captura</span><span>Playwright + CDP, rrweb, <code>chrome-har</code></span></div>
+      <div><span class="label">Backend</span><span>Node.js + TypeScript, cola de análisis por sesión</span></div>
+      <div><span class="label">Datos</span><span>SQLite local para empezar; Postgres al compartir en equipo</span></div>
+      <div><span class="label">Frontend</span><span>React + canvas o WebGL para la línea de tiempo de alta densidad</span></div>
+      <div><span class="label">Agentes</span><span>Claude vía Claude Agent SDK: un modelo mayor para el orquestador y uno ligero para triage</span></div>
+      <div><span class="label">Distribución</span><span>App web local primero; empaquetado de escritorio (Tauri o Electron) después</span></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="label">Fuentes</span>
+    <ol class="sources">
+      <li><a href="https://jam.dev/docs/record-a-jam/jam-ai">Jam AI — documentación de Jam.dev</a></li>
+      <li><a href="https://chromewebstore.google.com/detail/webqsee-session-replay-ne/gamdpfnfkjknkimfbboonmgdfnondfme">webQsee en Chrome Web Store</a></li>
+      <li><a href="https://bugreel.io/blog/jam-dev-alternative-open-source">BugReel — alternativas a Jam.dev</a></li>
+      <li><a href="https://vibecheck-qa.com/">VibeCheck</a></li>
+      <li><a href="https://logspace.io/">Logspace</a></li>
+      <li><a href="https://testdino.com/blog/playwright-test-agents">Playwright Test Agents — TestDino</a></li>
+      <li><a href="https://bug0.com/blog/playwright-test-agents">Playwright Test Agents — Bug0</a></li>
+      <li><a href="https://qaskills.sh/blog/browser-use-ai-agent-testing-guide">browser-use para QA</a></li>
+      <li><a href="https://github.com/vercel-labs/agent-browser/blob/main/skills/agent-browser/SKILL.md">agent-browser — Vercel Labs</a></li>
+      <li><a href="https://alexop.dev/posts/exploratory-qa-ai-agents-site-agnostic-harness/">explore-qa — alexop.dev</a></li>
+      <li><a href="https://docs.getxray.app/space/XRAYCLOUD/44566897/Import+Execution+Results+-+REST">Xray Cloud — Import Execution Results (REST)</a></li>
+      <li><a href="https://support.testrail.com/hc/en-us/articles/7077819312404-Results">TestRail — API de resultados</a></li>
+      <li><a href="https://devblogs.microsoft.com/microsoft365dev/retirement-of-office-365-connectors-within-microsoft-teams/">Microsoft — retiro de los conectores de Office 365 en Teams</a></li>
+      <li><a href="https://developer.atlassian.com/cloud/rovo-mcp/">Atlassian Rovo MCP Server</a></li>
+    </ol>
+  </section>
+
+  <footer>Rastro es un nombre de trabajo. Documento generado a partir de una investigación de septiembre de 2026.</footer>
+</div>

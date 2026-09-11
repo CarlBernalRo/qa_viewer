@@ -1,0 +1,202 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap">
+  <style>
+    body { margin: 0; background: #F1F2EF; }
+    a { color: #2F7FBF; } a:hover { color: #1A1F1C; }
+    .mono { font-family: 'JetBrains Mono', Consolas, 'Courier New', monospace; }
+    .cap { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: #5F6863; }
+  </style>
+</helmet>
+<div style="width: 1440px; height: 900px; display: flex; flex-direction: column; background: #F1F2EF; color: #1A1F1C; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-size: 14px; overflow: hidden;">
+
+  <div style="height: 52px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; padding: 0 20px; background: #FBFBF9; border-bottom: 1px solid #D9DCD6;">
+    <div style="display: flex; align-items: center; gap: 8px; width: 172px;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #D9481F;"></span>
+      <span style="font-weight: 800; font-size: 19px; font-stretch: 115%; letter-spacing: -0.01em;">Rastro</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; color: #5F6863;">
+      <span>Mercadito</span>
+      <span style="color: #B9BEB7;">/</span>
+      <span style="color: #1A1F1C; font-weight: 600;">Nueva sesión</span>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0;">
+    <div style="width: 208px; flex-shrink: 0; display: flex; flex-direction: column; gap: 2px; padding: 16px 12px; border-right: 1px solid #D9DCD6; background: #F1F2EF;">
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 6px; background: #E1E5DF; font-weight: 650;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7"></circle><circle cx="10" cy="10" r="3" fill="#D9481F" stroke="none"></circle></svg>Sesiones</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="9" r="5.5"></circle><path d="M13 13l4 4"></path></svg><span style="flex-grow: 1;">Hallazgos</span><span class="mono" style="font-size: 11px; color: #5F6863;">14</span></div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="5" r="2.2"></circle><circle cx="4.5" cy="15" r="2.2"></circle><circle cx="15.5" cy="15" r="2.2"></circle><path d="M10 7.2v3.3M10 10.5l-4 2.8M10 10.5l4 2.8"></path></svg>Agentes</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3l7 4-7 4-7-4 7-4z"></path><path d="M3 11l7 4 7-4"></path></svg>Ambientes</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h11l-3-3M16 13H5l3 3"></path></svg>Comparaciones</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h14M3 14h14"></path><circle cx="7" cy="6" r="2" fill="#F1F2EF"></circle><circle cx="13" cy="14" r="2" fill="#F1F2EF"></circle></svg>Ajustes del proyecto</div>
+      <div style="flex-grow: 1;"></div>
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 10px; border-top: 1px solid #D9DCD6;">
+        <span class="cap">Proyecto</span>
+        <span style="font-weight: 600;">Mercadito</span>
+        <span style="color: #5F6863; font-size: 13px;">3 ambientes · 148 sesiones</span>
+      </div>
+    </div>
+
+    <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 18px; padding: 20px 32px; min-width: 0;">
+      <!-- Stepper -->
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px;"><span class="mono" style="width: 26px; height: 26px; border-radius: 50%; background: #1A1F1C; color: #FBFBF9; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">1</span><span style="font-weight: 700;">Objetivo</span></div>
+        <span style="width: 48px; height: 1px; background: #B9BEB7;"></span>
+        <div style="display: flex; align-items: center; gap: 8px; color: #5F6863;"><span class="mono" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid #B9BEB7; display: flex; align-items: center; justify-content: center; font-size: 12px;">2</span><span>Captura</span></div>
+        <span style="width: 48px; height: 1px; background: #B9BEB7;"></span>
+        <div style="display: flex; align-items: center; gap: 8px; color: #5F6863;"><span class="mono" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid #B9BEB7; display: flex; align-items: center; justify-content: center; font-size: 12px;">3</span><span>Grabar</span></div>
+      </div>
+
+      <div style="flex-grow: 1; display: flex; gap: 28px; min-height: 0;">
+        <!-- Form -->
+        <div style="width: 680px; flex-shrink: 0; display: flex; flex-direction: column; gap: 14px;">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-weight: 800; font-stretch: 110%; font-size: 26px; letter-spacing: -0.01em;">¿Qué vas a comprobar en esta sesión?</span>
+            <span style="color: #5F6863;">Los agentes usan el objetivo como guía: evalúan cada criterio con evidencia y separan lo que queda fuera.</span>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 8px;">
+            <span style="font-size: 13px; font-weight: 600;">Importar desde Jira</span>
+            <div class="mono" style="height: 32px; display: flex; align-items: center; padding: 0 10px; background: #FFFFFF; border: 1px solid #B9BEB7; border-radius: 6px; font-size: 13px;">MERC-412</div>
+            <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #2E7D4F;"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#2E7D4F" stroke-width="1.8"><path d="M2.5 7.5l3 3 6-7"></path></svg>Importamos título, descripción y 3 criterios</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 14px;">
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <span style="font-size: 13px; font-weight: 600;">Nombre de la sesión</span>
+              <div style="height: 38px; display: flex; align-items: center; padding: 0 12px; background: #FFFFFF; border: 1px solid #B9BEB7; border-radius: 6px;">Pago con tarjeta · v2.14.0</div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <span style="font-size: 13px; font-weight: 600;">Tipo de prueba</span>
+              <div style="height: 38px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; background: #FFFFFF; border: 1px solid #B9BEB7; border-radius: 6px;">Funcional<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#3D4540" stroke-width="1.6"><path d="M3 4.5l3 3 3-3"></path></svg></div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-size: 13px; font-weight: 600;">Objetivo</span>
+            <div style="min-height: 58px; box-sizing: border-box; padding: 10px 12px; background: #FFFFFF; border: 1.5px solid #1A1F1C; border-radius: 6px; font-size: 15px; line-height: 1.45;">Comprobar que un cliente pueda pagar con tarjeta y que el pedido quede registrado y visible en Mis pedidos.</div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-size: 13px; font-weight: 600;">Criterios de aceptación</span>
+            <div style="display: flex; flex-direction: column; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 8px; overflow: hidden;">
+              <sc-for list="{{criteria}}" as="c" hint-placeholder-count="4">
+                <div style="display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 12px; border-bottom: 1px solid #E8EAE5;">
+                  <span class="mono" style="font-size: 12px; font-weight: 600;">{{c.id}}</span>
+                  <span style="font-size: 13.5px;">{{c.text}}</span>
+                  <span class="mono" style="font-size: 10.5px; color: #5F6863; padding: 2px 6px; border: 1px solid #D9DCD6; border-radius: 3px;">{{c.source}}</span>
+                </div>
+              </sc-for>
+              <div style="padding: 8px 12px; font-size: 13px; color: #3D4540;">+ Agregar criterio</div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px;">
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <span style="font-size: 13px; font-weight: 600;">Dentro del alcance</span>
+              <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                <span class="mono" style="font-size: 11.5px; padding: 4px 8px; border-radius: 4px; background: #1A1F1C; color: #FBFBF9;">/checkout/*</span>
+                <span class="mono" style="font-size: 11.5px; padding: 4px 8px; border-radius: 4px; background: #1A1F1C; color: #FBFBF9;">/mis-pedidos</span>
+                <span class="mono" style="font-size: 11.5px; padding: 4px 8px; border-radius: 4px; background: #1A1F1C; color: #FBFBF9;">/api/orders</span>
+                <span class="mono" style="font-size: 11.5px; padding: 4px 8px; border-radius: 4px; background: #1A1F1C; color: #FBFBF9;">/api/payments/*</span>
+                <span class="mono" style="font-size: 11.5px; padding: 4px 8px; border-radius: 4px; background: #1A1F1C; color: #FBFBF9;">ws order.*</span>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <span style="font-size: 13px; font-weight: 600;">Fuera del alcance</span>
+              <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                <span class="mono" style="font-size: 11.5px; padding: 4px 8px; border-radius: 4px; border: 1px dashed #9AA39D; color: #3D4540;">/api/recommendations</span>
+                <span class="mono" style="font-size: 11.5px; padding: 4px 8px; border-radius: 4px; border: 1px dashed #9AA39D; color: #3D4540;">analytics.*</span>
+                <span class="mono" style="font-size: 11.5px; padding: 4px 8px; border-radius: 4px; border: 1px dashed #9AA39D; color: #3D4540;">/carrito</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-size: 13px; font-weight: 600;">Datos de prueba</span>
+            <div style="height: 38px; display: flex; align-items: center; padding: 0 12px; background: #FFFFFF; border: 1px solid #B9BEB7; border-radius: 6px;">Tarjeta aprobada ····4242 · tarjeta rechazada ····0002 · usuario qa.comprador</div>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 4px;">
+            <div style="height: 42px; padding: 0 18px; display: flex; align-items: center; gap: 8px; border-radius: 7px; background: #1A1F1C; color: #FBFBF9; font-weight: 700;">Continuar a la captura<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h8M8 4l3 3-3 3"></path></svg></div>
+            <div style="height: 42px; padding: 0 16px; display: flex; align-items: center; border: 1px solid #B9BEB7; border-radius: 7px; font-weight: 600;">Guardar borrador</div>
+          </div>
+        </div>
+
+        <!-- How agents use it -->
+        <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 16px; min-width: 0; padding: 20px; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 10px; align-self: flex-start;">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span class="cap">Así lo usarán los agentes</span>
+            <span style="font-size: 14px; line-height: 1.5; color: #3D4540;">El QA Lead arma el equipo según los criterios. Cada especialista recibe completos los eventos dentro del alcance; los de fuera le llegan solo resumidos. Si prefieres grabar sin IA, lo eliges en el paso 2.</span>
+          </div>
+          <div style="display: flex; flex-direction: column;">
+            <sc-for list="{{team}}" as="t" hint-placeholder-count="6">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid #E8EAE5;">
+                <span style="font-weight: 650; color: {{t.fg}};">{{t.name}}</span>
+                <div style="display: flex; gap: 4px;">
+                  <sc-for list="{{t.tags}}" as="g" hint-placeholder-count="2"><span class="mono" style="font-size: 10.5px; padding: 2px 6px; border-radius: 3px; background: {{g.bg}}; color: {{g.fg}};">{{g.label}}</span></sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <span class="cap">Resultado de cada criterio</span>
+            <div style="display: flex; gap: 6px;">
+              <span class="mono" style="font-size: 10.5px; font-weight: 600; padding: 3px 7px; border-radius: 3px; background: #2E7D4F; color: #FFF;">CUMPLIDO</span>
+              <span class="mono" style="font-size: 10.5px; font-weight: 600; padding: 3px 7px; border-radius: 3px; background: #B42318; color: #FFF;">NO CUMPLIDO</span>
+              <span class="mono" style="font-size: 10.5px; font-weight: 600; padding: 3px 7px; border-radius: 3px; border: 1px solid #9AA39D; color: #3D4540;">SIN EVIDENCIA</span>
+            </div>
+            <span style="font-size: 13px; color: #5F6863; line-height: 1.45;">Siempre con el momento exacto de la sesión que lo respalda.</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; padding-top: 12px; border-top: 1px solid #E4E7E1;">
+            <span class="cap">Al cerrar, el reporte va a</span>
+            <span style="font-size: 13.5px;">Xray · Test Execution vinculada a MERC-412</span>
+            <span style="font-size: 13.5px;">Jira · bugs confirmados</span>
+            <span style="font-size: 13.5px;">Slack · #qa-checkout</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var criteria = [
+      { id: 'CA1', text: 'Un pago con tarjeta aprobada crea un pedido en estado “Pagado”.', source: 'MERC-412' },
+      { id: 'CA2', text: 'Si el cobro falla, el usuario ve un error y no se crea el pedido.', source: 'MERC-412' },
+      { id: 'CA3', text: 'El pedido aparece en Mis pedidos en menos de 5 s.', source: 'MERC-412' },
+      { id: 'CA4', text: '“Confirmar pago” responde en menos de 2 s.', source: 'Agregado' }
+    ];
+    function ca(l) { return { label: l, bg: '#1A1F1C', fg: '#FBFBF9' }; }
+    function soft(l) { return { label: l, bg: '#E1E5DF', fg: '#3D4540' }; }
+    var team = [
+      { name: 'Funcional', fg: '#1A1F1C', tags: [ca('CA1'), ca('CA2'), ca('CA3')] },
+      { name: 'API REST', fg: '#1A1F1C', tags: [ca('CA1'), ca('CA2')] },
+      { name: 'Front-end', fg: '#1A1F1C', tags: [ca('CA2')] },
+      { name: 'Tiempo real', fg: '#1A1F1C', tags: [ca('CA3')] },
+      { name: 'Rendimiento', fg: '#1A1F1C', tags: [ca('CA4')] },
+      { name: 'Seguridad · Accesibilidad · UI/UX', fg: '#3D4540', tags: [soft('revisión base')] },
+      { name: 'Carga · Regresión', fg: '#8A938D', tags: [soft('omitidos · agregar')] }
+    ];
+    return { criteria: criteria, team: team };
+  }
+}
+</script>
+</body>
+</html>

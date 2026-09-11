@@ -1,0 +1,361 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap">
+  <style>
+    body { margin: 0; background: #F1F2EF; }
+    a { color: #2F7FBF; } a:hover { color: #1A1F1C; }
+    .mono { font-family: 'JetBrains Mono', Consolas, 'Courier New', monospace; }
+    .cap { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: #5F6863; }
+    .hit { cursor: pointer; }
+    .hit:focus-visible { outline: 2px solid #D9481F; outline-offset: 2px; }
+    .knob { transition: left 0.18s ease; }
+    @keyframes rb-pop { from { opacity: 0; transform: translateY(4px) scale(0.9); } to { opacity: 1; transform: none; } }
+    .pop { animation: rb-pop 0.26s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+    @media (prefers-reduced-motion: reduce) { .pop { animation: none !important; } .knob { transition: none; } }
+  </style>
+</helmet>
+<div style="width: 1440px; height: 900px; display: flex; flex-direction: column; background: #F1F2EF; color: #1A1F1C; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-size: 14px; overflow: hidden;">
+
+  <div style="height: 52px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; padding: 0 20px; background: #FBFBF9; border-bottom: 1px solid #D9DCD6;">
+    <div style="display: flex; align-items: center; gap: 8px; width: 172px;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #D9481F;"></span>
+      <span style="font-weight: 800; font-size: 19px; font-stretch: 115%; letter-spacing: -0.01em;">Rastro</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; color: #5F6863;">
+      <span>Mercadito</span>
+      <span style="color: #B9BEB7;">/</span>
+      <span style="color: #1A1F1C; font-weight: 600;">Nueva sesión</span>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0;">
+    <div style="width: 208px; flex-shrink: 0; display: flex; flex-direction: column; gap: 2px; padding: 16px 12px; border-right: 1px solid #D9DCD6; background: #F1F2EF;">
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 6px; background: #E1E5DF; font-weight: 650;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7"></circle><circle cx="10" cy="10" r="3" fill="#D9481F" stroke="none"></circle></svg>Sesiones</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="9" r="5.5"></circle><path d="M13 13l4 4"></path></svg><span style="flex-grow: 1;">Hallazgos</span><span class="mono" style="font-size: 11px; color: #5F6863;">14</span></div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="5" r="2.2"></circle><circle cx="4.5" cy="15" r="2.2"></circle><circle cx="15.5" cy="15" r="2.2"></circle><path d="M10 7.2v3.3M10 10.5l-4 2.8M10 10.5l4 2.8"></path></svg>Agentes</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3l7 4-7 4-7-4 7-4z"></path><path d="M3 11l7 4 7-4"></path></svg>Ambientes</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h11l-3-3M16 13H5l3 3"></path></svg>Comparaciones</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h14M3 14h14"></path><circle cx="7" cy="6" r="2" fill="#F1F2EF"></circle><circle cx="13" cy="14" r="2" fill="#F1F2EF"></circle></svg>Ajustes del proyecto</div>
+      <div style="flex-grow: 1;"></div>
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 10px; border-top: 1px solid #D9DCD6;">
+        <span class="cap">Proyecto</span>
+        <span style="font-weight: 600;">Mercadito</span>
+        <span style="color: #5F6863; font-size: 13px;">3 ambientes · 148 sesiones</span>
+      </div>
+    </div>
+
+    <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 16px; padding: 18px 28px; min-width: 0;">
+      <!-- Stepper -->
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px; color: #2E7D4F;"><span style="width: 26px; height: 26px; border-radius: 50%; background: #2E7D4F; display: flex; align-items: center; justify-content: center;"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="#FFFFFF" stroke-width="2"><path d="M2.5 7.5l3 3 6-7"></path></svg></span><span style="font-weight: 600;">Objetivo</span></div>
+        <span style="width: 48px; height: 1px; background: #2E7D4F;"></span>
+        <div style="display: flex; align-items: center; gap: 8px;"><span class="mono" style="width: 26px; height: 26px; border-radius: 50%; background: #1A1F1C; color: #FBFBF9; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">2</span><span style="font-weight: 700;">Captura y análisis</span></div>
+        <span style="width: 48px; height: 1px; background: #B9BEB7;"></span>
+        <div style="display: flex; align-items: center; gap: 8px; color: #5F6863;"><span class="mono" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid #B9BEB7; display: flex; align-items: center; justify-content: center; font-size: 12px;">3</span><span>Grabar</span></div>
+      </div>
+
+      <div style="flex-grow: 1; display: flex; gap: 24px; min-height: 0;">
+        <!-- Left: capture -->
+        <div style="width: 480px; flex-shrink: 0; display: flex; flex-direction: column; gap: 14px;">
+          <span style="font-weight: 800; font-stretch: 110%; font-size: 26px; letter-spacing: -0.01em;">Configurar la captura</span>
+
+          <div style="display: flex; flex-direction: column; gap: 6px; padding: 11px 14px; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="cap">Objetivo</span>
+              <span class="mono" style="font-size: 11px; color: #5F6863;">MERC-412 · 4 criterios</span>
+              <div style="flex-grow: 1;"></div>
+              <span style="font-size: 12.5px; color: #2F7FBF; text-decoration: underline; text-underline-offset: 2px;">Editar</span>
+            </div>
+            <span style="font-size: 14px; font-weight: 600; line-height: 1.4;">Comprobar que un cliente pueda pagar con tarjeta y que el pedido quede registrado y visible en Mis pedidos.</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 190px; gap: 12px;">
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <span style="font-size: 13px; font-weight: 600;">URL inicial</span>
+              <div class="mono" style="height: 38px; display: flex; align-items: center; padding: 0 12px; background: #FFFFFF; border: 1px solid #B9BEB7; border-radius: 6px; font-size: 12.5px; white-space: nowrap; overflow: hidden;">https://qa.mercadito.test/checkout</div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <span style="font-size: 13px; font-weight: 600;">Ambiente</span>
+              <div style="height: 38px; box-sizing: border-box; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 3px; gap: 2px; background: #E1E5DF; border-radius: 7px;">
+                <span class="mono" style="display: flex; align-items: center; justify-content: center; font-size: 11.5px; color: #3D4540;">DEV</span>
+                <span class="mono" style="display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 600; background: #1A1F1C; color: #FBFBF9; border-radius: 5px;">QA</span>
+                <span class="mono" style="display: flex; align-items: center; justify-content: center; font-size: 11.5px; color: #3D4540;">STG</span>
+                <span class="mono" style="display: flex; align-items: center; justify-content: center; font-size: 11.5px; color: #3D4540;">PROD</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between;">
+              <span style="font-size: 13px; font-weight: 600;">Qué capturar</span>
+              <span style="font-size: 12px; color: #5F6863;">y qué agentes lo leerán</span>
+            </div>
+            <div style="display: flex; flex-direction: column; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 8px; overflow: hidden;">
+              <sc-for list="{{channels}}" as="c" hint-placeholder-count="6">
+                <div style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 14px; border-bottom: 1px solid #E8EAE5;">
+                  <span style="width: 10px; height: 10px; border-radius: 2px; background: {{c.color}}; flex-shrink: 0;"></span>
+                  <div style="flex-grow: 1; display: flex; flex-direction: column; min-width: 0;">
+                    <span style="font-size: 13.5px; font-weight: 600;">{{c.name}}</span>
+                    <span style="font-size: 11.5px; color: {{c.usedFg}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{c.used}}</span>
+                  </div>
+                  <span style="width: 34px; height: 20px; border-radius: 999px; background: #2E7D4F; position: relative; flex-shrink: 0;"><span style="position: absolute; top: 2px; left: 16px; width: 16px; height: 16px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.25);"></span></span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-size: 13px; font-weight: 600;">Ocultar datos sensibles</span>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <span style="font-size: 12.5px; padding: 5px 10px; border-radius: 999px; background: #1A1F1C; color: #FBFBF9;">Números de tarjeta</span>
+              <span style="font-size: 12.5px; padding: 5px 10px; border-radius: 999px; background: #1A1F1C; color: #FBFBF9;">Tokens y cookies</span>
+              <span style="font-size: 12.5px; padding: 5px 10px; border-radius: 999px; background: #1A1F1C; color: #FBFBF9;">Emails</span>
+              <span style="font-size: 12.5px; padding: 5px 10px; border-radius: 999px; background: #1A1F1C; color: #FBFBF9;">DNI y teléfonos</span>
+              <span style="font-size: 12.5px; padding: 5px 10px; border-radius: 999px; border: 1px dashed #9AA39D; color: #3D4540;">Agregar regla</span>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; align-items: center; margin-top: auto;">
+            <div style="height: 44px; padding: 0 20px; display: flex; align-items: center; gap: 10px; border-radius: 7px; background: #D9481F; color: #FFFFFF; font-weight: 700; font-size: 15px;">
+              <span style="width: 10px; height: 10px; border-radius: 50%; background: #FFFFFF;"></span>Abrir navegador y grabar</div>
+            <div style="height: 44px; padding: 0 16px; display: flex; align-items: center; border: 1px solid #B9BEB7; border-radius: 7px; font-weight: 600;">Volver al objetivo</div>
+          </div>
+        </div>
+
+        <!-- Right: analysis -->
+        <div style="flex-grow: 1; display: flex; flex-direction: column; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 10px; overflow: hidden; min-width: 0;">
+          <div style="display: flex; flex-direction: column; gap: 10px; padding: 14px 18px 12px; border-bottom: 1px solid #E4E7E1;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+              <span style="font-weight: 750; font-size: 18px;">Análisis de la sesión</span>
+              <span style="font-size: 12.5px; color: #5F6863;">{{modeHint}}</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 3px; gap: 2px; background: #E1E5DF; border-radius: 8px;">
+              <sc-for list="{{modes}}" as="m" hint-placeholder-count="3">
+                <div class="hit" tabindex="0" onClick="{{m.pick}}" style="height: 36px; display: flex; align-items: center; justify-content: center; gap: 7px; border-radius: 6px; background: {{m.bg}}; color: {{m.fg}}; font-weight: {{m.weight}}; box-shadow: {{m.shadow}}; font-size: 13px;">
+                  <span style="width: 8px; height: 8px; border-radius: 50%; background: {{m.dot}};"></span>{{m.name}}
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="flex-grow: 1; display: flex; flex-direction: column; padding: 4px 18px; overflow: hidden;">
+            <sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+              <span class="cap" style="padding: 10px 0 4px;">{{g.name}}</span>
+              <sc-for list="{{g.rows}}" as="f" hint-placeholder-count="4">
+                <div class="hit" tabindex="0" onClick="{{f.pick}}" style="display: grid; grid-template-columns: 36px minmax(0, 1fr) 250px; gap: 10px; align-items: center; height: 38px; border-bottom: 1px solid #EEF0EC; opacity: {{f.op}};">
+                  <span style="width: 32px; height: 18px; border-radius: 999px; background: {{f.track}}; position: relative;"><span class="knob" style="position: absolute; top: 2px; left: {{f.knob}}; width: 14px; height: 14px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.25);"></span></span>
+                  <span style="font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{f.name}}</span>
+                  <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; min-width: 0;">
+                    <sc-if value="{{f.showBots}}" hint-placeholder-val="{{true}}">
+                      <div style="display: flex; align-items: center;">
+                        <sc-for list="{{f.bots}}" as="r" hint-placeholder-count="2">
+                          <div class="pop" style="margin-left: {{r.ml}}; width: 20px; height: 20px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 0 0 1.5px #FBFBF9;">
+                            <svg width="20" height="20" viewBox="0 0 28 28" style="display: block;">
+                              <line x1="14" y1="4.5" x2="14" y2="8" stroke="{{r.color}}" stroke-width="1.8"></line>
+                              <circle cx="14" cy="3.6" r="2.1" fill="{{r.ant}}"></circle>
+                              <rect x="2.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{r.color}}"></rect>
+                              <rect x="23.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{r.color}}"></rect>
+                              <rect x="4.5" y="7.5" width="19" height="16" rx="{{r.headRx}}" fill="{{r.color}}"></rect>
+                              <rect x="7" y="10.5" width="14" height="8.5" rx="3" fill="#FBFBF9"></rect>
+                              <rect x="{{r.lx}}" y="{{r.ey}}" width="{{r.ew}}" height="{{r.eh}}" rx="{{r.er}}" fill="{{r.eyeFill}}"></rect>
+                              <rect x="{{r.rx}}" y="{{r.ey}}" width="{{r.rw}}" height="{{r.eh}}" rx="{{r.er}}" fill="{{r.eyeFill}}"></rect>
+                            </svg>
+                          </div>
+                        </sc-for>
+                      </div>
+                      <span style="font-size: 12.5px; color: #1A1F1C; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{f.who}}</span>
+                    </sc-if>
+                    <sc-if value="{{f.showNote}}" hint-placeholder-val="{{false}}">
+                      <span class="mono" style="font-size: 10.5px; padding: 3px 7px; border-radius: 4px; background: {{f.noteBg}}; color: {{f.noteFg}}; border: 1px solid {{f.noteBorder}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{f.note}}</span>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+            </sc-for>
+          </div>
+
+          <!-- Summary -->
+          <div style="display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: {{sumBg}}; color: {{sumFg}}; border-top: 1px solid #E4E7E1;">
+            <sc-if value="{{useAgents}}" hint-placeholder-val="{{true}}">
+              <div style="display: flex; align-items: center; flex-shrink: 0;">
+                <sc-for list="{{team}}" as="r" hint-placeholder-count="7">
+                  <div class="pop" style="margin-left: {{r.ml}}; width: 28px; height: 28px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 0 0 2px #1A1F1C;">
+                    <svg width="28" height="28" viewBox="0 0 28 28" style="display: block;">
+                      <line x1="14" y1="4.5" x2="14" y2="8" stroke="{{r.color}}" stroke-width="1.8"></line>
+                      <circle cx="14" cy="3.6" r="2.1" fill="{{r.ant}}"></circle>
+                      <rect x="2.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{r.color}}"></rect>
+                      <rect x="23.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{r.color}}"></rect>
+                      <rect x="4.5" y="7.5" width="19" height="16" rx="{{r.headRx}}" fill="{{r.color}}"></rect>
+                      <rect x="7" y="10.5" width="14" height="8.5" rx="3" fill="#FBFBF9"></rect>
+                      <rect x="{{r.lx}}" y="{{r.ey}}" width="{{r.ew}}" height="{{r.eh}}" rx="{{r.er}}" fill="{{r.eyeFill}}"></rect>
+                      <rect x="{{r.rx}}" y="{{r.ey}}" width="{{r.rw}}" height="{{r.eh}}" rx="{{r.er}}" fill="{{r.eyeFill}}"></rect>
+                    </svg>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+              <span style="font-size: 14px; font-weight: 700;">{{sumTitle}}</span>
+              <span style="font-size: 12.5px; line-height: 1.4; opacity: 0.8;">{{sumText}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var s = this.state || {};
+    var mode = s.mode || 'suggested';
+
+    var AG = {
+      lead: ['QA Lead', '#1A1F1C', false, 'visor', '#F06A3F'],
+      func: ['Funcional', '#2F7FBF', true, 'round'],
+      api: ['API REST', '#16907F', false, 'square'],
+      rt: ['Tiempo real', '#7B5CC9', true, 'visor'],
+      fe: ['Front-end', '#B7801A', false, 'round'],
+      perf: ['Rendimiento', '#B8507A', true, 'wide'],
+      sec: ['Seguridad', '#4B5A9E', false, 'visor'],
+      a11y: ['Accesibilidad', '#5E7F1F', true, 'round'],
+      ux: ['UI/UX', '#8C6A4F', false, 'wide'],
+      load: ['Carga', '#3D6B7A', false, 'round'],
+      reg: ['Regresión', '#8A7A2A', true, 'visor'],
+      rep: ['Reportero', '#2F4858', false, 'wide']
+    };
+    var ORDER = ['lead', 'func', 'api', 'rt', 'fe', 'perf', 'sec', 'a11y', 'ux', 'load', 'reg', 'rep'];
+    function robot(key) {
+      var a = AG[key];
+      var E = { round: [3.2, 3.2, 1.6, 13.2], square: [3, 3, 0.5, 13.3], wide: [4.4, 2, 1, 13.8], visor: [10, 2.6, 1.3, 13.5] }[a[3]];
+      var single = a[3] === 'visor';
+      return { key: key, name: a[0], color: a[1], headRx: a[2] ? 7 : 2.5,
+        ew: E[0], eh: E[1], er: E[2], ey: E[3], lx: single ? 9 : 11 - E[0] / 2, rx: single ? 0 : 17 - E[0] / 2, rw: single ? 0 : E[0],
+        eyeFill: a[4] || '#1A1F1C', ant: a[4] || a[1] };
+    }
+
+    var FN = [
+      { id: 'obj', g: 0, name: 'Evaluar los criterios del objetivo', agents: ['lead', 'func', 'api', 'rt', 'perf'], fallback: null, def: true },
+      { id: 'fe', g: 1, name: 'Errores de front y consola', agents: ['fe'], fallback: 'Lista de errores, sin relacionar', def: true },
+      { id: 'api', g: 1, name: 'API REST y contrato', agents: ['api'], fallback: 'Status y latencias', def: true },
+      { id: 'rt', g: 1, name: 'WebSocket y SSE', agents: ['rt'], fallback: 'Conteo de frames', def: true },
+      { id: 'perf', g: 1, name: 'Rendimiento y Web Vitals', agents: ['perf'], fallback: 'Métricas de Lighthouse', def: true },
+      { id: 'sec', g: 1, name: 'Seguridad pasiva', agents: ['sec'], fallback: 'Reglas de headers y cookies', def: true },
+      { id: 'a11y', g: 1, name: 'Accesibilidad WCAG', agents: ['a11y'], fallback: 'Reglas de axe-core', def: true },
+      { id: 'ux', g: 1, name: 'Revisión visual UI/UX', agents: ['ux'], fallback: null, def: true },
+      { id: 'ovl', g: 2, name: 'Overlays en el video', agents: 'active', fallback: 'Solo errores de consola y axe', def: true },
+      { id: 'load', g: 2, name: 'Script de carga k6', agents: ['load'], fallback: 'Exportar el HAR', def: false },
+      { id: 'reg', g: 2, name: 'Comparar con sesión base', agents: ['reg'], fallback: 'Diferencias de tráfico', def: false },
+      { id: 'rep', g: 2, name: 'Redactar bugs y reporte', agents: ['rep', 'lead'], fallback: 'Plantilla con los datos', def: true }
+    ];
+    var defaults = {};
+    FN.forEach(function (f) { defaults[f.id] = f.def; });
+    var on = s.on || defaults;
+    var none = mode === 'none';
+
+    function isOn(f) { return none ? (!!on[f.id] && f.fallback !== null) : !!on[f.id]; }
+
+    var activeSet = {};
+    if (!none) {
+      FN.forEach(function (f) {
+        if (isOn(f) && f.agents !== 'active') f.agents.forEach(function (k) { activeSet[k] = true; });
+      });
+      if (Object.keys(activeSet).length) activeSet.lead = true;
+    }
+    var reviewers = ORDER.filter(function (k) { return activeSet[k] && k !== 'lead' && k !== 'rep' && k !== 'load' && k !== 'reg'; });
+
+    function toggle(f) {
+      return function () {
+        if (none && f.fallback === null) return;
+        var n = Object.assign({}, on);
+        n[f.id] = !isOn(f);
+        self.setState({ on: n, mode: mode === 'suggested' ? 'manual' : mode });
+      };
+    }
+
+    var rows = FN.map(function (f) {
+      var active = isOn(f);
+      var locked = none && f.fallback === null;
+      var keys = f.agents === 'active' ? reviewers : f.agents;
+      var bots = keys.slice(0, 4).map(function (k, i) { var r = robot(k); r.ml = i === 0 ? '0' : '-6px'; return r; });
+      var who = '';
+      if (f.agents === 'active') who = keys.length ? 'Los ' + keys.length + ' que revisan' : 'Ningún revisor activo';
+      else who = keys.length === 1 ? AG[keys[0]][0] : AG[keys[0]][0] + ' +' + (keys.length - 1);
+      var showBots = !none && active && keys.length > 0;
+      var note = '', noteBg = 'transparent', noteFg = '#5F6863', noteBorder = '#D9DCD6';
+      if (none && locked) { note = 'Requiere agentes'; noteFg = '#8A938D'; noteBorder = '#E1E5DF'; }
+      else if (none) { note = 'Sin IA · ' + f.fallback; noteBg = '#E6E9E5'; noteFg = '#3D4540'; noteBorder = '#E6E9E5'; }
+      else if (!active) { note = 'Usaría: ' + (f.agents === 'active' ? 'los revisores activos' : keys.map(function (k) { return AG[k][0]; }).join(', ')); }
+      return {
+        g: f.g, name: f.name, bots: bots, who: who, showBots: showBots, showNote: !showBots, note: note, noteBg: noteBg, noteFg: noteFg, noteBorder: noteBorder,
+        track: active ? (none ? '#5F6863' : '#2E7D4F') : '#C9CEC6', knob: active ? '16px' : '2px', op: locked ? 0.45 : 1, pick: toggle(f)
+      };
+    });
+    var groups = ['Según el objetivo', 'Revisiones', 'Entregables'].map(function (name, i) {
+      return { name: name, rows: rows.filter(function (r) { return r.g === i; }) };
+    });
+
+    var modes = [['none', 'Sin agentes', '#9AA39D'], ['suggested', 'Sugeridos por el objetivo', '#2E7D4F'], ['manual', 'Elegir yo', '#D9481F']].map(function (m) {
+      var sel = m[0] === mode;
+      return { name: m[1], dot: m[2], bg: sel ? '#FFFFFF' : 'transparent', fg: sel ? '#1A1F1C' : '#3D4540', weight: sel ? 650 : 450, shadow: sel ? '0 1px 2px rgba(26,31,28,0.15)' : 'none',
+        pick: function () { self.setState({ mode: m[0], on: m[0] === 'suggested' ? defaults : on }); } };
+    });
+    var modeHint = none ? 'Solo grabación y reglas fijas' : (mode === 'suggested' ? 'El QA Lead eligió según los criterios' : 'Tú decides qué se revisa');
+
+    var teamKeys = ORDER.filter(function (k) { return activeSet[k]; });
+    var team = teamKeys.map(function (k, i) { var r = robot(k); r.ml = i === 0 ? '0' : '-8px'; return r; });
+    var useAgents = !none && teamKeys.length > 0;
+    var sumTitle, sumText;
+    if (none) {
+      sumTitle = 'Sin agentes';
+      sumText = 'Se graba todo igual y se aplican solo reglas fijas. Puedes analizar con agentes más tarde, desde la sesión.';
+    } else if (!teamKeys.length) {
+      sumTitle = 'Ninguna función con agentes activa';
+      sumText = 'Activa al menos una función o elige “Sin agentes”.';
+    } else {
+      sumTitle = teamKeys.length + ' agentes para esta sesión';
+      sumText = teamKeys.map(function (k) { return AG[k][0]; }).join(' · ') + '. El QA Lead coordina y los datos sensibles se ocultan antes de enviarlos.';
+    }
+
+    var CH = [
+      ['#2F7FBF', 'Acciones y DOM', ['func', 'fe', 'a11y']],
+      ['#16907F', 'Red REST', ['api', 'sec', 'load', 'reg']],
+      ['#7B5CC9', 'WebSocket y SSE', ['rt']],
+      ['#B7801A', 'Consola', ['fe', 'sec']],
+      ['#B8507A', 'Rendimiento', ['perf']],
+      ['#1A1F1C', 'Grabación de pantalla', ['ux']]
+    ];
+    var ovlOn = isOn(FN[8]);
+    var channels = CH.map(function (c, i) {
+      var users = c[2].filter(function (k) { return activeSet[k]; }).map(function (k) { return AG[k][0]; });
+      var used;
+      if (none) used = i === 5 ? 'Solo grabación · overlays de reglas fijas' : 'Sin agentes · se graba igual';
+      else if (i === 5 && ovlOn) used = 'Lo usan: ' + (users.length ? users.join(', ') + ' · ' : '') + 'overlays de ' + reviewers.length + ' agentes';
+      else used = users.length ? 'Lo usan: ' + users.join(', ') : 'Ningún agente lo usa · se graba igual';
+      return { color: c[0], name: c[1], used: used, usedFg: users.length && !none ? '#3D4540' : '#8A938D' };
+    });
+
+    return {
+      modes: modes, modeHint: modeHint, groups: groups, channels: channels, team: team, useAgents: useAgents,
+      sumTitle: sumTitle, sumText: sumText, sumBg: none ? '#E6E9E5' : '#1A1F1C', sumFg: none ? '#1A1F1C' : '#FBFBF9'
+    };
+  }
+}
+</script>
+</body>
+</html>

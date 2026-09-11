@@ -1,0 +1,61 @@
+# ── Dependencias ────────────────────────────────────────────
+node_modules/
+.npm/
+.pnpm-store/
+
+# ── Builds y cachés ─────────────────────────────────────────
+dist/
+build/
+out/
+*.tsbuildinfo
+.vite/
+.eslintcache
+.cache/
+.turbo/
+
+# ── Variables de entorno y secretos ─────────────────────────
+# Solo se versionan los .env.example.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+# Llaves de firma de actualizaciones de Tauri
+*.tauri.key
+*.tauri.key.pub
+
+# ── Datos de sesiones grabadas (pueden contener datos sensibles) ──
+data/
+*.har
+sessions-export/
+recordings/
+
+# ── Tauri / Rust ────────────────────────────────────────────
+desktop/src-tauri/target/
+desktop/src-tauri/gen/schemas/
+**/*.rs.bk
+
+# ── Tests y reportes ────────────────────────────────────────
+coverage/
+test-results/
+playwright-report/
+blob-report/
+
+# ── Logs ────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+logs/
+
+# ── Editor, herramientas locales y SO ───────────────────────
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+.claude/settings.local.json
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/

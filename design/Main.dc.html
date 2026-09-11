@@ -1,0 +1,422 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap">
+  <style>
+    body { margin: 0; background: #F1F2EF; }
+    a { color: #2F7FBF; } a:hover { color: #1A1F1C; }
+    .mono { font-family: 'JetBrains Mono', Consolas, 'Courier New', monospace; }
+    .cap { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: #5F6863; }
+    @keyframes rb-pop { from { opacity: 0; transform: translateY(6px) scale(0.97); } to { opacity: 1; transform: none; } }
+    .pop { animation: rb-pop 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+    @keyframes rb-ring { 0% { transform: scale(0.8); opacity: 0.6; } 100% { transform: scale(2.2); opacity: 0; } }
+    .ring { animation: rb-ring 2s ease-out infinite; }
+    @keyframes rb-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+    .bob { animation: rb-bob 1.8s ease-in-out infinite; }
+    @keyframes rb-travel { 0% { left: 0; opacity: 0; } 12% { opacity: 1; } 88% { opacity: 1; } 100% { left: calc(100% - 8px); opacity: 0; } }
+    .travel { animation: rb-travel 1.6s ease-in-out infinite; }
+    @keyframes rb-dash { to { background-position: 16px 0; } }
+    .dash { background-image: linear-gradient(90deg, #9AA39D 50%, transparent 50%); background-size: 8px 1.5px; background-repeat: repeat-x; animation: rb-dash 0.8s linear infinite; }
+    @keyframes rb-think { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+    .think { animation: rb-think 1.1s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) { .pop, .ring, .bob, .travel, .dash, .think { animation: none !important; } }
+  </style>
+</helmet>
+<div style="width: 1440px; height: 900px; display: flex; flex-direction: column; background: #F1F2EF; color: #1A1F1C; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-size: 14px; overflow: hidden;">
+
+  <!-- Top bar -->
+  <div style="height: 52px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; padding: 0 20px; background: #FBFBF9; border-bottom: 1px solid #D9DCD6;">
+    <div style="display: flex; align-items: center; gap: 8px; width: 172px;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #D9481F;"></span>
+      <span style="font-weight: 800; font-size: 19px; font-stretch: 115%; letter-spacing: -0.01em;">Rastro</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; color: #5F6863;">
+      <span>Checkout web</span>
+      <span style="color: #B9BEB7;">/</span>
+      <span style="color: #1A1F1C; font-weight: 600;">Sesión #148 · Pago con tarjeta</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span class="mono" style="font-size: 11px; font-weight: 600; padding: 3px 7px; border-radius: 4px; background: #1A1F1C; color: #FBFBF9;">QA</span>
+      <span class="mono" style="font-size: 12px; color: #5F6863;">build v2.14.0</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border: 1px solid #D9DCD6; border-radius: 6px; background: #F1F2EF;">
+      <span class="cap">Objetivo</span>
+      <span style="font-size: 13px; font-weight: 600;">Pagar con tarjeta y ver el pedido</span>
+      <span class="mono" style="font-size: 11px; font-weight: 600; color: #B42318;">1/4 CA</span>
+    </div>
+    <div style="flex-grow: 1;"></div>
+    <div style="display: flex; gap: 8px;">
+      <div style="height: 34px; padding: 0 14px; display: flex; align-items: center; border: 1px solid #B9BEB7; border-radius: 6px; font-weight: 600;">Comparar</div>
+      <div style="height: 34px; padding: 0 14px; display: flex; align-items: center; gap: 8px; border-radius: 6px; background: #1A1F1C; color: #FBFBF9; font-weight: 600;">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10" cy="5" r="2.2"></circle><circle cx="4.5" cy="15" r="2.2"></circle><circle cx="15.5" cy="15" r="2.2"></circle><path d="M10 7.2v3.3M10 10.5l-4 2.8M10 10.5l4 2.8"></path></svg>
+        Analizar con agentes
+      </div>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0;">
+    <!-- Nav -->
+    <div style="width: 208px; flex-shrink: 0; display: flex; flex-direction: column; gap: 2px; padding: 16px 12px; border-right: 1px solid #D9DCD6; background: #F1F2EF;">
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 6px; background: #E1E5DF; font-weight: 650;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7"></circle><circle cx="10" cy="10" r="3" fill="#D9481F" stroke="none"></circle></svg>Sesiones</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="9" r="5.5"></circle><path d="M13 13l4 4"></path></svg><span style="flex-grow: 1;">Hallazgos</span><span class="mono" style="font-size: 11px; color: #5F6863;">14</span></div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="5" r="2.2"></circle><circle cx="4.5" cy="15" r="2.2"></circle><circle cx="15.5" cy="15" r="2.2"></circle><path d="M10 7.2v3.3M10 10.5l-4 2.8M10 10.5l4 2.8"></path></svg>Agentes</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3l7 4-7 4-7-4 7-4z"></path><path d="M3 11l7 4 7-4"></path></svg>Ambientes</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h11l-3-3M16 13H5l3 3"></path></svg>Comparaciones</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h14M3 14h14"></path><circle cx="7" cy="6" r="2" fill="#F1F2EF"></circle><circle cx="13" cy="14" r="2" fill="#F1F2EF"></circle></svg>Ajustes del proyecto</div>
+      <div style="flex-grow: 1;"></div>
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 10px; border-top: 1px solid #D9DCD6;">
+        <span class="cap">Proyecto</span>
+        <span style="font-weight: 600;">Mercadito</span>
+        <span style="color: #5F6863; font-size: 13px;">3 ambientes · 148 sesiones</span>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div style="flex-grow: 1; display: flex; gap: 16px; padding: 16px; min-width: 0;">
+
+      <!-- Main column -->
+      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 16px; min-width: 0;">
+
+        <!-- Replay -->
+        <div style="height: 396px; flex-shrink: 0; display: flex; flex-direction: column; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 8px; overflow: hidden;">
+          <div style="height: 40px; flex-shrink: 0; display: flex; align-items: center; gap: 12px; padding: 0 14px; border-bottom: 1px solid #E4E7E1;">
+            <span style="font-weight: 700;">Reproducción</span>
+            <span class="mono" style="font-size: 12px; color: #5F6863;">Chromium · 1366×768 · es-AR</span>
+            <div style="flex-grow: 1;"></div>
+            <div style="height: 28px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border: 1px solid #B9BEB7; border-radius: 6px; font-size: 12.5px; font-weight: 600;"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="4.5" width="12" height="11" rx="2"></rect><path d="M14 8.5l4-2.5v8l-4-2.5"></path></svg>Abrir grabación con overlays</div>
+          </div>
+          <div style="flex-grow: 1; padding: 12px 14px; background: #E3E6E0;">
+            <div style="height: 100%; display: flex; flex-direction: column; background: #FFFFFF; border-radius: 6px; box-shadow: 0 1px 3px rgba(26,31,28,0.18); overflow: hidden; position: relative;">
+              <div style="height: 26px; flex-shrink: 0; display: flex; align-items: center; gap: 10px; padding: 0 10px; background: #ECEEEA; border-bottom: 1px solid #DADDD7;">
+                <div style="display: flex; gap: 5px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C9CDC6;"></span><span style="width: 8px; height: 8px; border-radius: 50%; background: #C9CDC6;"></span><span style="width: 8px; height: 8px; border-radius: 50%; background: #C9CDC6;"></span></div>
+                <div class="mono" style="flex-grow: 1; height: 18px; display: flex; align-items: center; padding: 0 8px; background: #FFFFFF; border-radius: 4px; font-size: 11px; color: #5F6863;">https://qa.mercadito.test/checkout/pago</div>
+              </div>
+              <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 12px; padding: 14px 22px; font-family: Arial, Helvetica, sans-serif; color: #2A2A2A;">
+                <div style="display: flex; align-items: center; gap: 18px;">
+                  <span style="font-weight: 700; font-size: 16px; color: #3A7A3A;">mercadito</span>
+                  <div style="display: flex; gap: 14px; font-size: 12px; color: #8A8A8A;"><span>1 Carrito</span><span>2 Envío</span><span style="color: #2A2A2A; font-weight: 700;">3 Pago</span></div>
+                </div>
+                <div style="display: flex; gap: 20px; flex-grow: 1;">
+                  <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 11px; color: #777;">Número de tarjeta</span><div style="height: 30px; border: 1px solid #CCC; border-radius: 4px; display: flex; align-items: center; padding: 0 10px; font-size: 13px;">•••• •••• •••• 4242</div></div>
+                    <div style="display: flex; gap: 10px;">
+                      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 11px; color: #777;">Vencimiento</span><div style="height: 30px; border: 1px solid #CCC; border-radius: 4px; display: flex; align-items: center; padding: 0 10px; font-size: 13px;">09/28</div></div>
+                      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 11px; color: #777;">CVV</span><div style="height: 30px; border: 1px solid #CCC; border-radius: 4px; display: flex; align-items: center; padding: 0 10px; font-size: 13px;">•••</div></div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 11px; color: #777;">Titular</span><div style="height: 30px; border: 1px solid #CCC; border-radius: 4px; display: flex; align-items: center; padding: 0 10px; font-size: 13px; color: #999;">[oculto por Rastro]</div></div>
+                  </div>
+                  <div style="width: 250px; flex-shrink: 0; display: flex; flex-direction: column; gap: 7px; padding: 12px 14px; background: #F6F6F4; border-radius: 6px; font-size: 12px;">
+                    <span style="font-weight: 700; font-size: 13px;">Tu pedido</span>
+                    <div style="display: flex; justify-content: space-between;"><span>Yerba 1 kg × 2</span><span>$ 9.980,00</span></div>
+                    <div style="display: flex; justify-content: space-between;"><span>Termo acero 1 l</span><span>$ 32.500,00</span></div>
+                    <div style="display: flex; justify-content: space-between;"><span>Envío express</span><span>$ 4.990,00</span></div>
+                    <div style="display: flex; justify-content: space-between; font-weight: 700; border-top: 1px solid #DDD; padding-top: 6px;"><span>Total</span><span>$ 47.470,00</span></div>
+                    <div style="position: relative; margin-top: 2px;">
+                      <div style="height: 32px; display: flex; align-items: center; justify-content: center; background: #3A7A3A; color: #FFF; border-radius: 4px; font-weight: 700;">Confirmar pago</div>
+                      <span style="position: absolute; left: 118px; top: 8px; width: 16px; height: 16px; border-radius: 50%; background: rgba(217,72,31,0.35); box-shadow: 0 0 0 5px rgba(217,72,31,0.25), 0 0 0 10px rgba(217,72,31,0.12);"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="position: absolute; right: 16px; top: 38px; display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #2F6B2F; color: #FFF; border-radius: 4px; font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 700; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">¡Pedido confirmado!</div>
+              <div style="position: absolute; right: 12px; top: 72px; display: flex; align-items: center; gap: 6px; padding: 4px 8px; background: #B42318; color: #FFF; border-radius: 4px; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 10px; font-weight: 600;">API respondió 500</div>
+            </div>
+          </div>
+          <div style="height: 46px; flex-shrink: 0; display: flex; align-items: center; gap: 14px; padding: 0 14px; border-top: 1px solid #E4E7E1;">
+            <div style="width: 30px; height: 30px; border-radius: 50%; background: #1A1F1C; display: flex; align-items: center; justify-content: center;"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M3 1.5v9l7.5-4.5z" fill="#FBFBF9"></path></svg></div>
+            <span class="mono" style="font-size: 13px; font-weight: 600;">02:31.4</span>
+            <span class="mono" style="font-size: 13px; color: #5F6863;">/ 04:12.0</span>
+            <div style="display: flex; gap: 6px;">
+              <span class="mono" style="font-size: 12px; padding: 4px 8px; border: 1px solid #D9DCD6; border-radius: 4px;">−5 s</span>
+              <span class="mono" style="font-size: 12px; padding: 4px 8px; border: 1px solid #D9DCD6; border-radius: 4px;">+5 s</span>
+              <span class="mono" style="font-size: 12px; padding: 4px 8px; border: 1px solid #D9DCD6; border-radius: 4px;">1×</span>
+            </div>
+            <div style="flex-grow: 1;"></div>
+            <span style="color: #5F6863; font-size: 13px;">Saltar al apunte anterior / siguiente</span>
+            <div style="display: flex; gap: 4px;">
+              <span style="width: 28px; height: 28px; border: 1px solid #D9DCD6; border-radius: 4px; display: flex; align-items: center; justify-content: center;"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#1A1F1C" stroke-width="1.6"><path d="M9 3L5 7l4 4"></path></svg></span>
+              <span style="width: 28px; height: 28px; border: 1px solid #D9DCD6; border-radius: 4px; display: flex; align-items: center; justify-content: center;"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#1A1F1C" stroke-width="1.6"><path d="M5 3l4 4-4 4"></path></svg></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div style="flex-grow: 1; display: flex; flex-direction: column; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 8px; overflow: hidden;">
+          <div style="height: 42px; flex-shrink: 0; display: flex; align-items: center; gap: 12px; padding: 0 14px; border-bottom: 1px solid #E4E7E1;">
+            <span style="font-weight: 700;">Línea de tiempo</span>
+            <span style="color: #5F6863; font-size: 13px;">38 acciones · 214 requests · 57 frames · 12 logs</span>
+            <div style="flex-grow: 1;"></div>
+            <div style="display: flex; gap: 6px;">
+              <span style="font-size: 12px; padding: 4px 10px; border-radius: 999px; background: #1A1F1C; color: #FBFBF9; font-weight: 600;">Todos los canales</span>
+              <span style="font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid #D9DCD6;">Solo en alcance</span>
+              <span style="font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid #D9DCD6;">Ocultar polling</span>
+            </div>
+          </div>
+          <div style="flex-grow: 1; display: flex; flex-direction: column; padding: 0 14px; position: relative;">
+            <!-- ruler -->
+            <div style="display: grid; grid-template-columns: 136px minmax(0, 1fr); height: 24px; align-items: end; border-bottom: 1px solid #D9DCD6;">
+              <span></span>
+              <div style="position: relative; height: 100%;">
+                <sc-for list="{{ticks}}" as="t" hint-placeholder-count="9">
+                  <span class="mono" style="position: absolute; left: {{t.left}}; bottom: 4px; font-size: 10px; color: #7A847E; transform: translateX(-50%);">{{t.label}}</span>
+                </sc-for>
+              </div>
+            </div>
+            <!-- agent notes lane -->
+            <div style="display: grid; grid-template-columns: 136px minmax(0, 1fr); height: 38px; align-items: center; border-bottom: 1px solid #E8EAE5; background: #F6F7F4;">
+              <span class="mono" style="font-size: 11px; letter-spacing: 0.04em; color: #1A1F1C; font-weight: 600;">APUNTES IA</span>
+              <div style="position: relative; height: 100%;">
+                <sc-for list="{{pins}}" as="p" hint-placeholder-count="4">
+                  <div style="position: absolute; left: {{p.left}}; top: 8px; height: 22px; display: flex; align-items: center; margin-left: -11px;">
+                    <sc-if value="{{p.pulse}}" hint-placeholder-val="{{true}}">
+                      <span class="ring" style="position: absolute; left: 0; top: 0; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #D9481F; box-sizing: border-box;"></span>
+                    </sc-if>
+                    <sc-for list="{{p.bots}}" as="r" hint-placeholder-count="2">
+                      <div class="bob" style="position: relative; margin-left: {{r.ml}}; width: 22px; height: 22px; border-radius: 50%; background: #FBFBF9; box-shadow: 0 0 0 1.5px #FBFBF9; animation-delay: {{r.delay}};">
+                        <svg width="22" height="22" viewBox="0 0 28 28" style="display: block;">
+                          <line x1="14" y1="4.5" x2="14" y2="8" stroke="{{r.color}}" stroke-width="1.8"></line>
+                          <circle cx="14" cy="3.6" r="2.1" fill="{{r.color}}"></circle>
+                          <rect x="2.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{r.color}}"></rect>
+                          <rect x="23.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{r.color}}"></rect>
+                          <rect x="4.5" y="7.5" width="19" height="16" rx="{{r.headRx}}" fill="{{r.color}}"></rect>
+                          <rect x="7" y="10.5" width="14" height="8.5" rx="3" fill="#FBFBF9"></rect>
+                          <rect x="{{r.lx}}" y="{{r.ey}}" width="{{r.ew}}" height="{{r.eh}}" rx="{{r.er}}" fill="{{r.eyeFill}}"></rect>
+                          <rect x="{{r.rx}}" y="{{r.ey}}" width="{{r.rw}}" height="{{r.eh}}" rx="{{r.er}}" fill="{{r.eyeFill}}"></rect>
+                        </svg>
+                      </div>
+                    </sc-for>
+                    <sc-if value="{{p.hasLabel}}" hint-placeholder-val="{{true}}">
+                      <span class="mono" style="margin-left: 4px; font-size: 10px; font-weight: 600; padding: 1px 5px; border-radius: 8px; background: #D9481F; color: #FFFFFF;">{{p.label}}</span>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <!-- lanes -->
+            <sc-for list="{{lanes}}" as="lane" hint-placeholder-count="6">
+              <div style="display: grid; grid-template-columns: 136px minmax(0, 1fr); height: 38px; align-items: center; border-bottom: 1px solid #E8EAE5;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="width: 8px; height: 8px; border-radius: 2px; background: {{lane.color}};"></span>
+                  <span class="mono" style="font-size: 11px; letter-spacing: 0.04em; color: #3D4540;">{{lane.name}}</span>
+                </div>
+                <div style="position: relative; height: 100%;">
+                  <sc-for list="{{lane.events}}" as="e" hint-placeholder-count="6">
+                    <div class="mono" style="position: absolute; left: {{e.left}}; width: {{e.width}}; top: {{e.top}}; height: {{e.height}}; background: {{e.bg}}; opacity: {{e.op}}; border-radius: 2px; font-size: 10px; line-height: 20px; color: #1A1F1C; padding-left: {{e.pad}}; white-space: nowrap; overflow: hidden; box-sizing: border-box;">{{e.label}}</div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+            <!-- selection band + playhead -->
+            <div style="position: absolute; top: 0; bottom: 30px; left: 150px; right: 14px; pointer-events: none;">
+              <div style="position: absolute; left: 59.6%; width: 1.9%; top: 24px; bottom: 0; background: rgba(217,72,31,0.08); border-left: 1px dashed rgba(217,72,31,0.5); border-right: 1px dashed rgba(217,72,31,0.5);"></div>
+              <div style="position: absolute; left: 60.1%; top: 0; bottom: 0; width: 2px; background: #D9481F;"></div>
+              <div style="position: absolute; left: 60.1%; top: 0; width: 10px; height: 10px; margin-left: -4px; background: #D9481F; border-radius: 2px 2px 50% 50%;"></div>
+            </div>
+            <div style="height: 30px; margin-top: auto; display: flex; align-items: center; gap: 16px; font-size: 12px; color: #5F6863;">
+              <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 8px; background: rgba(217,72,31,0.15); border: 1px dashed #D9481F;"></span>Cadena causal · 02:31.4 → 02:33.6</span>
+              <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 50%; border: 2px solid #D9481F; box-sizing: border-box;"></span>Varios agentes coinciden</span>
+              <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 2px; background: #B42318;"></span>Error</span>
+              <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 2px; background: #B26A00;"></span>Umbral superado</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inspector -->
+      <div style="width: 380px; flex-shrink: 0; display: flex; flex-direction: column; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 8px; overflow: hidden;">
+        <div style="display: flex; flex-direction: column; gap: 7px; padding: 14px 16px 12px; border-bottom: 1px solid #E4E7E1;">
+          <span class="cap">Evento seleccionado · Red REST</span>
+          <span class="mono" style="font-size: 17px; font-weight: 600;">POST /api/orders</span>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <span class="mono" style="font-size: 11px; font-weight: 600; padding: 3px 7px; border-radius: 4px; background: #B42318; color: #FFF;">500 Internal Server Error</span>
+            <span class="mono" style="font-size: 11px; padding: 3px 7px; border-radius: 4px; background: #F3E4C9; color: #7A4A00;">1,84 s</span>
+            <span class="mono" style="font-size: 11px; padding: 3px 7px; border-radius: 4px; border: 1px solid #1A1F1C;">Afecta CA2</span>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 16px; border-bottom: 1px solid #E4E7E1;">
+          <span class="cap">Cadena causal</span>
+          <div style="display: flex; flex-direction: column;">
+            <sc-for list="{{chain}}" as="c" hint-placeholder-count="5">
+              <div style="display: grid; grid-template-columns: 56px 12px minmax(0, 1fr); gap: 8px; align-items: center; height: 24px;">
+                <span class="mono" style="font-size: 11px; color: #5F6863;">{{c.time}}</span>
+                <span style="width: 9px; height: 9px; border-radius: 50%; background: {{c.color}};"></span>
+                <span style="font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{c.title}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="flex-grow: 1; display: flex; flex-direction: column; min-height: 0;">
+          <div style="display: flex; gap: 16px; padding: 0 16px; border-bottom: 1px solid #E4E7E1; font-size: 13px;">
+            <span style="padding: 10px 0 8px; font-weight: 650; border-bottom: 2px solid #1A1F1C; display: flex; align-items: center; gap: 6px;">Apuntes de agentes<span class="mono" style="font-size: 10px; padding: 1px 5px; border-radius: 8px; background: #D9481F; color: #FFF;">5</span></span>
+            <span style="padding: 10px 0 8px; color: #5F6863;">Request</span>
+            <span style="padding: 10px 0 8px; color: #5F6863;">Response</span>
+            <span style="padding: 10px 0 8px; color: #5F6863;">Headers</span>
+          </div>
+
+          <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; overflow: hidden;">
+            <sc-for list="{{thread}}" as="t" hint-placeholder-count="5">
+              <sc-if value="{{t.isNote}}" hint-placeholder-val="{{true}}">
+                <div class="pop" style="display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; align-items: start; animation-delay: {{t.delay}};">
+                  <svg width="28" height="28" viewBox="0 0 28 28" style="display: block;">
+                    <line x1="14" y1="4.5" x2="14" y2="8" stroke="{{t.r.color}}" stroke-width="1.8"></line>
+                    <circle class="{{t.r.antClass}}" cx="14" cy="3.6" r="2.1" fill="{{t.r.color}}"></circle>
+                    <rect x="2.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{t.r.color}}"></rect>
+                    <rect x="23.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{t.r.color}}"></rect>
+                    <rect x="4.5" y="7.5" width="19" height="16" rx="{{t.r.headRx}}" fill="{{t.r.color}}"></rect>
+                    <rect x="7" y="10.5" width="14" height="8.5" rx="3" fill="#FBFBF9"></rect>
+                    <rect x="{{t.r.lx}}" y="{{t.r.ey}}" width="{{t.r.ew}}" height="{{t.r.eh}}" rx="{{t.r.er}}" fill="{{t.r.eyeFill}}"></rect>
+                    <rect x="{{t.r.rx}}" y="{{t.r.ey}}" width="{{t.r.rw}}" height="{{t.r.eh}}" rx="{{t.r.er}}" fill="{{t.r.eyeFill}}"></rect>
+                  </svg>
+                  <div style="background: {{t.bg}}; color: {{t.fg}}; border-radius: 3px 10px 10px 10px; padding: 6px 10px 7px;">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px;">
+                      <span style="font-size: 12px; font-weight: 700;">{{t.r.name}}</span>
+                      <span class="mono" style="font-size: 10px; opacity: 0.7;">{{t.time}}</span>
+                    </div>
+                    <ul style="margin: 2px 0 0; padding-left: 15px; display: flex; flex-direction: column; gap: 1px; font-size: 12.5px; line-height: 1.4;">
+                      <sc-for list="{{t.bullets}}" as="b" hint-placeholder-count="2"><li>{{b.text}}</li></sc-for>
+                    </ul>
+                  </div>
+                </div>
+              </sc-if>
+              <sc-if value="{{t.isShare}}" hint-placeholder-val="{{false}}">
+                <div class="pop" style="display: flex; align-items: center; gap: 8px; padding-left: 36px; animation-delay: {{t.delay}};">
+                  <span style="width: 10px; height: 10px; border-radius: 3px; background: {{t.from.color}}; flex-shrink: 0;"></span>
+                  <span style="font-size: 11.5px; font-weight: 600; white-space: nowrap;">{{t.from.name}}</span>
+                  <div style="position: relative; flex-grow: 1; height: 12px; min-width: 40px;">
+                    <div class="dash" style="position: absolute; left: 0; right: 0; top: 5px; height: 1.5px;"></div>
+                    <span class="travel" style="position: absolute; top: 2px; width: 8px; height: 8px; border-radius: 50%; background: {{t.from.color}};"></span>
+                  </div>
+                  <span style="font-size: 11.5px; font-weight: 600; white-space: nowrap;">{{t.to.name}}</span>
+                  <span style="width: 10px; height: 10px; border-radius: 3px; background: {{t.to.color}}; flex-shrink: 0;"></span>
+                  <span class="mono" style="font-size: 10.5px; color: #5F6863; white-space: nowrap;">{{t.label}}</span>
+                </div>
+              </sc-if>
+            </sc-for>
+          </div>
+
+          <div style="display: flex; gap: 8px; padding: 0 14px 14px;">
+            <div style="flex-grow: 1; height: 36px; display: flex; align-items: center; padding: 0 12px; background: #FFFFFF; border: 1px solid #B9BEB7; border-radius: 6px; color: #7A847E; font-size: 13px;">Pregunta a los agentes sobre este punto…</div>
+            <div style="height: 36px; padding: 0 12px; display: flex; align-items: center; border-radius: 6px; background: #1A1F1C; color: #FBFBF9; font-weight: 600;">Confirmar</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var AG = {
+      lead: ['QA Lead', '#1A1F1C', '#1A1F1C', false, 'visor', '#F06A3F'],
+      func: ['Funcional', '#2F7FBF', '#E3EEF7', true, 'round', '#1A1F1C'],
+      api: ['API REST', '#16907F', '#DDF0EC', false, 'square', '#1A1F1C'],
+      fe: ['Front-end', '#B7801A', '#F5EBD9', false, 'round', '#1A1F1C'],
+      perf: ['Rendimiento', '#B8507A', '#F5E3EA', true, 'wide', '#1A1F1C'],
+      sec: ['Seguridad', '#4B5A9E', '#E4E7F3', false, 'visor', '#1A1F1C']
+    };
+    function robot(key, anim) {
+      var a = AG[key];
+      var E = { round: [3.2, 3.2, 1.6, 13.2], square: [3, 3, 0.5, 13.3], wide: [4.4, 2, 1, 13.8], visor: [10, 2.6, 1.3, 13.5] }[a[4]];
+      var single = a[4] === 'visor';
+      return { name: a[0], color: a[1], tint: a[2], headRx: a[3] ? 7 : 2.5,
+        ew: E[0], eh: E[1], er: E[2], ey: E[3], lx: single ? 9 : 11 - E[0] / 2, rx: single ? 0 : 17 - E[0] / 2, rw: single ? 0 : E[0],
+        eyeFill: a[5], antClass: anim ? 'think' : '' };
+    }
+
+    var TOTAL = 252;
+    function pct(s) { return (s / TOTAL * 100).toFixed(2) + '%'; }
+    function tick(s, color, op) {
+      return { left: pct(s), width: '3px', top: '10px', height: '18px', bg: color, op: op == null ? 1 : op, label: '', pad: '0' };
+    }
+    function bar(s, dur, color, label, op) {
+      return { left: pct(s), width: Math.max(dur / TOTAL * 100, 0.6).toFixed(2) + '%', top: '9px', height: '20px', bg: color, op: op == null ? 1 : op, label: label || '', pad: label ? '6px' : '0' };
+    }
+    function tall(s, color) { return { left: pct(s), width: '4px', top: '6px', height: '26px', bg: color, op: 1, label: '', pad: '0' }; }
+    var UI = '#2F7FBF', NET = '#16907F', WS = '#7B5CC9', CON = '#B7801A', PERF = '#B8507A', ERR = '#B42318', WARN = '#B26A00';
+
+    var polling = [];
+    for (var s = 15; s < 250; s += 15) { polling.push(tick(s, NET, 0.35)); }
+    var heartbeat = [];
+    for (var h = 35; h < 250; h += 30) { heartbeat.push(tick(h, WS, 0.45)); }
+    var ticks = [];
+    for (var t = 0; t <= 240; t += 30) {
+      var m = Math.floor(t / 60), sec = t % 60;
+      ticks.push({ left: pct(t), label: m + ':' + (sec < 10 ? '0' : '') + sec });
+    }
+
+    function cluster(at, keys, pulse) {
+      return {
+        left: pct(at), pulse: !!pulse, hasLabel: keys.length > 1, label: '×' + keys.length,
+        bots: keys.map(function (k, i) { var r = robot(k); r.ml = i === 0 ? '0' : '-7px'; r.delay = (i * 0.15) + 's'; return r; })
+      };
+    }
+
+    function note(key, time, bullets, delay, lead) {
+      var r = robot(key, lead);
+      return { isNote: true, isShare: false, r: r, time: time, delay: delay,
+        bg: lead ? '#1A1F1C' : r.tint, fg: lead ? '#FBFBF9' : '#1A1F1C',
+        bullets: bullets.map(function (b) { return { text: b }; }) };
+    }
+
+    return {
+      ticks: ticks,
+      pins: [
+        cluster(4.1, ['sec']),
+        cluster(83, ['api']),
+        cluster(151.6, ['api', 'func', 'fe', 'perf'], true),
+        cluster(185.2, ['func', 'api'])
+      ],
+      lanes: [
+        { name: 'PANTALLAS', color: '#7A847E', events: [
+          bar(0, 21, '#DDE1DA', '/carrito'), bar(21.3, 23.5, '#E6E9E3', '/envío'),
+          bar(45, 139.5, '#DDE1DA', '/checkout/pago'), bar(184.8, 66, '#E6E9E3', '/mis-pedidos')
+        ] },
+        { name: 'ACCIONES UI', color: UI, events: [
+          tick(4, UI), tick(21, UI), tick(48, UI), tick(70, UI), tick(82, UI), tick(115, UI), tick(151.4, UI), tick(185, UI), tick(220, UI)
+        ] },
+        { name: 'RED · REST', color: NET, events: polling.concat([
+          bar(4, 2.2, NET), bar(22, 1.6, NET), bar(83, 3.5, NET), bar(116, 2.4, NET), bar(151.6, 1.84, ERR), bar(185.4, 2.2, NET), bar(220.3, 1.2, NET), bar(221.8, 1.2, NET), bar(223.2, 1.2, NET)
+        ]) },
+        { name: 'WEBSOCKET', color: WS, events: heartbeat.concat([ tick(5, WS), tick(116.5, WS), tall(153.4, ERR) ]) },
+        { name: 'CONSOLA', color: CON, events: [ tick(5.2, CON), tall(153.5, ERR), tick(186, ERR), tick(221, ERR) ] },
+        { name: 'RENDIMIENTO', color: PERF, events: [
+          bar(1, 3.4, WARN, ''), bar(45.5, 1.6, PERF, '', 0.55), bar(151.4, 0.62, WARN, ''), bar(153.5, 1.2, PERF, '', 0.55), bar(185, 2.1, PERF, '', 0.55)
+        ] }
+      ],
+      chain: [
+        { time: '02:31.4', color: UI, title: 'Click en “Confirmar pago”' },
+        { time: '02:31.6', color: ERR, title: 'POST /api/orders → 500' },
+        { time: '02:33.4', color: WS, title: 'Socket: order.status failed' },
+        { time: '02:33.5', color: ERR, title: 'TypeError en OrderSummary.tsx:42' },
+        { time: '02:33.6', color: UI, title: 'Toast “¡Pedido confirmado!”' }
+      ],
+      thread: [
+        note('api', '02:31.6', ['POST /api/orders → 500 PAYMENT_CAPTURE_TIMEOUT', 'La respuesta trae orderId: null'], '0.1s'),
+        { isNote: false, isShare: true, from: robot('api'), to: robot('fe'), label: 'body · 214 B', delay: '0.35s' },
+        note('fe', '02:33.5', ['Con ese body, OrderSummary.tsx:42 lee order.id de null', 'El toast de éxito no espera la respuesta'], '0.55s'),
+        note('func', '02:33.6', ['Coincido: CA2 no se cumple, el usuario nunca ve el error'], '0.8s'),
+        note('perf', '02:31.4', ['INP de 620 ms en este click: en alcance, no bloquea CA4'], '1s'),
+        note('lead', 'resumen', ['4 agentes coinciden en 02:31.6', 'Fusiono en H-01 · crítico · afecta CA2'], '1.25s', true)
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

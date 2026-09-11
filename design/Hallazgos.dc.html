@@ -1,0 +1,265 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap">
+  <style>
+    body { margin: 0; background: #F1F2EF; }
+    a { color: #2F7FBF; } a:hover { color: #1A1F1C; }
+    .mono { font-family: 'JetBrains Mono', Consolas, 'Courier New', monospace; }
+    .cap { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: #5F6863; }
+  </style>
+</helmet>
+<div style="width: 1440px; height: 900px; display: flex; flex-direction: column; background: #F1F2EF; color: #1A1F1C; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-size: 14px; overflow: hidden;">
+
+  <div style="height: 52px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; padding: 0 20px; background: #FBFBF9; border-bottom: 1px solid #D9DCD6;">
+    <div style="display: flex; align-items: center; gap: 8px; width: 172px;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #D9481F;"></span>
+      <span style="font-weight: 800; font-size: 19px; font-stretch: 115%; letter-spacing: -0.01em;">Rastro</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; color: #5F6863;">
+      <span>Checkout web</span>
+      <span style="color: #B9BEB7;">/</span>
+      <span>Sesión #148</span>
+      <span style="color: #B9BEB7;">/</span>
+      <span style="color: #1A1F1C; font-weight: 600;">Informe</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span class="mono" style="font-size: 11px; font-weight: 600; padding: 3px 7px; border-radius: 4px; background: #1A1F1C; color: #FBFBF9;">QA</span>
+      <span class="mono" style="font-size: 12px; color: #5F6863;">build v2.14.0</span>
+    </div>
+    <div style="flex-grow: 1;"></div>
+    <div style="display: flex; gap: 8px;">
+      <div style="height: 34px; padding: 0 14px; display: flex; align-items: center; border: 1px solid #B9BEB7; border-radius: 6px; font-weight: 600;">Descargar PDF</div>
+      <div style="height: 34px; padding: 0 14px; display: flex; align-items: center; gap: 8px; border-radius: 6px; background: #1A1F1C; color: #FBFBF9; font-weight: 600;">Enviar reporte<span class="mono" style="font-size: 11px; color: #B8C0BA; font-weight: 400;">Xray · Jira · Slack</span></div>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0;">
+    <div style="width: 208px; flex-shrink: 0; display: flex; flex-direction: column; gap: 2px; padding: 16px 12px; border-right: 1px solid #D9DCD6; background: #F1F2EF;">
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7"></circle><circle cx="10" cy="10" r="3" fill="currentColor" stroke="none"></circle></svg>Sesiones</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 6px; background: #E1E5DF; font-weight: 650;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="9" r="5.5"></circle><path d="M13 13l4 4"></path></svg><span style="flex-grow: 1;">Hallazgos</span><span class="mono" style="font-size: 11px;">14</span></div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="5" r="2.2"></circle><circle cx="4.5" cy="15" r="2.2"></circle><circle cx="15.5" cy="15" r="2.2"></circle><path d="M10 7.2v3.3M10 10.5l-4 2.8M10 10.5l4 2.8"></path></svg>Agentes</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3l7 4-7 4-7-4 7-4z"></path><path d="M3 11l7 4 7-4"></path></svg>Ambientes</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h11l-3-3M16 13H5l3 3"></path></svg>Comparaciones</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h14M3 14h14"></path><circle cx="7" cy="6" r="2" fill="#F1F2EF"></circle><circle cx="13" cy="14" r="2" fill="#F1F2EF"></circle></svg>Ajustes del proyecto</div>
+      <div style="flex-grow: 1;"></div>
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 10px; border-top: 1px solid #D9DCD6;">
+        <span class="cap">Proyecto</span>
+        <span style="font-weight: 600;">Mercadito</span>
+        <span style="color: #5F6863; font-size: 13px;">3 ambientes · 148 sesiones</span>
+      </div>
+    </div>
+
+    <div style="flex-grow: 1; display: flex; gap: 16px; padding: 16px; min-width: 0;">
+
+      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 12px; min-width: 0;">
+        <!-- Objective verdict -->
+        <div style="display: flex; flex-direction: column; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 8px; overflow: hidden;">
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 20px; padding: 16px 20px; border-bottom: 1px solid #E4E7E1;">
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+              <span class="cap">Objetivo de la sesión · MERC-412</span>
+              <span style="font-size: 16px; font-weight: 650; line-height: 1.4; text-wrap: pretty;">Comprobar que un cliente pueda pagar con tarjeta y que el pedido quede registrado y visible en Mis pedidos.</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 3px; align-items: flex-end; justify-content: center;">
+              <span style="font-weight: 800; font-stretch: 112%; font-size: 28px; line-height: 1; color: #B42318;">No cumplido</span>
+              <span style="font-size: 13px; color: #5F6863;">1 de 4 criterios · riesgo de release alto</span>
+            </div>
+          </div>
+          <sc-for list="{{criteria}}" as="c" hint-placeholder-count="4">
+            <div style="display: grid; grid-template-columns: 44px minmax(0, 1fr) 118px 150px; gap: 12px; align-items: center; height: 38px; padding: 0 20px; border-bottom: 1px solid #EEF0EC;">
+              <span class="mono" style="font-size: 12px; font-weight: 600;">{{c.id}}</span>
+              <span style="font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{c.text}}</span>
+              <span class="mono" style="justify-self: start; font-size: 10px; font-weight: 600; letter-spacing: 0.04em; padding: 3px 7px; border-radius: 3px; background: {{c.bg}}; color: {{c.fg}}; border: 1px solid {{c.border}};">{{c.status}}</span>
+              <span class="mono" style="font-size: 11.5px; color: #2F7FBF; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{c.evidence}}</span>
+            </div>
+          </sc-for>
+          <div style="display: flex; gap: 10px; padding: 10px 20px; background: #F1F2EF;">
+            <span style="font-size: 13px; font-weight: 650; white-space: nowrap;">QA Lead:</span>
+            <span style="font-size: 13px; line-height: 1.45; color: #3D4540;">El cobro falla en silencio: la UI confirma un pedido que el backend rechazó. CA3 no se pudo verificar porque no hubo un pedido pagado. Fuera del objetivo, Seguridad encontró el token de sesión en la URL.</span>
+          </div>
+        </div>
+
+        <!-- Relation filter -->
+        <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+          <span class="cap" style="margin-right: 4px;">Relación con el objetivo</span>
+          <sc-for list="{{filters}}" as="a" hint-placeholder-count="4">
+            <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; padding: 5px 11px; border-radius: 999px; background: {{a.bg}}; color: {{a.fg}}; border: 1px solid {{a.border}};">{{a.name}}<span class="mono" style="font-size: 11px; opacity: 0.75;">{{a.count}}</span></span>
+          </sc-for>
+          <div style="flex-grow: 1;"></div>
+          <span class="mono" style="font-size: 11.5px; color: #5F6863;">2 críticos · 4 altos · 6 medios · 2 bajos</span>
+        </div>
+
+        <!-- Table -->
+        <div style="flex-grow: 1; display: flex; flex-direction: column; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 8px; overflow: hidden; min-height: 0;">
+          <div style="display: grid; grid-template-columns: 84px minmax(0, 1fr) 132px 112px 84px 112px; gap: 12px; padding: 9px 16px; background: #F1F2EF; border-bottom: 1px solid #D9DCD6;">
+            <span class="cap">Severidad</span><span class="cap">Hallazgo</span><span class="cap">Objetivo</span><span class="cap">Agente</span><span class="cap">Evidencia</span><span class="cap">Estado</span>
+          </div>
+          <sc-for list="{{findings}}" as="f" hint-placeholder-count="7">
+            <div style="display: grid; grid-template-columns: 84px minmax(0, 1fr) 132px 112px 84px 112px; gap: 12px; align-items: center; height: 44px; padding: 0 16px; border-bottom: 1px solid #E8EAE5; background: {{f.rowBg}};">
+              <span class="mono" style="justify-self: start; font-size: 10px; font-weight: 600; letter-spacing: 0.04em; padding: 3px 7px; border-radius: 3px; background: {{f.sevBg}}; color: {{f.sevFg}};">{{f.sev}}</span>
+              <span style="font-size: 13.5px; font-weight: {{f.weight}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{f.title}}</span>
+              <span class="mono" style="justify-self: start; font-size: 11px; padding: 2px 7px; border-radius: 4px; background: {{f.relBg}}; color: {{f.relFg}}; border: 1px {{f.relLine}} {{f.relBorder}};">{{f.rel}}</span>
+              <span style="font-size: 13px; color: #3D4540; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{f.agent}}</span>
+              <span class="mono" style="font-size: 12px; color: #2F7FBF; text-decoration: underline; text-underline-offset: 2px;">{{f.evidence}}</span>
+              <span style="justify-self: start; font-size: 12px; padding: 3px 9px; border-radius: 999px; background: {{f.stBg}}; color: {{f.stFg}}; border: 1px solid {{f.stBorder}};">{{f.status}}</span>
+            </div>
+          </sc-for>
+          <div style="margin-top: auto; padding: 9px 16px; font-size: 12px; color: #5F6863;">Mostrando 7 de 14 · ordenados por severidad</div>
+        </div>
+      </div>
+
+      <!-- Detail -->
+      <div style="width: 380px; flex-shrink: 0; display: flex; flex-direction: column; gap: 14px; padding: 18px; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 8px; overflow: hidden;">
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <span class="mono" style="font-size: 10px; font-weight: 600; padding: 3px 7px; border-radius: 3px; background: #B42318; color: #FFF;">CRÍTICO</span>
+            <div style="display: flex; align-items: center;">
+              <sc-for list="{{bots}}" as="r" hint-placeholder-count="4">
+                <div style="margin-left: {{r.ml}}; width: 22px; height: 22px; border-radius: 50%; background: #FBFBF9; box-shadow: 0 0 0 1.5px #FBFBF9;">
+                  <svg width="22" height="22" viewBox="0 0 28 28" style="display: block;">
+                    <line x1="14" y1="4.5" x2="14" y2="8" stroke="{{r.color}}" stroke-width="1.8"></line>
+                    <circle cx="14" cy="3.6" r="2.1" fill="{{r.color}}"></circle>
+                    <rect x="2.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{r.color}}"></rect>
+                    <rect x="23.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{r.color}}"></rect>
+                    <rect x="4.5" y="7.5" width="19" height="16" rx="{{r.headRx}}" fill="{{r.color}}"></rect>
+                    <rect x="7" y="10.5" width="14" height="8.5" rx="3" fill="#FBFBF9"></rect>
+                    <rect x="{{r.lx}}" y="{{r.ey}}" width="{{r.ew}}" height="{{r.eh}}" rx="{{r.er}}" fill="#1A1F1C"></rect>
+                    <rect x="{{r.rx}}" y="{{r.ey}}" width="{{r.rw}}" height="{{r.eh}}" rx="{{r.er}}" fill="#1A1F1C"></rect>
+                  </svg>
+                </div>
+              </sc-for>
+            </div>
+            <span class="mono" style="font-size: 12px; color: #5F6863;">H-01 · 4 agentes coinciden</span>
+          </div>
+          <span style="font-weight: 750; font-stretch: 106%; font-size: 20px; line-height: 1.25; text-wrap: balance;">Falso éxito: la UI confirma el pedido aunque el cobro falló</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid #1A1F1C; border-radius: 6px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span class="cap" style="color: #1A1F1C;">Criterio afectado · CA2</span>
+            <span class="mono" style="font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 3px; background: #B42318; color: #FFF;">NO CUMPLIDO</span>
+          </div>
+          <span style="font-size: 13.5px; line-height: 1.4;">Si el cobro falla, el usuario ve un error y no se crea el pedido.</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <span class="cap">Qué pasó</span>
+          <span style="font-size: 13.5px; line-height: 1.5;">POST /api/orders respondió 500 (PAYMENT_CAPTURE_TIMEOUT). El frontend ignoró el status, mostró “¡Pedido confirmado!” y lanzó un TypeError al recibir <span class="mono" style="font-size: 12px;">order.status: failed</span> por el socket.</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <span class="cap">Pasos para reproducir</span>
+          <div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.4;">
+            <div style="display: flex; gap: 8px;"><span class="mono" style="color: #5F6863; width: 14px;">1</span><span>Agregar productos y avanzar a /checkout/pago en QA.</span></div>
+            <div style="display: flex; gap: 8px;"><span class="mono" style="color: #5F6863; width: 14px;">2</span><span>Pagar con la tarjeta de prueba ····4242 y envío express.</span></div>
+            <div style="display: flex; gap: 8px;"><span class="mono" style="color: #5F6863; width: 14px;">3</span><span>Pulsar “Confirmar pago” mientras la pasarela demora más de 1,5 s.</span></div>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <span class="cap">Evidencia en la línea de tiempo</span>
+          <div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; background: #F1F2EF; border-radius: 6px;">
+            <div style="position: relative; height: 22px;">
+              <div style="position: absolute; left: 0; right: 0; top: 10px; height: 1px; background: #C9CEC6;"></div>
+              <span style="position: absolute; left: 4%; top: 4px; width: 3px; height: 14px; background: #2F7FBF;"></span>
+              <span style="position: absolute; left: 12%; top: 4px; width: 60%; height: 14px; background: #B42318; border-radius: 2px;"></span>
+              <span style="position: absolute; left: 79%; top: 1px; width: 4px; height: 20px; background: #7B5CC9;"></span>
+              <span style="position: absolute; left: 84%; top: 1px; width: 4px; height: 20px; background: #B7801A;"></span>
+              <span style="position: absolute; left: 90%; top: 4px; width: 3px; height: 14px; background: #2F7FBF;"></span>
+            </div>
+            <div class="mono" style="display: flex; justify-content: space-between; font-size: 10px; color: #5F6863;"><span>02:31.4</span><span>02:33.6</span></div>
+          </div>
+          <span style="font-size: 13px; color: #2F7FBF; text-decoration: underline; text-underline-offset: 2px;">Abrir la sesión en este momento</span>
+        </div>
+
+        <div style="margin-top: auto; display: flex; gap: 8px;">
+          <div style="flex-grow: 1; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: #1A1F1C; color: #FBFBF9; font-weight: 600;">Confirmar y crear bug en Jira</div>
+          <div style="height: 38px; padding: 0 14px; display: flex; align-items: center; border: 1px solid #B9BEB7; border-radius: 6px; font-weight: 600;">Descartar</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var CRIT = {
+      'CUMPLIDO': { bg: '#2E7D4F', fg: '#FFFFFF', border: '#2E7D4F' },
+      'NO CUMPLIDO': { bg: '#B42318', fg: '#FFFFFF', border: '#B42318' },
+      'SIN EVIDENCIA': { bg: 'transparent', fg: '#3D4540', border: '#9AA39D' }
+    };
+    var criteria = [
+      ['CA1', 'Un pago con tarjeta aprobada crea un pedido en estado “Pagado”.', 'NO CUMPLIDO', '02:31.6 · POST 500'],
+      ['CA2', 'Si el cobro falla, el usuario ve un error y no se crea el pedido.', 'NO CUMPLIDO', '02:33.6 · toast de éxito'],
+      ['CA3', 'El pedido aparece en Mis pedidos en menos de 5 s.', 'SIN EVIDENCIA', '03:06.2 · sin pedido pagado'],
+      ['CA4', '“Confirmar pago” responde en menos de 2 s.', 'CUMPLIDO', '02:31.6 · 1,84 s']
+    ].map(function (c) {
+      var s = CRIT[c[2]];
+      return { id: c[0], text: c[1], status: c[2], evidence: c[3], bg: s.bg, fg: s.fg, border: s.border };
+    });
+
+    var SEV = {
+      'CRÍTICO': { bg: '#B42318', fg: '#FFFFFF' },
+      'ALTO': { bg: '#B26A00', fg: '#FFFFFF' },
+      'MEDIO': { bg: '#EDE3C8', fg: '#5C4700' },
+      'BAJO': { bg: '#E1E5DF', fg: '#3D4540' }
+    };
+    var ST = {
+      'Por confirmar': { bg: 'transparent', fg: '#3D4540', border: '#B9BEB7' },
+      'Confirmado': { bg: '#1A1F1C', fg: '#FBFBF9', border: '#1A1F1C' },
+      'Descartado': { bg: 'transparent', fg: '#8A938D', border: '#E1E5DF' }
+    };
+    function rel(r) {
+      if (r === 'fuera') return { rel: 'Fuera del objetivo', relBg: 'transparent', relFg: '#5F6863', relBorder: '#9AA39D', relLine: 'dashed' };
+      if (r === 'alcance') return { rel: 'En alcance', relBg: '#E1E5DF', relFg: '#3D4540', relBorder: '#E1E5DF', relLine: 'solid' };
+      return { rel: 'Afecta ' + r, relBg: '#FBFBF9', relFg: '#1A1F1C', relBorder: '#1A1F1C', relLine: 'solid' };
+    }
+    var rows = [
+      ['CRÍTICO', 'Falso éxito: la UI confirma el pedido tras un 500 en POST /api/orders', 'CA2', 'API REST', '02:31.6', 'Por confirmar'],
+      ['CRÍTICO', 'Token de sesión enviado en la URL (?access_token=…)', 'fuera', 'Seguridad', '00:04.1', 'Confirmado'],
+      ['ALTO', 'TypeError en OrderSummary.tsx:42 al recibir order.status', 'CA2', 'Front-end', '02:33.5', 'Por confirmar'],
+      ['ALTO', 'El pedido fallido aparece como “Pendiente” en Mis pedidos', 'CA3', 'Funcional', '03:06.2', 'Por confirmar'],
+      ['ALTO', 'GET /api/orders devuelve 12 pedidos y la lista muestra 10', 'CA3', 'API REST', '03:05.4', 'Por confirmar'],
+      ['ALTO', 'INP de 620 ms al pulsar “Confirmar pago”', 'alcance', 'Rendimiento', '02:31.4', 'Confirmado'],
+      ['MEDIO', 'GET /api/cart/count se consulta cada 15 s aunque el socket emite cart.updated', 'fuera', 'API REST', '16 llamadas', 'Por confirmar']
+    ];
+    var findings = rows.map(function (r, i) {
+      var s = SEV[r[0]], st = ST[r[5]], rl = rel(r[2]);
+      return {
+        sev: r[0], title: r[1], agent: r[3], evidence: r[4], status: r[5],
+        rel: rl.rel, relBg: rl.relBg, relFg: rl.relFg, relBorder: rl.relBorder, relLine: rl.relLine,
+        sevBg: s.bg, sevFg: s.fg, stBg: st.bg, stFg: st.fg, stBorder: st.border,
+        rowBg: i === 0 ? '#EBEEE8' : 'transparent',
+        weight: i === 0 ? 650 : 450
+      };
+    });
+    var filterList = [['Todos', 14], ['Afectan criterios', 5], ['En alcance', 4], ['Fuera del objetivo', 5]];
+    var filters = filterList.map(function (a, i) {
+      return { name: a[0], count: a[1], bg: i === 0 ? '#1A1F1C' : '#FBFBF9', fg: i === 0 ? '#FBFBF9' : '#1A1F1C', border: i === 0 ? '#1A1F1C' : '#D9DCD6' };
+    });
+    var BOTS = [['#16907F', false, 'square'], ['#2F7FBF', true, 'round'], ['#B7801A', false, 'round'], ['#B8507A', true, 'wide']];
+    var EYES = { round: [3.2, 3.2, 1.6, 13.2], square: [3, 3, 0.5, 13.3], wide: [4.4, 2, 1, 13.8] };
+    var bots = BOTS.map(function (b, i) {
+      var E = EYES[b[2]];
+      return { color: b[0], headRx: b[1] ? 7 : 2.5, ew: E[0], eh: E[1], er: E[2], ey: E[3], lx: 11 - E[0] / 2, rx: 17 - E[0] / 2, rw: E[0], ml: i === 0 ? '0' : '-7px' };
+    });
+    return { criteria: criteria, findings: findings, filters: filters, bots: bots };
+  }
+}
+</script>
+</body>
+</html>

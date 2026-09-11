@@ -1,0 +1,460 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap">
+  <style>
+    body { margin: 0; background: #F1F2EF; }
+    a { color: #2F7FBF; } a:hover { color: #1A1F1C; }
+    .mono { font-family: 'JetBrains Mono', Consolas, 'Courier New', monospace; }
+    .cap { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: #5F6863; }
+    .hit { cursor: pointer; }
+    .hit:focus-visible { outline: 2px solid #D9481F; outline-offset: 2px; }
+    @keyframes rb-pop { from { opacity: 0; transform: translateY(6px) scale(0.97); } to { opacity: 1; transform: none; } }
+    .pop { animation: rb-pop 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+    @keyframes rb-ring { 0% { transform: scale(0.8); opacity: 0.6; } 100% { transform: scale(2.2); opacity: 0; } }
+    .ring { animation: rb-ring 2s ease-out infinite; }
+    @keyframes rb-breathe { 0%, 100% { opacity: 0.6; } 50% { opacity: 0.1; } }
+    .breathe { animation: rb-breathe 1.6s ease-in-out infinite; }
+    @keyframes rb-dash { to { stroke-dashoffset: -12; } }
+    .trail { animation: rb-dash 0.9s linear infinite; }
+    @media (prefers-reduced-motion: reduce) { .pop, .ring, .breathe, .trail { animation: none !important; } }
+  </style>
+</helmet>
+<div style="width: 1440px; height: 900px; display: flex; flex-direction: column; background: #F1F2EF; color: #1A1F1C; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-size: 14px; overflow: hidden;">
+
+  <!-- Top bar -->
+  <div style="height: 52px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; padding: 0 20px; background: #FBFBF9; border-bottom: 1px solid #D9DCD6;">
+    <div style="display: flex; align-items: center; gap: 8px; width: 172px;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #D9481F;"></span>
+      <span style="font-weight: 800; font-size: 19px; font-stretch: 115%; letter-spacing: -0.01em;">Rastro</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; color: #5F6863;">
+      <span>Checkout web</span>
+      <span style="color: #B9BEB7;">/</span>
+      <span>Sesión #148</span>
+      <span style="color: #B9BEB7;">/</span>
+      <span style="color: #1A1F1C; font-weight: 600;">Grabación con overlays</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border: 1px solid #D9DCD6; border-radius: 6px; background: #F1F2EF;">
+      <span class="cap">Objetivo</span>
+      <span style="font-size: 13px; font-weight: 600;">Pagar con tarjeta y ver el pedido</span>
+      <span class="mono" style="font-size: 11px; font-weight: 600; color: #B42318;">1/4 CA</span>
+    </div>
+    <div style="flex-grow: 1;"></div>
+    <div style="display: flex; gap: 8px;">
+      <div style="height: 34px; padding: 0 14px; display: flex; align-items: center; border: 1px solid #B9BEB7; border-radius: 6px; font-weight: 600;">Ver línea de tiempo</div>
+      <div style="height: 34px; padding: 0 14px; display: flex; align-items: center; border-radius: 6px; background: #1A1F1C; color: #FBFBF9; font-weight: 600;">Compartir clip</div>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0;">
+    <!-- Nav -->
+    <div style="width: 208px; flex-shrink: 0; display: flex; flex-direction: column; gap: 2px; padding: 16px 12px; border-right: 1px solid #D9DCD6; background: #F1F2EF;">
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 6px; background: #E1E5DF; font-weight: 650;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7"></circle><circle cx="10" cy="10" r="3" fill="#D9481F" stroke="none"></circle></svg>Sesiones</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="9" r="5.5"></circle><path d="M13 13l4 4"></path></svg><span style="flex-grow: 1;">Hallazgos</span><span class="mono" style="font-size: 11px; color: #5F6863;">14</span></div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="5" r="2.2"></circle><circle cx="4.5" cy="15" r="2.2"></circle><circle cx="15.5" cy="15" r="2.2"></circle><path d="M10 7.2v3.3M10 10.5l-4 2.8M10 10.5l4 2.8"></path></svg>Agentes</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3l7 4-7 4-7-4 7-4z"></path><path d="M3 11l7 4 7-4"></path></svg>Ambientes</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h11l-3-3M16 13H5l3 3"></path></svg>Comparaciones</div>
+      <div style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; color: #3D4540;">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h14M3 14h14"></path><circle cx="7" cy="6" r="2" fill="#F1F2EF"></circle><circle cx="13" cy="14" r="2" fill="#F1F2EF"></circle></svg>Ajustes del proyecto</div>
+      <div style="flex-grow: 1;"></div>
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 10px; border-top: 1px solid #D9DCD6;">
+        <span class="cap">Proyecto</span>
+        <span style="font-weight: 600;">Mercadito</span>
+        <span style="color: #5F6863; font-size: 13px;">3 ambientes · 148 sesiones</span>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div style="flex-grow: 1; display: flex; gap: 16px; padding: 16px; min-width: 0;">
+
+      <!-- Player column -->
+      <div style="width: 844px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; flex-direction: column; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 8px; overflow: hidden;">
+          <div style="height: 42px; flex-shrink: 0; display: flex; align-items: center; gap: 12px; padding: 0 14px; border-bottom: 1px solid #E4E7E1;">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#1A1F1C" stroke-width="1.6"><rect x="2" y="4.5" width="12" height="11" rx="2"></rect><path d="M14 8.5l4-2.5v8l-4-2.5"></path></svg>
+            <span style="font-weight: 700;">Grabación de pantalla</span>
+            <span class="mono" style="font-size: 12px; color: #5F6863;">1366×768 · 30 fps · 4 min 12 s · 38 MB</span>
+            <div style="flex-grow: 1;"></div>
+            <span style="font-size: 12.5px; color: #5F6863;">{{visibleCount}} overlays en este momento</span>
+          </div>
+
+          <!-- Stage -->
+          <div style="position: relative; width: 842px; height: 473px; overflow: hidden; background: #FFFFFF; font-family: Arial, Helvetica, sans-serif; color: #2A2A2A;">
+            <!-- recorded page -->
+            <div style="position: absolute; left: 0; top: 0; width: 842px; height: 30px; background: #ECEEEA; border-bottom: 1px solid #DADDD7;"></div>
+            <div style="position: absolute; left: 14px; top: 11px; display: flex; gap: 5px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C9CDC6;"></span><span style="width: 8px; height: 8px; border-radius: 50%; background: #C9CDC6;"></span><span style="width: 8px; height: 8px; border-radius: 50%; background: #C9CDC6;"></span></div>
+            <div class="mono" style="position: absolute; left: 80px; top: 5px; width: 632px; height: 20px; box-sizing: border-box; display: flex; align-items: center; padding: 0 8px; background: #FFFFFF; border-radius: 4px; font-size: 11px; color: #5F6863; white-space: nowrap; overflow: hidden;">https://qa.mercadito.test/checkout/pago?access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIi…</div>
+
+            <span style="position: absolute; left: 28px; top: 43px; font-weight: 700; font-size: 17px; color: #3A7A3A;">mercadito</span>
+            <div style="position: absolute; left: 152px; top: 46px; display: flex; gap: 16px; font-size: 12.5px; color: #8A8A8A;"><span>1 Carrito</span><span>2 Envío</span><span style="color: #2A2A2A; font-weight: 700;">3 Pago</span></div>
+
+            <span style="position: absolute; left: 28px; top: 84px; font-size: 11px; color: #777;">Número de tarjeta</span>
+            <div style="position: absolute; left: 28px; top: 100px; width: 440px; height: 36px; box-sizing: border-box; border: 1px solid #CCC; border-radius: 4px; display: flex; align-items: center; padding: 0 10px; font-size: 13px;">•••• •••• •••• 4242</div>
+            <span style="position: absolute; left: 28px; top: 150px; font-size: 11px; color: #777;">Vencimiento</span>
+            <div style="position: absolute; left: 28px; top: 166px; width: 212px; height: 36px; box-sizing: border-box; border: 1px solid #CCC; border-radius: 4px; display: flex; align-items: center; padding: 0 10px; font-size: 13px;">09/28</div>
+            <div style="position: absolute; left: 256px; top: 166px; width: 212px; height: 36px; box-sizing: border-box; border: 1px solid #CCC; border-radius: 4px; display: flex; align-items: center; padding: 0 10px; font-size: 13px;">•••</div>
+            <span style="position: absolute; left: 28px; top: 216px; font-size: 11px; color: #777;">Titular</span>
+            <div style="position: absolute; left: 28px; top: 232px; width: 440px; height: 36px; box-sizing: border-box; border: 1px solid #CCC; border-radius: 4px; display: flex; align-items: center; padding: 0 10px; font-size: 13px; color: #999;">[oculto por Rastro]</div>
+            <div style="position: absolute; left: 28px; top: 286px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: #555;"><span style="width: 13px; height: 13px; border: 1px solid #999; border-radius: 2px;"></span>Guardar tarjeta para próximas compras</div>
+
+            <div style="position: absolute; left: 506px; top: 84px; width: 312px; height: 244px; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; background: #F6F6F4; border-radius: 6px; font-size: 12.5px;">
+              <span style="font-weight: 700; font-size: 14px;">Tu pedido</span>
+              <div style="display: flex; justify-content: space-between;"><span>Yerba 1 kg × 2</span><span>$ 9.980,00</span></div>
+              <div style="display: flex; justify-content: space-between;"><span>Termo acero 1 l</span><span>$ 32.500,00</span></div>
+              <div style="display: flex; justify-content: space-between;"><span>Envío express</span><span>$ 4.990,00</span></div>
+              <div style="display: flex; justify-content: space-between; font-weight: 700; border-top: 1px solid #DDD; padding-top: 8px;"><span>Total</span><span>$ 47.470,00</span></div>
+              <span style="font-size: 11.5px; color: #999;">Pedido n.º —</span>
+            </div>
+            <div style="position: absolute; left: 522px; top: 276px; width: 280px; height: 38px; display: flex; align-items: center; justify-content: center; background: #3A7A3A; color: #FFF; border-radius: 4px; font-weight: 700; font-size: 13px;">Confirmar pago</div>
+            <div style="position: absolute; left: 604px; top: 42px; width: 214px; height: 34px; box-sizing: border-box; display: flex; align-items: center; padding: 0 12px; background: #2F6B2F; color: #FFF; border-radius: 4px; font-size: 12.5px; font-weight: 700; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">¡Pedido confirmado!</div>
+            <span style="position: absolute; left: 28px; top: 440px; font-size: 11px; color: #AAA;">Pago procesado por PasarelaDemo · Mercadito 2026</span>
+
+            <!-- cursor trail + click -->
+            <svg width="842" height="473" viewBox="0 0 842 473" style="position: absolute; left: 0; top: 0; pointer-events: none;">
+              <path class="trail" d="M362 184 C 430 190, 500 250, 660 296" fill="none" stroke="#D9481F" stroke-width="2" stroke-dasharray="3 5" opacity="0.55"></path>
+              <circle cx="660" cy="296" r="11" fill="rgba(217,72,31,0.18)" stroke="#D9481F" stroke-width="1.5"></circle>
+              <path d="M660 296 l0 17 l4.5 -4.5 l3.5 7 l2.6 -1.3 l-3.5 -7 l6 0 z" fill="#1A1F1C" stroke="#FFFFFF" stroke-width="1.2"></path>
+            </svg>
+
+            <!-- overlays -->
+            <sc-for list="{{overlays}}" as="o" hint-placeholder-count="6">
+              <div class="hit" tabindex="0" onClick="{{o.pick}}" style="position: absolute; left: {{o.x}}px; top: {{o.y}}px; width: {{o.w}}px; height: {{o.h}}px; box-sizing: border-box; border: {{o.bw}} {{o.bs}} {{o.color}}; background: {{o.fill}}; border-radius: 5px; z-index: {{o.z}};">
+                <sc-if value="{{o.isSel}}" hint-placeholder-val="{{false}}">
+                  <span class="breathe" style="position: absolute; left: -6px; top: -6px; right: -6px; bottom: -6px; border: 2px solid {{o.color}}; border-radius: 8px;"></span>
+                </sc-if>
+                <div style="position: absolute; left: {{o.badgeLeft}}; top: {{o.badgeTop}}; display: flex; align-items: center; gap: 4px;">
+                  <div style="position: relative; display: flex;">
+                    <sc-if value="{{o.multi}}" hint-placeholder-val="{{false}}">
+                      <span class="ring" style="position: absolute; left: 0; top: 0; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #D9481F; box-sizing: border-box;"></span>
+                    </sc-if>
+                    <sc-for list="{{o.bots}}" as="r" hint-placeholder-count="1">
+                      <div style="margin-left: {{r.ml}}; width: 22px; height: 22px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 0 0 1.5px {{r.color}};">
+                        <svg width="22" height="22" viewBox="0 0 28 28" style="display: block;">
+                          <line x1="14" y1="4.5" x2="14" y2="8" stroke="{{r.color}}" stroke-width="1.8"></line>
+                          <circle cx="14" cy="3.6" r="2.1" fill="{{r.color}}"></circle>
+                          <rect x="2.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{r.color}}"></rect>
+                          <rect x="23.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{r.color}}"></rect>
+                          <rect x="4.5" y="7.5" width="19" height="16" rx="{{r.headRx}}" fill="{{r.color}}"></rect>
+                          <rect x="7" y="10.5" width="14" height="8.5" rx="3" fill="#FBFBF9"></rect>
+                          <rect x="{{r.lx}}" y="{{r.ey}}" width="{{r.ew}}" height="{{r.eh}}" rx="{{r.er}}" fill="#1A1F1C"></rect>
+                          <rect x="{{r.rx}}" y="{{r.ey}}" width="{{r.rw}}" height="{{r.eh}}" rx="{{r.er}}" fill="#1A1F1C"></rect>
+                        </svg>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <span class="mono" style="font-family: 'JetBrains Mono', Consolas, monospace; font-size: 9.5px; font-weight: 600; letter-spacing: 0.03em; padding: 2px 5px; border-radius: 3px; background: {{o.tagBg}}; color: {{o.tagFg}}; border: 1px solid {{o.tagBorder}}; white-space: nowrap;">{{o.tag}}</span>
+                </div>
+              </div>
+            </sc-for>
+
+            <!-- region question -->
+            <sc-if value="{{zone}}" hint-placeholder-val="{{false}}">
+              <div class="pop" style="position: absolute; left: 22px; top: 94px; width: 452px; height: 48px; box-sizing: border-box; border: 2px dashed #1A1F1C; border-radius: 6px; background: rgba(26,31,28,0.05); z-index: 8;"></div>
+              <div class="pop" style="position: absolute; left: 22px; top: 148px; width: 452px; display: flex; gap: 6px; padding: 8px; box-sizing: border-box; background: #1A1F1C; border-radius: 8px; z-index: 9; font-family: 'Archivo', Arial, sans-serif;">
+                <div style="flex-grow: 1; height: 32px; display: flex; align-items: center; padding: 0 10px; background: #2A312D; border-radius: 5px; color: #E5E8E3; font-size: 13px;">¿Por qué este campo no valida el número al escribir?</div>
+                <div style="height: 32px; padding: 0 12px; display: flex; align-items: center; background: #D9481F; color: #FFF; border-radius: 5px; font-weight: 700; font-size: 13px;">Preguntar</div>
+              </div>
+            </sc-if>
+
+            <!-- callout for the selected overlay -->
+            <sc-if value="{{hasSel}}" hint-placeholder-val="{{true}}">
+              <div class="pop" style="position: absolute; left: {{sel.cx}}px; top: {{sel.cy}}px; width: 290px; z-index: 10; display: flex; flex-direction: column; gap: 5px; padding: 10px 12px 11px; background: {{sel.tint}}; border-radius: 10px; box-shadow: 0 8px 22px rgba(26,31,28,0.22); font-family: 'Archivo', Arial, sans-serif; color: #1A1F1C;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                  <span style="font-size: 12.5px; font-weight: 700;">{{sel.names}}</span>
+                  <span class="mono" style="font-size: 9.5px; font-weight: 600; padding: 2px 5px; border-radius: 3px; background: {{sel.tagBg}}; color: {{sel.tagFg}}; border: 1px solid {{sel.tagBorder}};">{{sel.tag}}</span>
+                </div>
+                <span style="font-size: 14px; font-weight: 700; line-height: 1.3;">{{sel.title}}</span>
+                <ul style="margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; line-height: 1.4;">
+                  <sc-for list="{{sel.bullets}}" as="b" hint-placeholder-count="2"><li>{{b.text}}</li></sc-for>
+                </ul>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{pausedHint}}" hint-placeholder-val="{{false}}">
+              <div class="pop" style="position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); padding: 6px 12px; background: rgba(26,31,28,0.85); color: #FBFBF9; border-radius: 999px; font-family: 'Archivo', Arial, sans-serif; font-size: 12.5px; z-index: 11;">Reproduciendo · los overlays aparecen al pausar</div>
+            </sc-if>
+          </div>
+
+          <!-- Scrubber -->
+          <div style="display: flex; flex-direction: column; gap: 4px; padding: 10px 14px 8px; border-top: 1px solid #E4E7E1;">
+            <div style="position: relative; height: 16px;">
+              <sc-for list="{{markers}}" as="m" hint-placeholder-count="10">
+                <span class="hit" onClick="{{m.pick}}" style="position: absolute; left: {{m.left}}; top: {{m.top}}; width: 9px; height: 9px; margin-left: -4px; border-radius: 50%; background: {{m.color}}; box-shadow: 0 0 0 1.5px #FBFBF9;"></span>
+              </sc-for>
+            </div>
+            <div style="position: relative; height: 6px; border-radius: 3px; background: #E1E5DF;">
+              <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 60.95%; border-radius: 3px; background: #1A1F1C;"></div>
+              <div style="position: absolute; left: 60.95%; top: -5px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: #D9481F; box-shadow: 0 0 0 3px #FBFBF9;"></div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(42, minmax(0, 1fr)); gap: 1px; height: 5px; margin-top: 2px;">
+              <sc-for list="{{heat}}" as="h" hint-placeholder-count="42"><span style="background: {{h.bg}}; border-radius: 1px;"></span></sc-for>
+            </div>
+            <div style="position: relative; height: 15px;">
+              <sc-for list="{{chapters}}" as="c" hint-placeholder-count="4">
+                <span class="mono" style="position: absolute; left: {{c.left}}; top: 1px; font-size: 10px; color: #7A847E; white-space: nowrap;">{{c.label}}</span>
+              </sc-for>
+            </div>
+          </div>
+          <div style="height: 46px; display: flex; align-items: center; gap: 12px; padding: 0 14px; border-top: 1px solid #E4E7E1;">
+            <div class="hit" onClick="{{togglePlay}}" style="width: 30px; height: 30px; border-radius: 50%; background: #1A1F1C; display: flex; align-items: center; justify-content: center;">
+              <sc-if value="{{playing}}" hint-placeholder-val="{{false}}"><svg width="12" height="12" viewBox="0 0 12 12"><rect x="2" y="1.5" width="3" height="9" fill="#FBFBF9"></rect><rect x="7" y="1.5" width="3" height="9" fill="#FBFBF9"></rect></svg></sc-if>
+              <sc-if value="{{paused}}" hint-placeholder-val="{{true}}"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M3 1.5v9l7.5-4.5z" fill="#FBFBF9"></path></svg></sc-if>
+            </div>
+            <span class="mono" style="font-size: 13px; font-weight: 600;">02:33.6</span>
+            <span class="mono" style="font-size: 13px; color: #5F6863;">/ 04:12.0</span>
+            <span class="mono" style="font-size: 12px; padding: 4px 8px; border: 1px solid #D9DCD6; border-radius: 4px;">1×</span>
+            <div style="flex-grow: 1;"></div>
+            <div class="hit" onClick="{{next}}" style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border: 1px solid #B9BEB7; border-radius: 5px; font-size: 12.5px; font-weight: 600;">Siguiente observación<svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 3l4 4-4 4M10 3v8"></path></svg></div>
+            <div style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border: 1px solid #B9BEB7; border-radius: 5px; font-size: 12.5px; font-weight: 600;">Recortar clip 02:26–02:40</div>
+          </div>
+        </div>
+
+        <!-- Selected observation detail -->
+        <div style="flex-grow: 1; display: flex; gap: 16px; padding: 14px 16px; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 8px; min-height: 0;">
+          <sc-if value="{{hasSel}}" hint-placeholder-val="{{true}}">
+            <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <span class="mono" style="font-size: 9.5px; font-weight: 600; padding: 2px 6px; border-radius: 3px; background: {{sel.tagBg}}; color: {{sel.tagFg}}; border: 1px solid {{sel.tagBorder}};">{{sel.tag}}</span>
+                <span style="font-size: 12.5px; color: #5F6863;">{{sel.names}} · visible {{sel.when}}</span>
+              </div>
+              <span style="font-weight: 750; font-stretch: 106%; font-size: 18px; line-height: 1.25;">{{sel.title}}</span>
+              <span style="font-size: 13px; color: #3D4540; line-height: 1.45;">{{sel.detail}}</span>
+            </div>
+            <div style="width: 210px; flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; justify-content: center;">
+              <div style="height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: #1A1F1C; color: #FBFBF9; font-weight: 600; font-size: 13px;">Crear bug con este clip</div>
+              <div style="height: 32px; display: flex; align-items: center; justify-content: center; border: 1px solid #B9BEB7; border-radius: 6px; font-weight: 600; font-size: 13px;">Abrir hilo de apuntes</div>
+              <div style="height: 32px; display: flex; align-items: center; justify-content: center; border: 1px solid #D9DCD6; border-radius: 6px; font-size: 13px; color: #3D4540;">Descartar</div>
+            </div>
+          </sc-if>
+          <sc-if value="{{noSel}}" hint-placeholder-val="{{false}}">
+            <span style="align-self: center; color: #5F6863;">Haz click en una zona marcada del video para ver qué observó el agente.</span>
+          </sc-if>
+        </div>
+      </div>
+
+      <!-- Filters panel -->
+      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 18px; padding: 16px; background: #FBFBF9; border: 1px solid #D9DCD6; border-radius: 8px; min-width: 0; overflow: hidden;">
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <span class="cap">Mostrar overlays</span>
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 3px; gap: 2px; background: #E1E5DF; border-radius: 7px;">
+            <sc-for list="{{modes}}" as="md" hint-placeholder-count="3">
+              <span class="hit" onClick="{{md.pick}}" style="height: 30px; display: flex; align-items: center; justify-content: center; font-size: 12.5px; border-radius: 5px; background: {{md.bg}}; color: {{md.fg}}; font-weight: {{md.weight}}; box-shadow: {{md.shadow}};">{{md.name}}</span>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <span class="cap">Por tipo</span>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <sc-for list="{{typeRows}}" as="t" hint-placeholder-count="3">
+              <div class="hit" onClick="{{t.pick}}" style="display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 6px; border: 1px solid {{t.border}}; background: {{t.bg}}; opacity: {{t.op}};">
+                <span style="width: 22px; height: 14px; box-sizing: border-box; border: 2px {{t.line}} {{t.swatch}}; border-radius: 3px; background: {{t.swatchFill}};"></span>
+                <span style="flex-grow: 1; font-size: 13px; font-weight: 600;">{{t.name}}</span>
+                <span class="mono" style="font-size: 11px; color: #5F6863;">{{t.count}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline;"><span class="cap">Por agente</span><span style="font-size: 11.5px; color: #5F6863;">en toda la sesión</span></div>
+          <div style="display: flex; flex-direction: column;">
+            <sc-for list="{{agentRows}}" as="a" hint-placeholder-count="7">
+              <div class="hit" onClick="{{a.pick}}" style="display: flex; align-items: center; gap: 10px; height: 36px; border-bottom: 1px solid #EEF0EC; opacity: {{a.op}};">
+                <svg width="24" height="24" viewBox="0 0 28 28" style="display: block; flex-shrink: 0;">
+                  <line x1="14" y1="4.5" x2="14" y2="8" stroke="{{a.r.color}}" stroke-width="1.8"></line>
+                  <circle cx="14" cy="3.6" r="2.1" fill="{{a.r.color}}"></circle>
+                  <rect x="2.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{a.r.color}}"></rect>
+                  <rect x="23.2" y="12.5" width="2.6" height="6" rx="1.2" fill="{{a.r.color}}"></rect>
+                  <rect x="4.5" y="7.5" width="19" height="16" rx="{{a.r.headRx}}" fill="{{a.r.color}}"></rect>
+                  <rect x="7" y="10.5" width="14" height="8.5" rx="3" fill="#FBFBF9"></rect>
+                  <rect x="{{a.r.lx}}" y="{{a.r.ey}}" width="{{a.r.ew}}" height="{{a.r.eh}}" rx="{{a.r.er}}" fill="#1A1F1C"></rect>
+                  <rect x="{{a.r.rx}}" y="{{a.r.ey}}" width="{{a.r.rw}}" height="{{a.r.eh}}" rx="{{a.r.er}}" fill="#1A1F1C"></rect>
+                </svg>
+                <span style="flex-grow: 1; font-size: 13.5px; font-weight: 600;">{{a.r.name}}</span>
+                <span class="mono" style="font-size: 11px; color: #5F6863;">{{a.count}}</span>
+                <span style="width: 16px; height: 16px; box-sizing: border-box; border-radius: 4px; border: 1.5px solid {{a.boxBorder}}; background: {{a.boxBg}}; display: flex; align-items: center; justify-content: center;">
+                  <svg width="10" height="10" viewBox="0 0 14 14" fill="none" stroke="#FFFFFF" stroke-width="2.4"><path d="M2.5 7.5l3 3 6-7"></path></svg>
+                </span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div class="hit" onClick="{{toggleZone}}" style="display: flex; gap: 10px; align-items: center; padding: 10px 12px; border: 1px dashed {{zoneBorder}}; border-radius: 8px; background: {{zoneBg}};">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#1A1F1C" stroke-width="1.6" stroke-dasharray="3 2.5"><rect x="3" y="4" width="16" height="12" rx="2"></rect></svg>
+          <div style="display: flex; flex-direction: column; gap: 1px;">
+            <span style="font-size: 13px; font-weight: 650;">{{zoneTitle}}</span>
+            <span style="font-size: 12px; color: #5F6863; line-height: 1.35;">Arrastra sobre el video para preguntar a los agentes por una zona.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var s = this.state || {};
+    var hidden = s.hidden || {};
+    var types = s.types || { error: true, fallo: true, sugerencia: true };
+    var mode = s.mode || 'siempre';
+    var playing = !!s.playing;
+    var selId = s.sel === undefined ? 'o1' : s.sel;
+    var zone = !!s.zone;
+
+    var AG = {
+      api: ['API REST', '#16907F', '#DDF0EC', false, 'square'],
+      func: ['Funcional', '#2F7FBF', '#E3EEF7', true, 'round'],
+      fe: ['Front-end', '#B7801A', '#F5EBD9', false, 'round'],
+      perf: ['Rendimiento', '#B8507A', '#F5E3EA', true, 'wide'],
+      a11y: ['Accesibilidad', '#5E7F1F', '#EAF0DC', true, 'round'],
+      sec: ['Seguridad', '#4B5A9E', '#E4E7F3', false, 'visor'],
+      ux: ['UI/UX', '#8C6A4F', '#EFE8E1', false, 'wide']
+    };
+    function robot(key) {
+      var a = AG[key];
+      var E = { round: [3.2, 3.2, 1.6, 13.2], square: [3, 3, 0.5, 13.3], wide: [4.4, 2, 1, 13.8], visor: [10, 2.6, 1.3, 13.5] }[a[4]];
+      var single = a[4] === 'visor';
+      return { key: key, name: a[0], color: a[1], tint: a[2], headRx: a[3] ? 7 : 2.5,
+        ew: E[0], eh: E[1], er: E[2], ey: E[3], lx: single ? 9 : 11 - E[0] / 2, rx: single ? 0 : 17 - E[0] / 2, rw: single ? 0 : E[0] };
+    }
+
+    var OBS = [
+      { id: 'o1', bots: ['func', 'api'], type: 'fallo', ca: 'CA2', x: 598, y: 38, w: 226, h: 42, cx: 520, cy: 90, when: '02:33.6 → 02:37.6',
+        title: 'Falso éxito tras un 500', bullets: ['El toast aparece aunque POST /api/orders respondió 500', 'El usuario no ve ningún error'],
+        detail: 'Funcional y API REST coinciden: el cobro falló (PAYMENT_CAPTURE_TIMEOUT) y la UI muestra éxito. Afecta CA2 · no cumplido.' },
+      { id: 'o2', bots: ['fe'], type: 'error', x: 502, y: 80, w: 320, h: 190, cx: 206, cy: 120, when: '02:33.5 → 02:40.0',
+        title: 'El resumen no recibe order.id', bullets: ['TypeError en OrderSummary.tsx:42', 'El panel queda sin número de pedido'],
+        detail: 'Al llegar order.status: failed por el socket, el componente lee order.id de null y deja de actualizarse.' },
+      { id: 'o3', bots: ['perf'], type: 'sugerencia', x: 518, y: 272, w: 288, h: 46, cx: 500, cy: 330, when: '02:31.4 → 02:34.0',
+        title: 'INP de 620 ms al confirmar', bullets: ['Deshabilita el botón al primer click', 'Muestra progreso mientras responde la pasarela'],
+        detail: 'El click tardó 620 ms en pintar una respuesta. Está en alcance, pero no bloquea CA4 (el POST respondió en 1,84 s).' },
+      { id: 'o4', bots: ['a11y'], type: 'sugerencia', x: 252, y: 162, w: 220, h: 44, cx: 236, cy: 214, when: 'toda la pantalla /checkout/pago',
+        title: 'CVV sin etiqueta accesible', bullets: ['El lector anuncia “campo de edición” sin nombre', 'WCAG 1.3.1 · agrega label o aria-label'],
+        detail: 'axe-core marca el input del CVV sin nombre accesible. En alcance del objetivo, severidad media.' },
+      { id: 'o5', bots: ['sec'], type: 'error', out: true, x: 76, y: 3, w: 640, h: 24, cx: 90, cy: 34, when: '00:04.1 → fin de la sesión', badgeLeft: '-34px', badgeTop: '0px',
+        title: 'Token de sesión visible en la URL', bullets: ['?access_token= viaja en cada navegación', 'Queda en el historial y en los logs del servidor'],
+        detail: 'Fuera del objetivo de la sesión: se reporta en una sección aparte, pero es crítico.' },
+      { id: 'o6', bots: ['ux'], type: 'sugerencia', x: 146, y: 40, w: 192, h: 26, cx: 146, cy: 72, when: 'toda la pantalla /checkout/pago',
+        title: 'El paso activo casi no se distingue', bullets: ['Solo cambia el peso de la fuente', 'Agrega color o un subrayado al paso actual'],
+        detail: 'Heurística de Nielsen n.º 1, visibilidad del estado del sistema. Sugerencia de baja prioridad.' }
+    ];
+
+    var TYPE = {
+      error: { name: 'Errores', bs: 'solid', a: '1F' },
+      fallo: { name: 'Fallas de criterio', bs: 'solid', a: '1A' },
+      sugerencia: { name: 'Sugerencias', bs: 'dashed', a: '0D' }
+    };
+    function tagFor(o, color) {
+      if (o.type === 'error') return { tag: o.out ? 'ERROR · FUERA DEL OBJETIVO' : 'ERROR', tagBg: '#B42318', tagFg: '#FFFFFF', tagBorder: '#B42318' };
+      if (o.type === 'fallo') return { tag: 'FALLA ' + o.ca, tagBg: '#1A1F1C', tagFg: '#FBFBF9', tagBorder: '#1A1F1C' };
+      return { tag: 'SUGERENCIA', tagBg: '#FFFFFF', tagFg: '#1A1F1C', tagBorder: color };
+    }
+
+    var show = mode !== 'ocultos' && !(mode === 'pausa' && playing);
+    var visible = OBS.filter(function (o) {
+      var anyAgent = o.bots.some(function (k) { return !hidden[k]; });
+      return show && anyAgent && types[o.type];
+    });
+
+    var overlays = visible.map(function (o) {
+      var bots = o.bots.filter(function (k) { return !hidden[k]; }).map(function (k, i) { var r = robot(k); r.ml = i === 0 ? '0' : '-7px'; return r; });
+      var color = bots[0].color;
+      var isSel = o.id === selId;
+      var t = tagFor(o, color);
+      return Object.assign({
+        x: o.x, y: o.y, w: o.w, h: o.h, color: color, bots: bots, multi: bots.length > 1,
+        bw: isSel ? '3px' : '2px', bs: TYPE[o.type].bs, fill: color + TYPE[o.type].a, isSel: isSel, z: isSel ? 5 : 2,
+        badgeLeft: o.badgeLeft || '-11px', badgeTop: o.badgeTop || '-13px',
+        pick: function () { self.setState({ sel: o.id }); }
+      }, t);
+    });
+
+    var selObs = visible.filter(function (o) { return o.id === selId; })[0];
+    var sel = { bullets: [], cx: 0, cy: 0 };
+    if (selObs) {
+      var sb = selObs.bots.map(robot);
+      sel = Object.assign({
+        cx: selObs.cx, cy: selObs.cy, tint: sb[0].tint, title: selObs.title, when: selObs.when, detail: selObs.detail,
+        names: sb.map(function (r) { return r.name; }).join(' + '),
+        bullets: selObs.bullets.map(function (b) { return { text: b }; })
+      }, tagFor(selObs, sb[0].color));
+    }
+
+    var TOTAL = 252;
+    function pct(sec) { return (sec / TOTAL * 100).toFixed(2) + '%'; }
+    var MARK = [['perf', 1, null], ['sec', 4.1, 'o5'], ['a11y', 82.5, 'o4'], ['api', 83, null], ['ux', 130, 'o6'], ['perf', 151.4, 'o3'], ['api', 151.6, 'o1'], ['fe', 153.5, 'o2'], ['func', 153.6, 'o1'], ['api', 185.2, null], ['func', 185.8, null]];
+    var markers = MARK.filter(function (m) { return !hidden[m[0]]; }).map(function (m, i) {
+      return { left: pct(m[1]), top: (i % 2 === 0 ? 1 : 6) + 'px', color: AG[m[0]][1],
+        pick: function () { if (m[2]) self.setState({ sel: m[2] }); } };
+    });
+    var heat = [];
+    for (var i = 0; i < 42; i++) {
+      var from = i * 6, to = from + 6;
+      var n = MARK.filter(function (m) { return m[1] >= from && m[1] < to && !hidden[m[0]]; }).length;
+      heat.push({ bg: ['#E4E7E1', '#E9C9BC', '#E39B80', '#D9481F'][Math.min(n, 3)] });
+    }
+    var chapters = [[0, '/carrito'], [21.3, '/envío'], [45, '/checkout/pago'], [184.8, '/mis-pedidos']].map(function (c) { return { left: pct(c[0]), label: c[1] }; });
+
+    var modes = [['siempre', 'Siempre'], ['pausa', 'Al pausar'], ['ocultos', 'Ocultos']].map(function (m) {
+      var on = m[0] === mode;
+      return { name: m[1], bg: on ? '#FBFBF9' : 'transparent', fg: on ? '#1A1F1C' : '#3D4540', weight: on ? 650 : 450, shadow: on ? '0 1px 2px rgba(26,31,28,0.15)' : 'none',
+        pick: function () { self.setState({ mode: m[0] }); } };
+    });
+
+    var typeRows = [
+      ['error', '#B42318', 'solid', '#B423181F'],
+      ['fallo', '#1A1F1C', 'solid', '#1A1F1C1A'],
+      ['sugerencia', '#5F6863', 'dashed', 'transparent']
+    ].map(function (t) {
+      var on = !!types[t[0]];
+      var count = OBS.filter(function (o) { return o.type === t[0]; }).length;
+      return { name: TYPE[t[0]].name, count: count, swatch: t[1], line: t[2], swatchFill: t[3],
+        bg: on ? '#FFFFFF' : 'transparent', border: on ? '#B9BEB7' : '#E1E5DF', op: on ? 1 : 0.5,
+        pick: function () { var nt = Object.assign({}, types); nt[t[0]] = !on; self.setState({ types: nt }); } };
+    });
+
+    var agentRows = ['api', 'func', 'perf', 'fe', 'a11y', 'sec', 'ux'].map(function (k) {
+      var on = !hidden[k];
+      var count = MARK.filter(function (m) { return m[0] === k; }).length;
+      return { r: robot(k), count: count, op: on ? 1 : 0.45, boxBg: on ? AG[k][1] : 'transparent', boxBorder: on ? AG[k][1] : '#B9BEB7',
+        pick: function () { var nh = Object.assign({}, hidden); nh[k] = on; self.setState({ hidden: nh }); } };
+    });
+
+    function next() {
+      if (!visible.length) return;
+      var idx = visible.map(function (o) { return o.id; }).indexOf(selId);
+      self.setState({ sel: visible[(idx + 1) % visible.length].id });
+    }
+
+    return {
+      overlays: overlays, visibleCount: overlays.length, sel: sel, hasSel: !!selObs, noSel: !selObs,
+      markers: markers, heat: heat, chapters: chapters, modes: modes, typeRows: typeRows, agentRows: agentRows,
+      playing: playing, paused: !playing, pausedHint: mode === 'pausa' && playing, zone: zone,
+      zoneTitle: zone ? 'Zona marcada · escribe tu pregunta' : 'Marcar una zona',
+      zoneBorder: zone ? '#1A1F1C' : '#9AA39D', zoneBg: zone ? '#FFFFFF' : 'transparent',
+      togglePlay: function () { self.setState({ playing: !playing }); },
+      toggleZone: function () { self.setState({ zone: !zone }); },
+      next: next
+    };
+  }
+}
+</script>
+</body>
+</html>

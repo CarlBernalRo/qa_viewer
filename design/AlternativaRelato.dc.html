@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&amp;display=swap">
+  <style>
+    body { margin: 0; background: #FAFAF8; }
+    a { color: #333; } a:hover { color: #000; }
+  </style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; display: flex; flex-direction: column; gap: 22px; padding: 36px 48px; background: #FAFAF8; color: #2B2B2B; font-family: 'Kalam', 'Comic Sans MS', 'Segoe Print', cursive; overflow: hidden;">
+
+  <div style="display: flex; align-items: baseline; gap: 16px;">
+    <span style="font-size: 34px; font-weight: 700;">Alternativa B · la sesión como relato</span>
+    <span style="font-size: 18px; color: #777;">boceto de baja fidelidad</span>
+  </div>
+  <span style="font-size: 18px; color: #555; max-width: 1000px;">En lugar de canales en paralelo, la sesión se lee como una lista de pasos. Cada paso agrupa lo que pasó por debajo y lo que opinan los agentes.</span>
+
+  <div style="flex-grow: 1; display: grid; grid-template-columns: minmax(0, 1fr) 480px; gap: 36px; min-height: 0;">
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+
+      <div style="display: flex; gap: 16px; align-items: center; padding: 14px 18px; border: 2px solid #2B2B2B; border-radius: 10px;">
+        <span style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid #2B2B2B; display: flex; align-items: center; justify-content: center; font-weight: 700;">1</span>
+        <span style="font-size: 20px; font-weight: 700; flex-grow: 1;">Revisa el carrito</span>
+        <span style="font-size: 16px; color: #777;">3 requests · 1 aviso</span>
+        <span style="font-size: 18px;">ok</span>
+      </div>
+
+      <div style="display: flex; gap: 16px; align-items: center; padding: 14px 18px; border: 2px solid #2B2B2B; border-radius: 10px;">
+        <span style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid #2B2B2B; display: flex; align-items: center; justify-content: center; font-weight: 700;">2</span>
+        <span style="font-size: 20px; font-weight: 700; flex-grow: 1;">Elige envío express</span>
+        <span style="font-size: 16px; color: #777;">2 requests · 1 frame WS</span>
+        <span style="font-size: 18px;">ok</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px; padding: 14px 18px; border: 3px solid #C0392B; border-radius: 10px; background: #FFF6F4;">
+        <div style="display: flex; gap: 16px; align-items: center;">
+          <span style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid #C0392B; color: #C0392B; display: flex; align-items: center; justify-content: center; font-weight: 700;">3</span>
+          <span style="font-size: 20px; font-weight: 700; flex-grow: 1;">Confirma el pago</span>
+          <span style="font-size: 18px; color: #C0392B; font-weight: 700;">falló</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; padding-left: 50px; font-size: 17px;">
+          <span>→ POST /api/orders devolvió 500</span>
+          <span>→ el socket avisó “failed”</span>
+          <span>→ la consola lanzó un TypeError</span>
+          <span>→ igual apareció “¡Pedido confirmado!”</span>
+        </div>
+        <div style="margin-left: 50px; padding: 10px 14px; border: 2px dashed #888; border-radius: 8px; font-size: 16px; color: #444;">
+          Agente API REST: “la UI no revisa el status antes de mostrar éxito”
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 16px; align-items: center; padding: 14px 18px; border: 2px solid #2B2B2B; border-radius: 10px;">
+        <span style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid #2B2B2B; display: flex; align-items: center; justify-content: center; font-weight: 700;">4</span>
+        <span style="font-size: 20px; font-weight: 700; flex-grow: 1;">Abre Mis pedidos</span>
+        <span style="font-size: 16px; color: #777;">4 requests · 2 errores</span>
+        <span style="font-size: 18px; color: #B26A00;">revisar</span>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="height: 270px; border: 2px solid #2B2B2B; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #888; background: repeating-linear-gradient(45deg, #F1F1EE 0 12px, #FAFAF8 12px 24px);">[ captura del paso 3 ]</div>
+      <div style="display: flex; flex-direction: column; gap: 8px; padding: 14px 18px; border: 2px solid #2B2B2B; border-radius: 10px; font-size: 17px;">
+        <span style="font-weight: 700; font-size: 19px;">A favor</span>
+        <span>Se entiende sin saber de red ni de sockets: sirve para PM, desarrollo y el reporte final.</span>
+        <span style="font-weight: 700; font-size: 19px; margin-top: 6px;">En contra</span>
+        <span>Se pierde la vista de concurrencia: polling, heartbeats y tareas largas entre pasos quedan escondidos.</span>
+      </div>
+      <span style="font-size: 17px; color: #555;">Podría convivir como pestaña “Relato” junto a la línea de tiempo.</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
