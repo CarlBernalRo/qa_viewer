@@ -1,0 +1,206 @@
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.criterion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.criterion:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.head {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 8px;
+  font-size: 13.5px;
+}
+
+.id {
+  padding-top: 1px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.verdicts,
+.note,
+.markers {
+  margin-left: 48px;
+}
+
+.verdicts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.verdict {
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.verdict:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+
+.verdict:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.on_pending {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.on_pass {
+  border-color: var(--ok);
+  background: var(--ok);
+  color: #ffffff;
+}
+
+.on_fail {
+  border-color: var(--crit);
+  background: var(--crit);
+  color: #ffffff;
+}
+
+.on_blocked {
+  border-color: var(--warn);
+  background: var(--warn);
+  color: #ffffff;
+}
+
+.note {
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-strong);
+  font-size: 12.5px;
+}
+
+.markers {
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.marker {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--surface-strong);
+  overflow: hidden;
+}
+
+.markerSeek {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  height: 26px;
+  padding: 0 4px 0 10px;
+  border: 0;
+  background: transparent;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.markerSeek:hover {
+  background: #f6f7f4;
+}
+
+.markerNote {
+  min-width: 0;
+  max-width: 280px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.markerRemove {
+  width: 24px;
+  height: 26px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.markerRemove:hover {
+  color: var(--crit);
+}
+
+.loose {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: var(--space-4);
+}
+
+.loose h3 {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.loose .markers {
+  margin-left: 0;
+}
+
+.markBar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--rule-soft);
+}
+
+.markButton {
+  align-self: flex-start;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px dashed var(--rule-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.markButton:hover {
+  border-color: var(--ink);
+}
+
+.markingAt {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+}

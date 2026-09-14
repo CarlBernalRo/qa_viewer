@@ -1,0 +1,158 @@
+.widget {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--ink);
+  color: #e5e8e3;
+  user-select: none;
+  cursor: grab;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.recDot {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #f06a3f;
+  animation: rec 1.4s ease-in-out infinite;
+}
+
+.rec {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: #f06a3f;
+}
+
+.clock {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--surface);
+  font-variant-numeric: tabular-nums;
+}
+
+.name {
+  flex-grow: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  color: #9aa39d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expand {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: #2a312d;
+  color: #e5e8e3;
+  cursor: pointer;
+}
+
+.expand:hover {
+  background: #3d4540;
+}
+
+.stats {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #9aa39d;
+}
+
+.stats strong {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--surface);
+  font-variant-numeric: tabular-nums;
+  margin-right: 3px;
+}
+
+.alert,
+.alert strong {
+  color: #f0685c;
+}
+
+.bottom {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stop {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.stop:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.stopIcon {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--rec);
+}
+
+.mark {
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid #3d4540;
+  border-radius: var(--radius-md);
+  background: #2a312d;
+  color: #e5e8e3;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.mark:hover {
+  background: #3d4540;
+}
+
+.hint {
+  min-width: 0;
+  font-size: 11.5px;
+  color: #7a847e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@keyframes rec {
+  0%,
+  100% {
+    box-shadow: 0 0 0 4px rgba(240, 106, 63, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(240, 106, 63, 0.05);
+  }
+}

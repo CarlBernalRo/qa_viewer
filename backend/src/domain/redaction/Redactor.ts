@@ -10,12 +10,37 @@ export interface RedactionPolicy {
 const SENSITIVE_HEADERS = new Set([
   'authorization',
   'proxy-authorization',
-  'cookie',
-  'set-cookie',
   'x-api-key',
   'x-auth-token',
   'x-csrf-token',
 ]);
+
+/** "sid=abc; theme=dark" → "sid=[oculto]; theme=[oculto]": se ocultan los valores, no los nombres. */
+function redactCookieHeader(value: string): string {
+  return value
+    .split(';')
+    .map((part) => {
+      const equals = part.indexOf('=');
+      return equals < 0 ? part : `${part.slice(0, equals)}=${REDACTED}`;
+    })
+    .join(';');
+}
+
+/**
+ * "sid=abc; Path=/; Secure" → "sid=[oculto]; Path=/; Secure". Los atributos no son
+ * secretos y las reglas de seguridad los necesitan (Secure, HttpOnly, SameSite).
+ */
+function redactSetCookie(value: string): string {
+  return value
+    .split('\n')
+    .map((line) => {
+      const [pair = '', ...attributes] = line.split(';');
+      const equals = pair.indexOf('=');
+      const name = equals < 0 ? pair : pair.slice(0, equals);
+      return [`${name.trim()}=${REDACTED}`, ...attributes].join(';');
+    })
+    .join('\n');
+}
 const SENSITIVE_PARAM = /token|auth|secret|password|passwd|session|signature|sig|api[-_]?key|code/i;
 const SENSITIVE_KEY_TOKENS = /^(password|passwd|pwd|secret|token|access_?token|refresh_?token|id_?token|authorization|api_?key|session_?id)$/i;
 const SENSITIVE_KEY_CARDS = /^(card_?number|cardnumber|pan|cvv|cvc|security_?code|expiry|exp_?(month|year|date))$/i;
@@ -81,9 +106,13 @@ export class Redactor {
 
   redactHeaders(headers: Record<string, string>): Record<string, string> {
     const out: Record<string, string> = {};
+    const tokens = this.presets.has('tokens-cookies');
     for (const [name, value] of Object.entries(headers)) {
-      const hide = this.presets.has('tokens-cookies') && SENSITIVE_HEADERS.has(name.toLowerCase());
-      out[name] = hide ? REDACTED : this.redactText(value);
+      const lower = name.toLowerCase();
+      if (tokens && lower === 'set-cookie') out[name] = redactSetCookie(value);
+      else if (tokens && lower === 'cookie') out[name] = redactCookieHeader(value);
+      else if (tokens && SENSITIVE_HEADERS.has(lower)) out[name] = REDACTED;
+      else out[name] = this.redactText(value);
     }
     return out;
   }
@@ -150,6 +179,21 @@ export class Redactor {
           ...event,
           message: this.redactText(event.message),
           ...(event.stack !== undefined ? { stack: this.redactText(event.stack) } : {}),
+        };
+      case 'a11y-scan':
+        // El HTML de los elementos afectados puede traer datos de la pantalla (emails, DNI…).
+        return {
+          ...event,
+          url: this.redactUrl(event.url),
+          violations: event.violations.map((violation) => ({
+            ...violation,
+            nodes: violation.nodes.map((node) => ({
+              ...node,
+              target: this.redactText(node.target),
+              html: this.redactText(node.html),
+              ...(node.summary !== undefined ? { summary: this.redactText(node.summary) } : {}),
+            })),
+          })),
         };
       default:
         return event;

@@ -1,10 +1,49 @@
 import { z } from 'zod';
 import type { CaptureChannel } from './session.js';
+import { decodeWsPayload } from './websocket.js';
 
 const rectSchema = z.object({ x: z.number(), y: z.number(), w: z.number(), h: z.number() });
 export type Rect = z.infer<typeof rectSchema>;
 
 const headersSchema = z.record(z.string(), z.string());
+
+export const a11yImpactSchema = z.enum(['minor', 'moderate', 'serious', 'critical']);
+export type A11yImpact = z.infer<typeof a11yImpactSchema>;
+
+/** Una regla de axe-core que falló en una pantalla, con algunos de los elementos afectados. */
+export const a11yViolationSchema = z.object({
+  id: z.string().max(100),
+  impact: a11yImpactSchema.nullable(),
+  help: z.string().max(500),
+  description: z.string().max(1000),
+  helpUrl: z.string().max(500),
+  tags: z.array(z.string().max(60)).max(40),
+  /** Total de elementos afectados; `nodes` trae solo los primeros. */
+  nodeCount: z.number().int().nonnegative(),
+  nodes: z
+    .array(
+      z.object({
+        target: z.string().max(1000),
+        html: z.string().max(1000),
+        summary: z.string().max(2000).optional(),
+        rect: rectSchema.optional(),
+      }),
+    )
+    .max(20),
+});
+export type A11yViolation = z.infer<typeof a11yViolationSchema>;
+
+/**
+ * Algunos textos de axe-core en español traen restos de plantillas sin procesar
+ * (`{{~it:value}}…{{~}}`). Se quitan conservando los saltos de línea.
+ */
+export function cleanAxeText(text: string): string {
+  return text
+    .replace(/\{\{[\s\S]*?\}\}/g, '')
+    .replace(/[ \t]+(?=\n|$)/g, '')
+    .replace(/\n{2,}/g, '\n')
+    .trim();
+}
 
 /** Campos comunes: `t` son milisegundos desde el inicio de la grabación. */
 const base = {
@@ -98,6 +137,16 @@ export const captureEventSchema = z.discriminatedUnion('kind', [
     name: z.enum(['LCP', 'CLS', 'INP', 'long-task']),
     value: z.number(),
   }),
+  z.object({
+    ...base,
+    kind: z.literal('a11y-scan'),
+    /** Pantalla revisada. `t` es cuando terminó la revisión; empezó `durationMs` antes. */
+    url: z.string(),
+    durationMs: z.number().nonnegative(),
+    /** Reglas de axe-core que la pantalla cumple. */
+    passes: z.number().int().nonnegative(),
+    violations: z.array(a11yViolationSchema),
+  }),
 ]);
 
 export type CaptureEvent = z.infer<typeof captureEventSchema>;
@@ -125,6 +174,7 @@ const CHANNEL_BY_KIND: Record<CaptureEventKind, CaptureChannel> = {
   console: 'console',
   exception: 'console',
   'web-vital': 'performance',
+  'a11y-scan': 'accessibility',
 };
 
 export function channelOf(kind: CaptureEventKind): CaptureChannel {
@@ -140,6 +190,9 @@ export function isErrorEvent(event: CaptureEvent): boolean {
       return event.level === 'error';
     case 'http-response':
       return event.status >= 500;
+    case 'ws-frame':
+      // Errores dentro del protocolo del socket: connect_error de Socket.IO, respuestas SIP de error.
+      return decodeWsPayload(event.payload).isError;
     default:
       return false;
   }

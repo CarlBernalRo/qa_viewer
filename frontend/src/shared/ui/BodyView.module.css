@@ -1,0 +1,45 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tools [role='radiogroup'] {
+  min-height: 28px;
+}
+
+.tools [role='radio'] {
+  font-size: 12px;
+  padding: 0 8px;
+}
+
+.copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  background: var(--surface-strong);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.copy:hover {
+  border-color: var(--rule-strong);
+}

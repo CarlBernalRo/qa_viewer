@@ -1,0 +1,53 @@
+/* Tokens del sistema visual de Rastro (tomados de los mockups). */
+:root {
+  --ground: #f1f2ef;
+  --surface: #fbfbf9;
+  --surface-strong: #ffffff;
+  --surface-sunken: #e1e5df;
+  --stage: #e3e6e0;
+
+  --ink: #1a1f1c;
+  --ink-soft: #3d4540;
+  --muted: #5f6863;
+  --faint: #8a938d;
+
+  --rule: #d9dcd6;
+  --rule-soft: #e8eae5;
+  --rule-strong: #b9beb7;
+
+  --rec: #d9481f;
+  --rec-soft: rgba(217, 72, 31, 0.12);
+  --ok: #2e7d4f;
+  --warn: #b26a00;
+  --crit: #b42318;
+  --crit-soft: #f8e9e5;
+  --link: #2f7fbf;
+
+  --ch-actions: #2f7fbf;
+  --ch-network: #16907f;
+  --ch-websocket: #7b5cc9;
+  --ch-console: #b7801a;
+  --ch-performance: #b8507a;
+  --ch-accessibility: #5b7a2a;
+  --ch-video: #1a1f1c;
+  --ch-navigation: #7a847e;
+
+  --font-sans: 'Archivo Variable', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', Consolas, 'Courier New', monospace;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  --control-height: 38px;
+  --shadow-float: 0 6px 18px rgba(26, 31, 28, 0.22);
+}

@@ -1,5 +1,5 @@
 import type { CaptureEvent, CreateSessionInput, SessionDto } from '@rastro/shared';
-import { FeatureNotAvailableError, NotFoundError } from '../../domain/errors.js';
+import { FeatureNotAvailableError, InvalidStateError, NotFoundError } from '../../domain/errors.js';
 import type { Clock, EventQuery, EventStore, IdGenerator, MediaStore, SessionRepository } from '../../domain/ports.js';
 import { Session } from '../../domain/session/Session.js';
 
@@ -73,6 +73,22 @@ export class GetSessionVideo {
     const path = await this.media.videoPath(id);
     if (!path) throw new NotFoundError('un video para la sesión', id);
     return path;
+  }
+}
+
+export class DeleteSession {
+  constructor(
+    private readonly sessions: SessionRepository,
+    private readonly isRecording: (id: string) => boolean,
+  ) {}
+
+  async execute(id: string): Promise<void> {
+    const session = await this.sessions.findById(id);
+    if (!session) throw new NotFoundError('una sesión', id);
+    if (session.status === 'recording' || this.isRecording(id)) {
+      throw new InvalidStateError('Detén la grabación antes de eliminar la sesión.');
+    }
+    await this.sessions.delete(id);
   }
 }
 

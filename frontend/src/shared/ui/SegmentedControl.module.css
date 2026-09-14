@@ -1,0 +1,38 @@
+.group {
+  display: grid;
+  gap: 2px;
+  padding: 3px;
+  background: var(--surface-sunken);
+  border-radius: 7px;
+  min-height: var(--control-height);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.option:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.selected {
+  background: var(--surface-strong);
+  color: var(--ink);
+  font-weight: 650;
+  box-shadow: 0 1px 2px rgba(26, 31, 28, 0.15);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}

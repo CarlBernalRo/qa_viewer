@@ -1,0 +1,145 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 1280px;
+}
+
+.crumb {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.lede {
+  color: var(--muted);
+}
+
+.loading {
+  padding: var(--space-6);
+  color: var(--muted);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  padding: 10px var(--space-4);
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--ground);
+  border-bottom: 1px solid var(--rule);
+}
+
+.table td {
+  padding: 12px var(--space-4);
+  border-bottom: 1px solid var(--rule-soft);
+  vertical-align: middle;
+}
+
+.table tbody tr:hover {
+  background: #f6f7f4;
+}
+
+.name {
+  display: block;
+  font-weight: 650;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.name:hover {
+  text-decoration: underline;
+}
+
+.statement {
+  display: block;
+  max-width: 460px;
+  font-size: 12.5px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.muted {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.num,
+.table th.num {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.num[data-alert] {
+  color: var(--crit);
+  font-weight: 600;
+}
+
+.rowActions {
+  width: 44px;
+  text-align: right;
+}
+
+.iconButton {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.iconButton:hover:not(:disabled) {
+  background: var(--crit-soft);
+  color: var(--crit);
+}
+
+.iconButton:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.skeleton {
+  padding: var(--space-2) 0;
+}
+
+.skeletonRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 60px 120px 130px 80px;
+  gap: var(--space-4);
+  align-items: center;
+  padding: 12px var(--space-4);
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.skeletonName {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}

@@ -43,7 +43,8 @@ export class ActiveRecording implements RecordingSink {
     private readonly redactor: Redactor,
     private readonly deps: RecordingDeps,
   ) {
-    this.startedAtMs = deps.clock.now().getTime();
+    // El cero de la línea de tiempo es el inicio de la sesión, igual que el del video.
+    this.startedAtMs = session.startedAtMs ?? deps.clock.now().getTime();
     this.done = new Promise((resolve) => {
       this.resolveDone = resolve;
     });
@@ -69,6 +70,10 @@ export class ActiveRecording implements RecordingSink {
     }
   }
 
+  onVideoStarted(): void {
+    if (!this.ended) this.session.markVideoStart(this.deps.clock.now());
+  }
+
   onEnded(result: RecordingResult): void {
     if (this.ended) return;
     this.ended = true;
@@ -81,7 +86,13 @@ export class ActiveRecording implements RecordingSink {
     registry.remove(id);
     try {
       await events.flush(id);
-      const hasVideo = await media.importVideo(id, result.videoFile);
+      // Sin video la sesión sigue siendo útil (eventos y línea de tiempo): no se descarta.
+      let hasVideo = false;
+      try {
+        hasVideo = await media.importVideo(id, result.videoFile);
+      } catch (error) {
+        logger.warn('La sesión se guardó sin video', { sessionId: id, error: String(error) });
+      }
       if (result.reason === 'crashed') {
         this.session.fail(clock.now(), result.error ?? 'El navegador se cerró de forma inesperada.');
       } else {

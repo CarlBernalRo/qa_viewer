@@ -1,0 +1,59 @@
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+
+.marker {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--rule-strong);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.current {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.current .marker {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--surface);
+}
+
+.done {
+  color: var(--ok);
+  font-weight: 600;
+}
+
+.done .marker {
+  background: var(--ok);
+  border-color: var(--ok);
+  color: #ffffff;
+}
+
+.line {
+  width: 48px;
+  height: 1px;
+  background: var(--rule-strong);
+}
+
+.lineDone {
+  background: var(--ok);
+}

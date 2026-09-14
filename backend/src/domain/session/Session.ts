@@ -21,6 +21,7 @@ interface SessionProps {
   capture: CaptureConfig;
   stats: SessionStats;
   hasVideo: boolean;
+  videoOffsetMs?: number;
 }
 
 /**
@@ -52,11 +53,12 @@ export class Session {
   }
 
   static fromDto(dto: SessionDto): Session {
+    const { createdAt, startedAt, endedAt, ...rest } = dto;
     return new Session({
-      ...dto,
-      createdAt: new Date(dto.createdAt),
-      ...(dto.startedAt ? { startedAt: new Date(dto.startedAt) } : {}),
-      ...(dto.endedAt ? { endedAt: new Date(dto.endedAt) } : {}),
+      ...rest,
+      createdAt: new Date(createdAt),
+      ...(startedAt ? { startedAt: new Date(startedAt) } : {}),
+      ...(endedAt ? { endedAt: new Date(endedAt) } : {}),
     });
   }
 
@@ -66,6 +68,10 @@ export class Session {
 
   get status(): SessionStatus {
     return this.props.status;
+  }
+
+  get objective(): Objective {
+    return this.props.objective;
   }
 
   get capture(): CaptureConfig {
@@ -78,6 +84,18 @@ export class Session {
 
   get createdAt(): Date {
     return this.props.createdAt;
+  }
+
+  /** Instante de inicio de la grabación: el cero de la línea de tiempo. */
+  get startedAtMs(): number | undefined {
+    return this.props.startedAt?.getTime();
+  }
+
+  /** Registra cuándo empezó el video respecto del inicio de la sesión (solo la primera vez). */
+  markVideoStart(now: Date): void {
+    if (this.props.status !== 'recording' || this.props.videoOffsetMs !== undefined) return;
+    const startedAt = this.props.startedAt?.getTime() ?? now.getTime();
+    this.props.videoOffsetMs = Math.max(0, now.getTime() - startedAt);
   }
 
   start(now: Date): void {

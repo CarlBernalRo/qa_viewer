@@ -21,6 +21,16 @@ describe('Redactor', () => {
     expect(headers).toEqual({ Authorization: REDACTED, Accept: 'application/json' });
   });
 
+  it('oculta el valor de las cookies pero conserva nombres y atributos', () => {
+    const headers = all.redactHeaders({
+      'set-cookie': 'sessionid=abc123; Path=/; HttpOnly\ntheme=dark; Secure; SameSite=Lax',
+      Cookie: 'sessionid=abc123; theme=dark',
+    });
+    expect(headers['set-cookie']).toBe(`sessionid=${REDACTED}; Path=/; HttpOnly\ntheme=${REDACTED}; Secure; SameSite=Lax`);
+    expect(headers['Cookie']).toBe(`sessionid=${REDACTED}; theme=${REDACTED}`);
+    expect(JSON.stringify(headers)).not.toContain('abc123');
+  });
+
   it('oculta parámetros sensibles de la URL', () => {
     const url = all.redactUrl('https://qa.test/checkout?access_token=eyJ&step=3');
     expect(url).toContain(`access_token=${encodeURIComponent(REDACTED)}`);
@@ -53,7 +63,7 @@ describe('Redactor', () => {
       headers: { cookie: 'sid=1' },
       postData: JSON.stringify({ cardNumber: '4242424242424242', amount: 10 }),
     });
-    expect(event.kind === 'http-request' && event.headers.cookie).toBe(REDACTED);
+    expect(event.kind === 'http-request' && event.headers.cookie).toBe(`sid=${REDACTED}`);
     expect(event.kind === 'http-request' && JSON.parse(event.postData ?? '{}').cardNumber).toBe(REDACTED);
   });
 });

@@ -1,0 +1,131 @@
+.root {
+  position: relative;
+  display: inline-flex;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.trigger:hover {
+  background: var(--surface-sunken);
+}
+
+.caret {
+  font-size: 11px;
+  transition: transform 0.15s ease;
+}
+
+.caretOpen {
+  transform: rotate(180deg);
+}
+
+/* Se dibuja en <body> con posición fija: ninguna tarjeta lo recorta (ver usePopoverPosition). */
+.menu {
+  position: fixed;
+  z-index: 900;
+  min-width: 220px;
+  padding: 4px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--surface-strong);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
+}
+
+.item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.item:hover:not(:disabled) {
+  background: var(--surface-sunken);
+}
+
+.item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.checkItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.checkItem:hover {
+  background: var(--surface-sunken);
+}
+
+.checkItem input {
+  accent-color: var(--ink);
+  margin: 0;
+}
+
+.swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.checkLabel {
+  flex-grow: 1;
+}
+
+.checkCount {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.menuFooter {
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px 10px 4px;
+  border-top: 1px solid var(--rule-soft);
+  margin-top: 4px;
+}
+
+.linkButton {
+  border: 0;
+  background: transparent;
+  color: var(--link);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.linkButton:disabled {
+  color: var(--faint);
+  cursor: default;
+}
+
+.danger {
+  color: var(--crit);
+}
+
+.danger:hover:not(:disabled) {
+  background: var(--crit-soft);
+}

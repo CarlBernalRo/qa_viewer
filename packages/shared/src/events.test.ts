@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { captureEventSchema, channelOf, isErrorEvent, type CaptureEvent } from './events.js';
+import { captureEventSchema, channelOf, cleanAxeText, isErrorEvent, type CaptureEvent } from './events.js';
 
 const base = { id: 'e1', t: 10, pageId: 'p1' };
 
@@ -27,6 +27,15 @@ describe('channelOf', () => {
     expect(channelOf('ws-frame')).toBe('websocket');
     expect(channelOf('user-action')).toBe('actions');
     expect(channelOf('exception')).toBe('console');
+    expect(channelOf('a11y-scan')).toBe('accessibility');
+  });
+});
+
+describe('cleanAxeText', () => {
+  it('quita los restos de plantilla de axe y conserva el texto útil', () => {
+    const raw = "Corregir (todas) las siguientes incidencias:{{~it:value}}\n  {{=value.split('\\n').join('\\n  ')}}{{~}}";
+    expect(cleanAxeText(raw)).toBe('Corregir (todas) las siguientes incidencias:');
+    expect(cleanAxeText('Corrija lo siguiente:\n  Falta alt  \n\n  Otra cosa')).toBe('Corrija lo siguiente:\n  Falta alt\n  Otra cosa');
   });
 });
 
@@ -45,5 +54,19 @@ describe('isErrorEvent', () => {
     expect(isErrorEvent(response)).toBe(true);
     expect(isErrorEvent({ ...base, kind: 'exception', message: 'boom' })).toBe(true);
     expect(isErrorEvent(warn)).toBe(false);
+  });
+
+  it('cuenta como error un connect_error de Socket.IO', () => {
+    const frame: CaptureEvent = {
+      ...base,
+      kind: 'ws-frame',
+      requestId: 's1',
+      direction: 'received',
+      opcode: 1,
+      payload: '44{"message":"not authorized"}',
+      truncated: false,
+    };
+    expect(isErrorEvent(frame)).toBe(true);
+    expect(isErrorEvent({ ...frame, payload: '42["ping",{}]' })).toBe(false);
   });
 });

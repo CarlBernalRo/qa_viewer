@@ -1,0 +1,80 @@
+.form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+}
+
+.field {
+  flex: 0 1 160px;
+  min-width: 0;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+}
+
+.note {
+  flex: 1 1 180px;
+}
+
+.buttons {
+  flex-basis: 100%;
+  display: flex;
+  gap: 6px;
+}
+
+.save,
+.cancel {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.save {
+  border: 0;
+  font-weight: 700;
+}
+
+.save:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Widget y barra de grabación (fondo oscuro) */
+.dark .field {
+  border: 1px solid #3d4540;
+  background: #2a312d;
+  color: #e5e8e3;
+}
+
+.dark .save {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.dark .cancel {
+  border: 0;
+  background: transparent;
+  color: #9aa39d;
+}
+
+/* Revisión (fondo claro) */
+.light .field {
+  border: 1px solid var(--rule-strong);
+  background: var(--surface-strong);
+  color: var(--ink);
+}
+
+.light .save {
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.light .cancel {
+  border: 1px solid var(--rule-strong);
+  background: var(--surface);
+  color: var(--muted);
+}

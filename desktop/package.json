@@ -1,0 +1,15 @@
+{
+  "name": "@rastro/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Contenedor de escritorio de Rastro (Tauri 2). Lanza el backend y sirve el frontend.",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "icon": "tauri icon icons-src/app-icon.svg",
+    "check": "cargo check --manifest-path src-tauri/Cargo.toml"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.4"
+  }
+}

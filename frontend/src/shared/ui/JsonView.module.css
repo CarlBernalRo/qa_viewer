@@ -1,0 +1,89 @@
+.tree {
+  padding: 10px 12px;
+  background: var(--ink);
+  color: #d6dbd5;
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.65;
+  overflow: auto;
+}
+
+.node,
+.line {
+  white-space: nowrap;
+}
+
+.line {
+  padding-left: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.children {
+  padding-left: 16px;
+  border-left: 1px dashed #3d4540;
+  margin-left: 5px;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.toggle:hover .summary {
+  color: #fbfbf9;
+}
+
+.caret {
+  display: inline-block;
+  width: 14px;
+  color: #7a847e;
+  transition: transform 0.12s ease;
+}
+
+.caretOpen {
+  transform: rotate(90deg);
+}
+
+.key {
+  color: #8fc1e8;
+}
+
+.index {
+  color: #7a847e;
+}
+
+.string {
+  color: #a8d59b;
+}
+
+.number {
+  color: #f0b36a;
+}
+
+.boolean {
+  color: #d9a0e8;
+}
+
+.null {
+  color: #9aa39d;
+  font-style: italic;
+}
+
+.punct {
+  color: #9aa39d;
+}
+
+.summary {
+  color: #7a847e;
+  font-style: italic;
+}

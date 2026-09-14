@@ -6,6 +6,14 @@ export type Environment = z.infer<typeof environmentSchema>;
 export const testTypeSchema = z.enum(['funcional', 'regresion', 'humo', 'exploratoria', 'no-funcional']);
 export type TestType = z.infer<typeof testTypeSchema>;
 
+export const TEST_TYPE_LABELS: Record<TestType, string> = {
+  funcional: 'Funcional',
+  regresion: 'Regresión',
+  humo: 'Humo',
+  exploratoria: 'Exploratoria',
+  'no-funcional': 'No funcional',
+};
+
 export const acceptanceCriterionSchema = z.object({
   id: z.string().regex(/^CA\d+$/, 'El id debe tener la forma CA1, CA2…'),
   text: z.string().trim().min(3).max(500),
@@ -33,6 +41,7 @@ export const captureChannelSchema = z.enum([
   'websocket',
   'console',
   'performance',
+  'accessibility',
   'video',
 ]);
 export type CaptureChannel = z.infer<typeof captureChannelSchema>;
@@ -95,5 +104,7 @@ export const sessionSchema = z.object({
   capture: captureConfigSchema,
   stats: sessionStatsSchema,
   hasVideo: z.boolean(),
+  /** Cuántos ms después del inicio de la sesión empezó el video (para alinear video y eventos). */
+  videoOffsetMs: z.number().nonnegative().optional(),
 });
 export type SessionDto = z.infer<typeof sessionSchema>;
