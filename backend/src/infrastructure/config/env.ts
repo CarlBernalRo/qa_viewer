@@ -45,6 +45,10 @@ const envSchema = z.object({
   RASTRO_BROWSER_HEADLESS: booleanString.default(false),
   /** Carpeta de los informes PDF. Por defecto, Descargas/Rastro del usuario. */
   RASTRO_REPORTS_DIR: z.string().min(1).optional(),
+  /** Proveedor de los agentes. "auto": OpenRouter si hay OPENROUTER_API_KEY; si no, Gemini directo. */
+  RASTRO_AGENT_PROVIDER: z.enum(['auto', 'gemini', 'openrouter']).default('auto'),
+  /** Modelo de los agentes. Por defecto: gemini-2.5-pro (Gemini) o google/gemini-2.5-pro (OpenRouter). */
+  RASTRO_AGENT_MODEL: z.string().min(1).optional(),
   /** PID del proceso que lanzó el backend (Tauri). Si muere, el backend se apaga solo. */
   RASTRO_PARENT_PID: z.coerce.number().int().positive().optional(),
 });
@@ -65,6 +69,14 @@ export interface AppConfig {
   videoSize: { width: number; height: number };
   headless: boolean;
   reportsDir: string;
+  agents: {
+    provider: AgentProvider;
+    /** Nombre para mostrar (a quién se envía el resumen). */
+    providerName: string;
+    model: string;
+    /** Hay clave del proveedor en el entorno (la configuración no guarda ni muestra su valor). */
+    credentials: boolean;
+  };
   parentPid?: number;
 }
 
@@ -82,6 +94,40 @@ export function loadDotEnv(path = '.env'): void {
   for (const [key, value] of Object.entries(parsed)) {
     if (process.env[key] === undefined && value !== undefined) process.env[key] = value;
   }
+}
+
+export type AgentProvider = 'gemini' | 'openrouter';
+
+/**
+ * Las claves de los proveedores se leen aparte y solo donde se crea el cliente: no forman
+ * parte de AppConfig, así nunca terminan en un log de la configuración.
+ */
+export function geminiApiKey(source: NodeJS.ProcessEnv = process.env): string | undefined {
+  return source['GEMINI_API_KEY']?.trim() || undefined;
+}
+
+export function openRouterApiKey(source: NodeJS.ProcessEnv = process.env): string | undefined {
+  return source['OPENROUTER_API_KEY']?.trim() || undefined;
+}
+
+function resolveAgents(
+  choice: 'auto' | AgentProvider,
+  model: string | undefined,
+  source: NodeJS.ProcessEnv,
+): AppConfig['agents'] {
+  const provider: AgentProvider = choice === 'auto' ? (openRouterApiKey(source) ? 'openrouter' : 'gemini') : choice;
+  if (provider === 'openrouter') {
+    const raw = model ?? 'google/gemini-2.5-pro';
+    // En OpenRouter los modelos llevan el prefijo del proveedor: gemini-2.5-pro → google/gemini-2.5-pro.
+    const named = !raw.includes('/') && raw.startsWith('gemini') ? `google/${raw}` : raw;
+    return { provider, providerName: 'OpenRouter', model: named, credentials: Boolean(openRouterApiKey(source)) };
+  }
+  return {
+    provider,
+    providerName: 'Google Gemini',
+    model: model ?? 'gemini-2.5-pro',
+    credentials: Boolean(geminiApiKey(source)),
+  };
 }
 
 export function parseConfig(source: NodeJS.ProcessEnv = process.env): AppConfig {
@@ -104,6 +150,7 @@ export function parseConfig(source: NodeJS.ProcessEnv = process.env): AppConfig 
     videoSize: { width, height },
     headless: env.RASTRO_BROWSER_HEADLESS,
     reportsDir: env.RASTRO_REPORTS_DIR ? resolve(env.RASTRO_REPORTS_DIR) : join(homedir(), 'Downloads', 'Rastro'),
+    agents: resolveAgents(env.RASTRO_AGENT_PROVIDER, env.RASTRO_AGENT_MODEL, source),
     ...(env.RASTRO_PARENT_PID !== undefined ? { parentPid: env.RASTRO_PARENT_PID } : {}),
   };
 }

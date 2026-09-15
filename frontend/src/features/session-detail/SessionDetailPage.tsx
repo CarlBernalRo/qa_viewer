@@ -1,11 +1,12 @@
 import { summarizeCriteria, type SessionDto, type SessionReview } from '@rastro/shared';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useApi } from '../../app/providers/BackendProvider';
 import { runningInTauri } from '../../shared/config/backendConfig';
 import { useCompactWindow } from '../../shared/desktop/compactWindow';
 import { formatDate, formatDuration, sessionDurationMs } from '../../shared/lib/format';
 import { TEST_TYPE_LABELS } from '../../shared/lib/labels';
+import { usePersistentState } from '../../shared/lib/usePersistentState';
 import {
   AppShell,
   Button,
@@ -21,6 +22,8 @@ import {
   StatusBadge,
 } from '../../shared/ui';
 import {
+  useAgentRuns,
+  useAgentStatus,
   useRecordingControls,
   useSession,
   useSessionEvents,
@@ -29,11 +32,14 @@ import {
   useSessionReview,
 } from '../sessions/api';
 import { DeleteSessionDialog } from '../sessions/DeleteSessionDialog';
+import { AgentsPanel } from './agents/AgentsPanel';
 import { CriteriaPanel } from './criteria/CriteriaPanel';
 import { EventInspector } from './EventInspector';
 import { FindingsPanel } from './FindingsPanel';
 import { HeaderPlayer } from './HeaderPlayer';
 import { NowPlaying } from './NowPlaying';
+import { overlaySources, overlaysAt } from './overlay/overlays';
+import { OverlayModeControl, VideoOverlay, type OverlayMode } from './overlay/VideoOverlay';
 import { ProblemsPanel } from './ProblemsPanel';
 import { RecordingPanel } from './RecordingPanel';
 import { RecordingWidget } from './RecordingWidget';
@@ -151,6 +157,9 @@ function ReplayWorkspace({
 }: ReplayWorkspaceProps) {
   const api = useApi();
   const findings = useSessionFindings(session.id, true);
+  const agentStatus = useAgentStatus();
+  const agentRuns = useAgentRuns(session.id, true);
+  const latestCompletedRun = agentRuns.data?.find((run) => run.status === 'completed');
   const [filters, setFilters] = useState<TimelineFilters>(DEFAULT_FILTERS);
   const visibleModel = useMemo(() => applyFilters(model, filters), [model, filters]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -162,6 +171,19 @@ function ReplayWorkspace({
   const watching = currentMs > offsetMs;
   const active = useMemo(() => (watching ? itemsAt(model, currentMs) : []), [model, currentMs, watching]);
   const activeIds = useMemo(() => new Set(active.map((item) => item.id)), [active]);
+
+  // Recuadros sobre el video: el elemento del clic y los problemas de accesibilidad de ese momento.
+  const [localVideo, setLocalVideo] = useState<HTMLVideoElement | null>(null);
+  const handleVideoElement = useCallback(
+    (video: HTMLVideoElement | null) => {
+      setLocalVideo(video);
+      onVideoElement(video);
+    },
+    [onVideoElement],
+  );
+  const [overlayMode, setOverlayMode] = usePersistentState<OverlayMode>('rastro.overlayMode', 'always');
+  const sources = useMemo(() => overlaySources(model.eventsById.values()), [model]);
+  const overlayBoxes = useMemo(() => overlaysAt(sources, currentMs), [sources, currentMs]);
 
   const select = (item: TimelineItem) => {
     setSelectedId(item.eventId);
@@ -179,7 +201,14 @@ function ReplayWorkspace({
   return (
     <div className={styles.workspace}>
       <div className={styles.mainColumn}>
-        <Panel title="Grabación de pantalla" collapsibleKey="video" padded={false}>
+        <Panel
+          title="Grabación de pantalla"
+          collapsibleKey="video"
+          padded={false}
+          {...(session.hasVideo
+            ? { actions: <OverlayModeControl value={overlayMode} onChange={setOverlayMode} /> }
+            : {})}
+        >
           {session.hasVideo ? (
             <>
               <div className={styles.stage}>
@@ -188,8 +217,16 @@ function ReplayWorkspace({
                   offsetMs={offsetMs}
                   seekRequest={seek}
                   onTimeChange={setCurrentMs}
-                  onElement={onVideoElement}
-                />
+                  onElement={handleVideoElement}
+                >
+                  <VideoOverlay
+                    video={localVideo}
+                    boxes={overlayBoxes}
+                    mode={overlayMode}
+                    selectedEventId={selectedId}
+                    onSelect={setSelectedId}
+                  />
+                </VideoPlayer>
               </div>
               {!loading && <NowPlaying model={model} active={active} currentMs={currentMs} onSelect={select} />}
             </>
@@ -204,6 +241,16 @@ function ReplayWorkspace({
           loading={reviewLoading}
           currentMs={currentMs}
           onSeek={(ms) => setSeek({ ms, nonce: Date.now() })}
+          {...(latestCompletedRun ? { proposals: latestCompletedRun.proposals } : {})}
+        />
+
+        <AgentsPanel
+          session={session}
+          status={agentStatus.data}
+          runs={agentRuns.data}
+          loading={agentStatus.isPending || agentRuns.isPending}
+          eventTime={(eventId) => model.eventsById.get(eventId)?.t}
+          onSelectEvidence={selectEventId}
         />
 
         {loading ? (

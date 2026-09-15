@@ -98,7 +98,7 @@ export function ObjectiveStep({ form, errors, update }: StepProps) {
             label="Dentro del alcance"
             optional
             hint="Escribe y pulsa Enter para agregar."
-            info="Partes de la aplicación que importan en esta prueba: rutas como /login o /checkout/*, o endpoints como /api/auth/*. El * funciona como comodín. Hoy queda como referencia en la sesión; en la etapa 2 los agentes se enfocarán en esto."
+            info="Partes de la aplicación que importan en esta prueba: rutas como /login o /checkout/*, o endpoints como /api/auth/*. El * funciona como comodín. Lo que excluyas aparece como fuera del alcance en los hallazgos, y los agentes lo tienen en cuenta al revisar."
           >
             {(id, describedBy) => (
               <TagInput
@@ -165,7 +165,7 @@ export function ObjectiveStep({ form, errors, update }: StepProps) {
             <li>Queda guardado junto a la grabación, para saber qué se quiso comprobar.</li>
             <li>Los criterios se numeran solos: CA1, CA2…</li>
             <li>El alcance separa lo que importa de lo que no, para revisar más rápido.</li>
-            <li>En la etapa 2, los agentes evaluarán cada criterio con evidencia.</li>
+            <li>Al revisar, decides si se cumple cada criterio; los agentes (opcionales) proponen un veredicto con evidencia.</li>
           </ul>
         </Panel>
       </aside>

@@ -13,6 +13,7 @@ import { WebSocketServer } from 'ws';
 import { createUseCases, RecordingRegistry } from '../src/application/index.js';
 import { REDACTED } from '../src/domain/redaction/Redactor.js';
 import type { Logger } from '../src/domain/ports.js';
+import { FileAgentRunStore } from '../src/infrastructure/persistence/FileAgentRunStore.js';
 import { FileEventStore } from '../src/infrastructure/persistence/FileEventStore.js';
 import { FileFindingDecisionStore } from '../src/infrastructure/persistence/FileFindingDecisionStore.js';
 import { FileMediaStore } from '../src/infrastructure/persistence/FileMediaStore.js';
@@ -75,6 +76,11 @@ async function main(): Promise<void> {
     renderer: new PlaywrightPdfRenderer(),
     reportStore: new FileReportStore(join(dataDir, 'informes')),
     opener: { open: async () => {}, reveal: async () => {} },
+    // La prueba de humo no llama a ningún modelo de IA: los agentes quedan desactivados.
+    agentModel: null,
+    agentModelName: 'gemini-2.5-pro',
+    agentProvider: 'Google Gemini',
+    agentRuns: new FileAgentRunStore(paths),
     clock: new SystemClock(),
     ids: new CryptoIdGenerator(),
     notifier: { publish: () => {} },
@@ -142,6 +148,11 @@ async function main(): Promise<void> {
     const a11y = events.find((event) => event.kind === 'a11y-scan');
     const imageAlt = a11y?.kind === 'a11y-scan' ? a11y.violations.find((item) => item.id === 'image-alt') : undefined;
     check(Boolean(a11y), 'se revisó la accesibilidad de la pantalla');
+    check(
+      a11y?.kind === 'a11y-scan' && Boolean(a11y.viewport?.w) && a11y.violations.some((item) => item.nodes.some((node) => node.rect)),
+      'la revisión trae el tamaño de la ventana y los rectángulos (para los recuadros)',
+    );
+    check(click?.kind === 'user-action' && typeof click.viewport.dpr === 'number', 'la acción trae el zoom de pantalla (devicePixelRatio)');
     check(Boolean(imageAlt), 'axe-core detectó la imagen sin texto alternativo');
     if (imageAlt) log(`    «${imageAlt.help}»`);
     const analysis = await useCases.analyzeSession.execute(session.id);

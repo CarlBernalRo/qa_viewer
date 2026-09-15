@@ -1,6 +1,17 @@
 import { createUseCases, RecordingRegistry } from './application/index.js';
-import { ConfigError, loadDotEnv, parseConfig, type AppConfig } from './infrastructure/config/env.js';
+import {
+  ConfigError,
+  geminiApiKey,
+  loadDotEnv,
+  openRouterApiKey,
+  parseConfig,
+  type AppConfig,
+} from './infrastructure/config/env.js';
 import { createPinoLogger, PinoLoggerAdapter } from './infrastructure/logging/logger.js';
+import type { AgentModel } from './domain/ports.js';
+import { GeminiAgentModel } from './infrastructure/agents/GeminiAgentModel.js';
+import { OpenRouterAgentModel } from './infrastructure/agents/OpenRouterAgentModel.js';
+import { FileAgentRunStore } from './infrastructure/persistence/FileAgentRunStore.js';
 import { FileEventStore } from './infrastructure/persistence/FileEventStore.js';
 import { FileFindingDecisionStore } from './infrastructure/persistence/FileFindingDecisionStore.js';
 import { FileMediaStore } from './infrastructure/persistence/FileMediaStore.js';
@@ -27,6 +38,16 @@ function readConfig(): AppConfig {
     }
     throw error;
   }
+}
+
+/** El adaptador del proveedor elegido; su clave se lee solo aquí. null si falta la clave. */
+function createAgentModel(agents: AppConfig['agents']): AgentModel | null {
+  if (agents.provider === 'openrouter') {
+    const key = openRouterApiKey();
+    return key ? new OpenRouterAgentModel(agents.model, key) : null;
+  }
+  const key = geminiApiKey();
+  return key ? new GeminiAgentModel(agents.model, key) : null;
 }
 
 /** Composition root: el único lugar que conoce las implementaciones concretas. */
@@ -71,6 +92,10 @@ async function main(): Promise<void> {
     renderer: new PlaywrightPdfRenderer(),
     reportStore: new FileReportStore(config.reportsDir),
     opener: new SystemFileOpener(),
+    agentModel: createAgentModel(config.agents),
+    agentModelName: config.agents.model,
+    agentProvider: config.agents.providerName,
+    agentRuns: new FileAgentRunStore(paths),
     clock: new SystemClock(),
     ids: new CryptoIdGenerator(),
     notifier: liveHub,
@@ -122,6 +147,9 @@ async function main(): Promise<void> {
     url: `http://${config.host}:${config.port}`,
     dataDir: config.dataDir,
     reportsDir: config.reportsDir,
+    agents: config.agents.credentials
+      ? `${config.agents.providerName} · ${config.agents.model}`
+      : 'sin configurar (falta GEMINI_API_KEY u OPENROUTER_API_KEY)',
   });
 }
 

@@ -98,7 +98,7 @@ export function pageInstrumentation(options: { actions: boolean; performance: bo
           w: Math.round(rect.width),
           h: Math.round(rect.height),
         },
-        viewport: { w: window.innerWidth, h: window.innerHeight },
+        viewport: { w: window.innerWidth, h: window.innerHeight, dpr: window.devicePixelRatio },
         ...extra,
       });
     };

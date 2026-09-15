@@ -17,6 +17,7 @@ import { HttpError, parseOrThrow } from '../errors.js';
 const idParams = z.object({ id: z.string().min(1).max(80) });
 const findingParams = z.object({ id: z.string().min(1).max(80), findingId: z.string().min(1).max(120) });
 const markerParams = z.object({ id: z.string().min(1).max(80), markerId: z.string().min(1).max(80) });
+const agentRunParams = z.object({ id: z.string().min(1).max(80), runId: z.string().regex(/^[A-Za-z0-9_-]{1,80}$/) });
 const criterionParams = z.object({ id: z.string().min(1).max(80), criterionId: z.string().regex(/^CA\d+$/) });
 
 const kindSchema = captureEventSchema.options.map((option) => option.shape.kind.value);
@@ -84,6 +85,23 @@ export async function sessionRoutes(app: FastifyInstance, useCases: UseCases): P
     const { id, findingId } = parseOrThrow(findingParams, request.params);
     const input = parseOrThrow(setFindingDecisionInputSchema, request.body);
     return useCases.setFindingDecision.execute(id, findingId, input);
+  });
+
+  app.get(API_ROUTES.agentStatus, async () => useCases.getAgentStatus.execute());
+
+  app.get('/api/sessions/:id/agents', async (request) => {
+    const { id } = parseOrThrow(idParams, request.params);
+    return { runs: await useCases.listAgentRuns.execute(id) };
+  });
+
+  app.post('/api/sessions/:id/agents', async (request, reply) => {
+    const { id } = parseOrThrow(idParams, request.params);
+    return reply.status(202).send(await useCases.startAgentRun.execute(id));
+  });
+
+  app.post('/api/sessions/:id/agents/:runId/retry', async (request, reply) => {
+    const { id, runId } = parseOrThrow(agentRunParams, request.params);
+    return reply.status(202).send(await useCases.startAgentRun.retry(id, runId));
   });
 
   app.get('/api/sessions/:id/review', async (request) => {

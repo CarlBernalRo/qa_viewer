@@ -128,6 +128,37 @@
 - Backend: `review.json` por sesión (escrituras serializadas). `GET /review`, `POST /markers`, `DELETE /markers/:id`, `PUT /criteria/:CAn`. Rechaza sesiones en borrador, criterios inexistentes y marcas vacías, y recorta la marca al final de la grabación.
 - Prueba de humo: 19/19 (marca durante la grabación, veredicto e informe).
 
+## Novena ronda (14-09): recuadros sobre el video
+
+- **Recuadros al reproducir:** el elemento donde el usuario hizo clic o escribió (azul, con etiqueta, de 0,15 s antes a 1,5 s después) y los elementos con problemas de accesibilidad (borde rojo, naranja, ámbar o gris según el impacto; hasta 12 por pantalla, primero los más graves; la etiqueta aparece al pasar el mouse). Al hacer clic en un recuadro se abre su evento en el inspector.
+- **Modo** en el encabezado del video: Siempre / Al pausar / Nunca. Se recuerda entre aperturas.
+- **Proyección** (`overlay/overlays.ts`, con tests): página → cuadro del video (Chromium achica la página para que entre en el video sin superar su zoom, y la ubica arriba a la izquierda) → `<video>` con `object-fit: contain`. Verificada con la grabación real "Home coord_2": clics en el selector, el login y el chat, y la tabla marcada por axe.
+- La captura ahora guarda el zoom de pantalla (`devicePixelRatio`) con cada acción, y el tamaño de la ventana con cada revisión de accesibilidad. Las sesiones anteriores funcionan igual: suponen que la página se achicó para entrar en el video (Windows al 125% dio 1536×730 en un video de 1600×900) y, para la accesibilidad, usan la ventana de la acción más cercana.
+- **Límite:** el scroll no se graba, así que los rectángulos de accesibilidad valen solo para el momento de la revisión. Duran 2,5 s y se cortan en la siguiente acción o navegación.
+
+## Décima ronda (14-09): agentes de IA (etapa 3, primer equipo)
+
+- **Equipo:** API REST (red y WebSocket), Front-end (acciones, consola, accesibilidad y rendimiento) y QA Lead, que junta ambos informes, une lo repetido y **propone un veredicto por criterio**. Cada agente tiene su robot con color propio.
+- **Cómo corre:** "Analizar con agentes" en el panel Agentes de una sesión grabada. Antes del primer análisis se explica qué datos se envían: un resumen ya ocultado, sin video. Responde enseguida y los tres agentes trabajan en segundo plano; el panel muestra el avance paso a paso. Hay un análisis a la vez por sesión, y si Rastro se reinicia a mitad, el análisis queda marcado como interrumpido.
+- **OpenRouter, errores claros:** OpenRouter responde 200 enseguida y mantiene la conexión abierta mientras el modelo piensa, así que el tiempo se puede agotar mientras llega la respuesta. Eso ahora se informa como tiempo agotado (10 min, sin reintentar), no como "formato inesperado". También se detectan la saturación del proveedor (502/503), el error dentro de la respuesta, el cuerpo cortado (se reintenta) y el texto en partes. Con datos inventados, Nemotron `:free` tardó más de 3 min una vez y otra respondió "Service temporarily overloaded": los modelos gratuitos no son confiables para el análisis.
+- **Reintentar retoma, no repite:** cada análisis guarda un punto de control en `agent-checkpoints/<id>.json`, con el resumen, la evidencia de cada agente, el mapa de referencias E# y los informes de los especialistas que ya respondieron. "Reintentar desde <agente>" (`POST /agents/:runId/retry`) reutiliza el mismo análisis y consulta solo a los agentes que faltan, con el mismo contexto aunque el QA haya cambiado algo entre medio. Así las referencias siguen apuntando a los mismos eventos. Los análisis sin punto de control se reintentan desde cero.
+- **Evidencia verificable:** los agentes citan con referencias cortas (E1, E2…) que el backend traduce a eventos reales. Lo inventado se descarta, igual que los criterios que no existen. Cada evidencia se abre en el inspector y salta al video.
+- **Resultado:** resumen del QA Lead, observaciones con los agentes que las respaldan, y la propuesta de veredicto en cada criterio con **Aceptar**, que la copia como veredicto del QA con la justificación como nota. Nada cambia hasta que el QA acepta.
+- **Google Gemini** (`@google/genai` 2.22; el usuario eligió Gemini en lugar de Anthropic): modelo `gemini-2.5-pro` por defecto, configurable con `RASTRO_AGENT_MODEL` (p. ej., `gemini-2.5-flash`).
+  - Respuesta en JSON con `responseJsonSchema`, generado desde los esquemas de zod y validado de nuevo al llegar.
+  - Las reglas y el resumen de la sesión van primero en `systemInstruction` y son idénticos para los tres agentes: Gemini puede reutilizar ese prefijo con su caché implícita, y el panel muestra lo leído desde caché.
+  - Hasta 3 intentos ante límites de uso o errores del servidor; errores de clave, permisos, modelo inexistente y cuota traducidos a mensajes claros.
+  - El texto de la página grabada se trata como datos, no como instrucciones.
+  - Los agentes dependen del puerto `AgentModel`: cambiar de proveedor es escribir otro adaptador.
+- **OpenRouter** (para pruebas, una clave para muchos modelos): con `OPENROUTER_API_KEY`, `RASTRO_AGENT_PROVIDER=auto` lo prefiere a Gemini directo. El modelo por defecto es `google/gemini-2.5-pro`, y `gemini-2.5-pro` se traduce solo a ese nombre.
+  - JSON con esquema estricto y `provider.require_parameters` para que solo respondan proveedores que respeten el formato.
+  - Reintentos ante 408/429/5xx y fallas de red. Errores traducidos: clave inválida, sin saldo, modelo inexistente, límite de uso. OpenRouter también manda errores con status 200, y se detectan igual.
+  - Probado con un `fetch` simulado.
+- **Sin clave:** `GEMINI_API_KEY` (o `OPENROUTER_API_KEY`) en `backend/.env` activa los agentes. La clave se lee solo al crear el cliente y no forma parte de la configuración, así nunca termina en un log. Sin ella, el panel explica cómo configurarlos, sigue mostrando los análisis anteriores, y `POST /agents` responde 501.
+- Rutas: `GET /api/agents/status`, `GET|POST /api/sessions/:id/agents`. Se guardan en `agents.json` por sesión.
+- **Probado sin llamar a la API:** 10 tests con un modelo simulado (orquestación, caché del resumen, evidencia inventada, fallas, concurrencia, corridas interrumpidas) y la interfaz con un análisis simulado sobre "Home coord_2". **Falta una corrida real**, que necesita la clave del usuario y su consentimiento para enviar el resumen.
+- Pendiente: lanzar los agentes solos al terminar de grabar (modos "Sugeridos" / "Elegir yo" del asistente) e incluir sus propuestas en el informe PDF.
+
 ## Límites conocidos
 
 1. **Build de escritorio para distribuir:** en release, Tauri ejecuta `node backend/dist/main.js` desde el repo. Falta empaquetar el backend (Node como sidecar o un binario) junto al instalador.

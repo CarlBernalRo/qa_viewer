@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { A11Y_RULES_ES, a11yViolationSchema, cleanAxeText, type RawCaptureEvent } from '@rastro/shared';
+import { A11Y_RULES_ES, a11yViolationSchema, cleanAxeText, viewportSchema, type RawCaptureEvent } from '@rastro/shared';
 import type { CDPSession, Page } from 'playwright';
 import { z } from 'zod';
 
@@ -19,6 +19,7 @@ const MAX_NODES = 10;
 /** Lo que devuelve la revisión. Viene de la página grabada, así que se valida y se acota. */
 const scanOutputSchema = z.object({
   url: z.string().max(4000),
+  viewport: viewportSchema.optional(),
   passes: z.number().int().nonnegative(),
   violations: z.array(a11yViolationSchema).max(200),
 });
@@ -62,6 +63,7 @@ function scanExpression(locale: unknown): string {
     };
     return JSON.stringify({
       url: location.href,
+      viewport: { w: window.innerWidth, h: window.innerHeight, dpr: window.devicePixelRatio },
       passes: results.passes.length,
       violations: results.violations.map((violation) => ({
         id: violation.id,
@@ -156,6 +158,7 @@ export function attachAccessibilityScanner(page: Page, cdp: CDPSession, options:
         kind: 'a11y-scan',
         pageId,
         url: result.url,
+        ...(result.viewport ? { viewport: result.viewport } : {}),
         durationMs: Date.now() - startedAt,
         passes: result.passes,
         violations: result.violations.map((violation) => ({

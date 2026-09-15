@@ -30,6 +30,16 @@ export class SessionPaths {
     return join(this.dir(id), 'events.ndjson');
   }
 
+  agentsFile(id: string): string {
+    return join(this.dir(id), 'agents.json');
+  }
+
+  /** El id de la corrida llega en la URL al reintentar: se valida antes de armar la ruta. */
+  agentCheckpointFile(id: string, runId: string): string {
+    if (!/^[A-Za-z0-9_-]{1,80}$/.test(runId)) throw new NotFoundError('un análisis de agentes', runId);
+    return join(this.dir(id), 'agent-checkpoints', `${runId}.json`);
+  }
+
   reviewFile(id: string): string {
     return join(this.dir(id), 'review.json');
   }

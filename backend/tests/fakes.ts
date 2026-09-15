@@ -1,6 +1,19 @@
-import { emptyReview, type CaptureEvent, type FindingDecisionRecord, type LiveMessage, type SessionReview } from '@rastro/shared';
+import {
+  emptyReview,
+  type AgentId,
+  type AgentRun,
+  type CaptureEvent,
+  type FindingDecisionRecord,
+  type LiveMessage,
+  type SessionReview,
+} from '@rastro/shared';
 import { RecordingRegistry, type AppDeps } from '../src/application/index.js';
 import type {
+  AgentCheckpoint,
+  AgentModel,
+  AgentModelRequest,
+  AgentModelUsage,
+  AgentRunStore,
   BrowserRecorder,
   Clock,
   EventQuery,
@@ -91,6 +104,54 @@ export class InMemoryFindingDecisionStore implements FindingDecisionStore {
     if (record) decisions[findingId] = record;
     else delete decisions[findingId];
     this.byId.set(sessionId, decisions);
+  }
+}
+
+/** Modelo simulado: cada agente responde lo que el test le indica, sin llamar a ninguna API. */
+export class FakeAgentModel implements AgentModel {
+  readonly provider = 'Proveedor de prueba';
+  readonly model = 'modelo-de-prueba';
+  readonly calls: Array<AgentModelRequest<unknown>> = [];
+  failOn: AgentId | null = null;
+
+  constructor(private readonly outputs: Partial<Record<AgentId, unknown>> = {}) {}
+
+  async run<T>(request: AgentModelRequest<T>): Promise<{ output: T; usage: AgentModelUsage }> {
+    this.calls.push(request as AgentModelRequest<unknown>);
+    await Promise.resolve();
+    if (this.failOn === request.agentId) throw new Error(`El agente ${request.agentId} no respondió`);
+    // El primero escribe el resumen en caché; los siguientes lo leen.
+    const first = request.agentId === 'api';
+    return {
+      output: request.schema.parse(this.outputs[request.agentId]),
+      usage: { inputTokens: 1000, outputTokens: 200, cacheReadTokens: first ? 0 : 800, cacheWriteTokens: first ? 800 : 0 },
+    };
+  }
+}
+
+export class InMemoryAgentRunStore implements AgentRunStore {
+  readonly bySession = new Map<string, AgentRun[]>();
+  readonly checkpoints = new Map<string, AgentCheckpoint>();
+
+  async saveCheckpoint(sessionId: string, runId: string, checkpoint: AgentCheckpoint): Promise<void> {
+    this.checkpoints.set(`${sessionId}:${runId}`, structuredClone(checkpoint));
+  }
+
+  async loadCheckpoint(sessionId: string, runId: string): Promise<AgentCheckpoint | null> {
+    const checkpoint = this.checkpoints.get(`${sessionId}:${runId}`);
+    return checkpoint ? structuredClone(checkpoint) : null;
+  }
+
+  async list(sessionId: string): Promise<AgentRun[]> {
+    return structuredClone(this.bySession.get(sessionId) ?? []);
+  }
+
+  async save(run: AgentRun): Promise<void> {
+    const others = (this.bySession.get(run.sessionId) ?? []).filter((item) => item.id !== run.id);
+    this.bySession.set(
+      run.sessionId,
+      [structuredClone(run), ...others].sort((a, b) => b.startedAt.localeCompare(a.startedAt)),
+    );
   }
 }
 
@@ -224,6 +285,10 @@ export function createTestDeps(maxConcurrent = 1) {
     renderer: new FakeReportRenderer(),
     reportStore: new InMemoryReportStore(),
     opener: new RecordingFileOpener(),
+    agentModel: null as AgentModel | null,
+    agentModelName: 'gemini-2.5-pro',
+    agentProvider: 'Google Gemini',
+    agentRuns: new InMemoryAgentRunStore(),
     clock: new ManualClock(),
     ids: new SequentialIds(),
     notifier: new CollectingNotifier(),

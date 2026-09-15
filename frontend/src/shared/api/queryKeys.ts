@@ -5,6 +5,8 @@ export const queryKeys = {
   sessionEvents: (id: string) => ['session-events', id] as const,
   sessionFindings: (id: string) => ['session-findings', id] as const,
   sessionReview: (id: string) => ['session-review', id] as const,
+  agentStatus: ['agent-status'] as const,
+  sessionAgents: (id: string) => ['session-agents', id] as const,
   liveStats: (id: string) => ['live-stats', id] as const,
   /** true/false según el WebSocket en vivo esté conectado; null antes del primer intento. */
   liveConnection: ['live-connection'] as const,

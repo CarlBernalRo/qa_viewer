@@ -5,6 +5,10 @@ import { sessionStatsSchema, sessionStatusSchema } from './session.js';
 /** Rutas HTTP del backend, compartidas para que el cliente no tenga strings sueltos. */
 export const API_ROUTES = {
   health: '/api/health',
+  agentStatus: '/api/agents/status',
+  sessionAgents: (id: string) => `/api/sessions/${encodeURIComponent(id)}/agents`,
+  agentRunRetry: (id: string, runId: string) =>
+    `/api/sessions/${encodeURIComponent(id)}/agents/${encodeURIComponent(runId)}/retry`,
   sessions: '/api/sessions',
   session: (id: string) => `/api/sessions/${encodeURIComponent(id)}`,
   sessionEvents: (id: string) => `/api/sessions/${encodeURIComponent(id)}/events`,

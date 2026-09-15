@@ -12,8 +12,8 @@ interface StepProps {
 
 const ANALYSIS_OPTIONS = [
   { value: 'none', label: 'Sin agentes' },
-  { value: 'suggested', label: 'Sugeridos', disabled: true, title: 'Llega en la etapa 2' },
-  { value: 'manual', label: 'Elegir yo', disabled: true, title: 'Llega en la etapa 2' },
+  { value: 'suggested', label: 'Sugeridos', disabled: true, title: 'Por ahora, los agentes se lanzan desde la sesión grabada' },
+  { value: 'manual', label: 'Elegir yo', disabled: true, title: 'Por ahora, los agentes se lanzan desde la sesión grabada' },
 ] as const;
 
 function toggleIn<T>(list: readonly T[], value: T, on: boolean): T[] {
@@ -140,8 +140,8 @@ export function CaptureStep({ form, errors, update }: StepProps) {
             <span className={styles.panelTitle}>
               Análisis de la sesión
               <InfoTip label="Qué es el análisis de la sesión">
-                Sin agentes: se graba todo y tú revisas la línea de tiempo, los errores y el video. Con agentes (etapa 2), la
-                IA revisará la sesión según tu objetivo y sus criterios.
+                Sin agentes: se graba todo y tú revisas la línea de tiempo, los errores y el video. Con agentes, la IA revisa
+                la sesión según tu objetivo y sus criterios; por ahora se lanzan desde la sesión grabada, en el panel Agentes.
               </InfoTip>
             </span>
           }
@@ -155,7 +155,7 @@ export function CaptureStep({ form, errors, update }: StepProps) {
             />
             <p className={styles.analysisNote}>
               <strong>Sin agentes:</strong> se graba todo y se guardan los eventos para revisarlos en la línea de tiempo.
-              El análisis con agentes llega en la etapa 2.
+              Al terminar, puedes pedir el análisis de los agentes desde la sesión.
             </p>
           </div>
         </Panel>

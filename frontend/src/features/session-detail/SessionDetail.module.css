@@ -481,6 +481,10 @@
   padding: var(--space-3);
 }
 
+.player {
+  position: relative;
+}
+
 .video {
   display: block;
   width: 100%;

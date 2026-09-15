@@ -5,6 +5,10 @@ import { decodeWsPayload } from './websocket.js';
 const rectSchema = z.object({ x: z.number(), y: z.number(), w: z.number(), h: z.number() });
 export type Rect = z.infer<typeof rectSchema>;
 
+/** Tamaño de la ventana en píxeles CSS y su zoom (devicePixelRatio): lo necesitan los recuadros sobre el video. */
+export const viewportSchema = z.object({ w: z.number(), h: z.number(), dpr: z.number().positive().max(10).optional() });
+export type Viewport = z.infer<typeof viewportSchema>;
+
 const headersSchema = z.record(z.string(), z.string());
 
 export const a11yImpactSchema = z.enum(['minor', 'moderate', 'serious', 'critical']);
@@ -63,7 +67,7 @@ export const captureEventSchema = z.discriminatedUnion('kind', [
     value: z.string().optional(),
     key: z.string().optional(),
     rect: rectSchema.optional(),
-    viewport: z.object({ w: z.number(), h: z.number() }),
+    viewport: viewportSchema,
   }),
   z.object({
     ...base,
@@ -143,6 +147,8 @@ export const captureEventSchema = z.discriminatedUnion('kind', [
     /** Pantalla revisada. `t` es cuando terminó la revisión; empezó `durationMs` antes. */
     url: z.string(),
     durationMs: z.number().nonnegative(),
+    /** Ventana al momento de revisar (las sesiones anteriores no la tienen). */
+    viewport: viewportSchema.optional(),
     /** Reglas de axe-core que la pantalla cumple. */
     passes: z.number().int().nonnegative(),
     violations: z.array(a11yViolationSchema),

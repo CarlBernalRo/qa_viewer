@@ -110,6 +110,19 @@ describe('sesiones', () => {
     expect(response.statusCode).toBe(409);
   });
 
+  it('informa que los agentes no están configurados y responde 501 al lanzarlos', async () => {
+    const status = await app.inject({ method: 'GET', url: API_ROUTES.agentStatus, headers: auth });
+    expect(status.statusCode).toBe(200);
+    expect(status.json()).toMatchObject({ available: false, provider: 'Google Gemini', model: 'gemini-2.5-pro' });
+
+    const created = await app.inject({ method: 'POST', url: API_ROUTES.sessions, headers: auth, payload: sampleInput() });
+    const { id } = created.json() as { id: string };
+    const start = await app.inject({ method: 'POST', url: API_ROUTES.sessionAgents(id), headers: auth });
+    expect(start.statusCode).toBe(501);
+    const list = await app.inject({ method: 'GET', url: API_ROUTES.sessionAgents(id), headers: auth });
+    expect(list.json()).toEqual({ runs: [] });
+  });
+
   it('responde 409 al exportar el informe de una sesión sin grabar', async () => {
     const created = await app.inject({ method: 'POST', url: API_ROUTES.sessions, headers: auth, payload: sampleInput() });
     const { id } = created.json() as { id: string };

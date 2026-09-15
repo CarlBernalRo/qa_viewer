@@ -1,0 +1,42 @@
+.avatar {
+  flex-shrink: 0;
+  display: block;
+}
+
+/* Mientras analiza, el robot "piensa": se mece y parpadea. */
+.busy {
+  animation: bob 1.2s ease-in-out infinite;
+}
+
+.busy .eye {
+  animation: blink 2.4s steps(1) infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes blink {
+  0%,
+  92% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .busy,
+  .busy .eye {
+    animation: none;
+  }
+}

@@ -1,7 +1,10 @@
 import {
+  CONFIDENCE_LABELS,
   emptyReview,
+  PROPOSED_VERDICT_LABELS,
   summarizeCriteria,
   type AcceptanceCriterion,
+  type AgentProposal,
   type CriteriaSummary,
   type CriterionReview,
   type CriterionVerdict,
@@ -14,6 +17,7 @@ import { cx } from '../../../shared/lib/cx';
 import { formatClock } from '../../../shared/lib/format';
 import { ErrorMessage, InfoTip, Panel } from '../../../shared/ui';
 import { useReviewMutations } from '../../sessions/api';
+import { AgentAvatar } from '../agents/AgentAvatar';
 import { MarkerForm } from '../markers/MarkerForm';
 import styles from './CriteriaPanel.module.css';
 
@@ -64,17 +68,57 @@ function MarkerChips({
   );
 }
 
+/** Lo que propone el QA Lead para el criterio; aceptarlo lo copia como veredicto del QA. */
+function Proposal({
+  proposal,
+  current,
+  pending,
+  onAccept,
+}: {
+  proposal: AgentProposal;
+  current: CriterionVerdict | null;
+  pending: boolean;
+  onAccept: (verdict: CriterionVerdict, note: string) => void;
+}) {
+  const { verdict } = proposal;
+  return (
+    <div className={styles.proposal}>
+      <AgentAvatar agent="lead" size={22} />
+      <div className={styles.proposalBody}>
+        <span>
+          El QA Lead propone: <strong>{PROPOSED_VERDICT_LABELS[verdict]}</strong> · {CONFIDENCE_LABELS[proposal.confidence]}
+        </span>
+        <span className={styles.proposalText}>{proposal.rationale}</span>
+      </div>
+      {verdict !== 'inconclusive' &&
+        (current === verdict ? (
+          <span className={styles.agree}>✓ Coincide</span>
+        ) : (
+          <button
+            type="button"
+            className={styles.accept}
+            disabled={pending}
+            onClick={() => onAccept(verdict, proposal.rationale.slice(0, 1000))}
+          >
+            Aceptar
+          </button>
+        ))}
+    </div>
+  );
+}
+
 interface CriterionRowProps {
   criterion: AcceptanceCriterion;
   review: CriterionReview | undefined;
   markers: readonly Marker[];
+  proposal: AgentProposal | undefined;
   pending: boolean;
   onVerdict: (verdict: CriterionVerdict | null, note?: string) => void;
   onSeek: (ms: number) => void;
   onRemoveMarker: (markerId: string) => void;
 }
 
-function CriterionRow({ criterion, review, markers, pending, onVerdict, onSeek, onRemoveMarker }: CriterionRowProps) {
+function CriterionRow({ criterion, review, markers, proposal, pending, onVerdict, onSeek, onRemoveMarker }: CriterionRowProps) {
   const [note, setNote] = useState(review?.note ?? '');
   const current = review?.verdict ?? null;
   return (
@@ -112,6 +156,9 @@ function CriterionRow({ criterion, review, markers, pending, onVerdict, onSeek, 
         />
       )}
       {markers.length > 0 && <MarkerChips markers={markers} onSeek={onSeek} onRemove={onRemoveMarker} />}
+      {proposal && (
+        <Proposal proposal={proposal} current={current} pending={pending} onAccept={(verdict, note) => onVerdict(verdict, note)} />
+      )}
     </li>
   );
 }
@@ -123,10 +170,12 @@ interface CriteriaPanelProps {
   /** Momento del video que se está viendo (reloj de la sesión). */
   currentMs: number;
   onSeek: (ms: number) => void;
+  /** Veredictos que propuso el QA Lead en el último análisis de agentes. */
+  proposals?: readonly AgentProposal[];
 }
 
 /** El QA decide si se cumplió cada criterio, con las marcas como evidencia. */
-export function CriteriaPanel({ session, review, loading, currentMs, onSeek }: CriteriaPanelProps) {
+export function CriteriaPanel({ session, review, loading, currentMs, onSeek, proposals = [] }: CriteriaPanelProps) {
   const { addMarker, removeMarker, setVerdict } = useReviewMutations(session.id);
   const [markAt, setMarkAt] = useState<number | null>(null);
   const { criteria } = session.objective;
@@ -161,6 +210,7 @@ export function CriteriaPanel({ session, review, loading, currentMs, onSeek }: C
               criterion={criterion}
               review={criterionReview}
               markers={data.markers.filter((marker) => marker.criterionId === criterion.id)}
+              proposal={proposals.find((proposal) => proposal.criterionId === criterion.id)}
               pending={setVerdict.isPending && setVerdict.variables.criterionId === criterion.id}
               onVerdict={(verdict, note) =>
                 setVerdict.mutate({ criterionId: criterion.id, verdict, ...(note ? { note } : {}) })

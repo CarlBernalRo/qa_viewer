@@ -1,4 +1,6 @@
 import type {
+  AgentModel,
+  AgentRunStore,
   BrowserRecorder,
   FileOpener,
   FindingDecisionStore,
@@ -7,6 +9,7 @@ import type {
   SessionReviewStore,
 } from '../domain/ports.js';
 import type { RecordingDeps } from './recording/ActiveRecording.js';
+import { GetAgentStatus, ListAgentRuns, StartAgentRun } from './use-cases/agents.js';
 import { AnalyzeSession, SetFindingDecision } from './use-cases/analysis.js';
 import { StartRecording, StopRecording } from './use-cases/recording.js';
 import { ExportSessionReport, OpenSessionReport } from './use-cases/report.js';
@@ -33,12 +36,32 @@ export type AppDeps = RecordingDeps & {
   renderer: ReportRenderer;
   reportStore: ReportStore;
   opener: FileOpener;
+  /** null si no hay credenciales: los agentes quedan desactivados. */
+  agentModel: AgentModel | null;
+  /** Modelo y proveedor configurados (para informar aunque falte la clave). */
+  agentModelName: string;
+  agentProvider: string;
+  agentRuns: AgentRunStore;
 };
 
 export function createUseCases(deps: AppDeps) {
   const { sessions, events, media, clock, ids, recorder, decisions, reviews, renderer, reportStore, opener } = deps;
   const analyzeSession = new AnalyzeSession(sessions, events, decisions, clock);
+  const startAgentRun = new StartAgentRun(
+    sessions,
+    events,
+    analyzeSession,
+    reviews,
+    deps.agentRuns,
+    deps.agentModel,
+    clock,
+    ids,
+    deps.logger,
+  );
   return {
+    getAgentStatus: new GetAgentStatus(deps.agentModel, deps.agentModelName, deps.agentProvider),
+    startAgentRun,
+    listAgentRuns: new ListAgentRuns(sessions, deps.agentRuns, (id) => startAgentRun.isRunning(id)),
     createSession: new CreateSession(sessions, clock, ids),
     listSessions: new ListSessions(sessions),
     getSession: new GetSession(sessions),

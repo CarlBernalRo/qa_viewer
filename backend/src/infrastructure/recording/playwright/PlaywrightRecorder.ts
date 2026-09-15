@@ -34,7 +34,7 @@ const pageMessageSchema = z.discriminatedUnion('type', [
     value: z.string().max(500).optional(),
     key: z.string().max(30).optional(),
     rect: z.object({ x: z.number(), y: z.number(), w: z.number(), h: z.number() }).optional(),
-    viewport: z.object({ w: z.number(), h: z.number() }),
+    viewport: z.object({ w: z.number(), h: z.number(), dpr: z.number().positive().max(10).optional() }),
   }),
   z.object({
     type: z.literal('vital'),

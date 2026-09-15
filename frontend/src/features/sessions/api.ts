@@ -1,5 +1,6 @@
 import type {
   AddMarkerInput,
+  AgentRun,
   CreateSessionInput,
   FindingDecisionValue,
   SessionReview,
@@ -37,6 +38,37 @@ export function useSessionFindings(id: string, enabled: boolean) {
     queryFn: () => api.getFindings(id),
     enabled,
     staleTime: Infinity,
+  });
+}
+
+/** Si los agentes están configurados (hay clave de API) y con qué modelo. */
+export function useAgentStatus() {
+  const api = useApi();
+  return useQuery({ queryKey: queryKeys.agentStatus, queryFn: () => api.getAgentStatus(), staleTime: 60_000 });
+}
+
+/** Corridas de los agentes, la más reciente primero. Mientras trabajan, se consulta seguido para mostrar el avance. */
+export function useAgentRuns(id: string, enabled: boolean) {
+  const api = useApi();
+  return useQuery({
+    queryKey: queryKeys.sessionAgents(id),
+    queryFn: () => api.getAgentRuns(id),
+    enabled,
+    refetchInterval: (query) => (query.state.data?.[0]?.status === 'running' ? 2000 : false),
+  });
+}
+
+/** Analizar de nuevo, o retomar un análisis fallido (`runId`) desde el agente que falta. */
+export function useStartAgentRun(id: string) {
+  const api = useApi();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (retryRunId?: string) => (retryRunId ? api.retryAgentRun(id, retryRunId) : api.startAgentRun(id)),
+    onSuccess: (run) =>
+      queryClient.setQueryData<AgentRun[]>(queryKeys.sessionAgents(id), (runs = []) => [
+        run,
+        ...runs.filter((item) => item.id !== run.id),
+      ]),
   });
 }
 

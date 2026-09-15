@@ -175,6 +175,55 @@
   margin-left: 0;
 }
 
+.proposal {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-left: 48px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background: #f1eefa;
+  font-size: 12.5px;
+}
+
+.proposalBody {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.proposalText {
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.accept {
+  flex-shrink: 0;
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: #6b4fbb;
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.accept:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.agree {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--ok);
+}
+
 .markBar {
   display: flex;
   flex-direction: column;

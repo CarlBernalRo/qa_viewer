@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, type ReactNode } from 'react';
 import styles from './SessionDetail.module.css';
 
 export interface SeekRequest {
@@ -17,9 +17,11 @@ interface VideoPlayerProps {
   onTimeChange: (sessionMs: number) => void;
   /** Entrega el elemento <video> para controlarlo desde otro lado (p. ej., el encabezado). */
   onElement?: (video: HTMLVideoElement | null) => void;
+  /** Capas sobre el video (p. ej., los recuadros). Ocupan exactamente el área del <video>. */
+  children?: ReactNode;
 }
 
-export function VideoPlayer({ src, offsetMs, seekRequest, onTimeChange, onElement }: VideoPlayerProps) {
+export function VideoPlayer({ src, offsetMs, seekRequest, onTimeChange, onElement, children }: VideoPlayerProps) {
   const ref = useRef<HTMLVideoElement | null>(null);
   const setRef = useCallback(
     (video: HTMLVideoElement | null) => {
@@ -34,16 +36,19 @@ export function VideoPlayer({ src, offsetMs, seekRequest, onTimeChange, onElemen
   }, [seekRequest, offsetMs]);
 
   return (
-    <video
-      ref={setRef}
-      className={styles.video}
-      src={src}
-      controls
-      preload="metadata"
-      onTimeUpdate={(event) => onTimeChange(event.currentTarget.currentTime * 1000 + offsetMs)}
-      onSeeked={(event) => onTimeChange(event.currentTarget.currentTime * 1000 + offsetMs)}
-    >
-      Tu sistema no puede reproducir video WebM.
-    </video>
+    <div className={styles.player}>
+      <video
+        ref={setRef}
+        className={styles.video}
+        src={src}
+        controls
+        preload="metadata"
+        onTimeUpdate={(event) => onTimeChange(event.currentTarget.currentTime * 1000 + offsetMs)}
+        onSeeked={(event) => onTimeChange(event.currentTarget.currentTime * 1000 + offsetMs)}
+      >
+        Tu sistema no puede reproducir video WebM.
+      </video>
+      {children}
+    </div>
   );
 }

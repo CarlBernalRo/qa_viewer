@@ -1,0 +1,144 @@
+.layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  pointer-events: none;
+}
+
+.box {
+  position: absolute;
+  padding: 0;
+  border: 2px solid;
+  border-radius: 3px;
+  background: transparent;
+  pointer-events: auto;
+  cursor: pointer;
+  animation: appear 0.15s ease-out;
+}
+
+.box:hover,
+.selected {
+  z-index: 2;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.75);
+}
+
+.action {
+  border-color: var(--ch-actions);
+  background: rgba(47, 127, 191, 0.14);
+}
+
+/* Los de accesibilidad van sin relleno: pueden ser grandes (una tabla entera) y taparían la pantalla. */
+.critical {
+  border-color: var(--crit);
+}
+
+.serious {
+  border-color: #c1502a;
+}
+
+.critical:hover,
+.critical.selected {
+  background: rgba(180, 35, 24, 0.12);
+}
+
+.serious:hover,
+.serious.selected {
+  background: rgba(193, 80, 42, 0.1);
+}
+
+.moderate {
+  border-color: var(--warn);
+  border-style: dashed;
+}
+
+.minor {
+  border-color: var(--faint);
+  border-style: dashed;
+}
+
+.label {
+  position: absolute;
+  left: -2px;
+  bottom: 100%;
+  max-width: 280px;
+  margin-bottom: 2px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+.labelBelow .label {
+  top: 100%;
+  bottom: auto;
+  margin-top: 2px;
+  margin-bottom: 0;
+}
+
+.action .label {
+  background: var(--ch-actions);
+}
+
+.critical .label {
+  background: var(--crit);
+}
+
+.serious .label {
+  background: #c1502a;
+}
+
+.moderate .label {
+  background: var(--warn);
+}
+
+.minor .label {
+  background: var(--faint);
+}
+
+/* Los de accesibilidad pueden ser muchos: su etiqueta aparece al pasar el mouse o al elegirlos. */
+.critical .label,
+.serious .label,
+.moderate .label,
+.minor .label {
+  display: none;
+}
+
+.box:hover .label,
+.selected .label {
+  display: block;
+}
+
+.modeControl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modeLabel {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.modeControl [role='radiogroup'] {
+  min-height: 28px;
+}
+
+.modeControl [role='radio'] {
+  padding: 0 10px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+}

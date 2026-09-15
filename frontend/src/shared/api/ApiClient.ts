@@ -1,4 +1,7 @@
 import {
+  agentRunListSchema,
+  agentRunSchema,
+  agentStatusSchema,
   API_ROUTES,
   apiErrorSchema,
   healthSchema,
@@ -7,6 +10,8 @@ import {
   sessionReviewSchema,
   sessionSchema,
   type AddMarkerInput,
+  type AgentRun,
+  type AgentStatus,
   type CaptureEvent,
   type CreateSessionInput,
   type FindingDecisionValue,
@@ -69,6 +74,24 @@ export class ApiClient {
 
   getFindings(id: string): Promise<SessionAnalysis> {
     return this.request(API_ROUTES.sessionFindings(id), { method: 'GET' }, sessionAnalysisSchema);
+  }
+
+  getAgentStatus(): Promise<AgentStatus> {
+    return this.request(API_ROUTES.agentStatus, { method: 'GET' }, agentStatusSchema);
+  }
+
+  async getAgentRuns(id: string): Promise<AgentRun[]> {
+    return (await this.request(API_ROUTES.sessionAgents(id), { method: 'GET' }, agentRunListSchema)).runs;
+  }
+
+  /** Lanza los agentes; responde enseguida con la corrida "en curso". */
+  startAgentRun(id: string): Promise<AgentRun> {
+    return this.request(API_ROUTES.sessionAgents(id), { method: 'POST' }, agentRunSchema);
+  }
+
+  /** Retoma un análisis fallido: solo se consulta a los agentes que faltan. */
+  retryAgentRun(id: string, runId: string): Promise<AgentRun> {
+    return this.request(API_ROUTES.agentRunRetry(id, runId), { method: 'POST' }, agentRunSchema);
   }
 
   getReview(id: string): Promise<SessionReview> {
