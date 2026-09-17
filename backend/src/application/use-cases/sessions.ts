@@ -1,5 +1,5 @@
-import type { CaptureEvent, CreateSessionInput, SessionDto } from '@rastro/shared';
-import { FeatureNotAvailableError, InvalidStateError, NotFoundError } from '../../domain/errors.js';
+import type { CreateSessionInput, CaptureEvent, SessionDto } from '@rastro/shared';
+import { DomainError, InvalidStateError, NotFoundError } from '../../domain/errors.js';
 import type { Clock, EventQuery, EventStore, IdGenerator, MediaStore, SessionRepository } from '../../domain/ports.js';
 import { Session } from '../../domain/session/Session.js';
 
@@ -11,10 +11,8 @@ export class CreateSession {
   ) {}
 
   async execute(input: CreateSessionInput): Promise<SessionDto> {
-    if (input.capture.analysisMode !== 'none') {
-      throw new FeatureNotAvailableError(
-        'El análisis con agentes llega en la etapa 2. Por ahora elige "Sin agentes".',
-      );
+    if (input.capture.analysisMode === 'manual' && !input.capture.selectedAgents?.length) {
+      throw new DomainError('INVALID_CAPTURE', 'En "Elegir yo" hay que elegir al menos un agente.');
     }
     const session = Session.create({
       id: this.ids.sessionId(),

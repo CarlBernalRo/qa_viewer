@@ -102,6 +102,12 @@ export function useSessionReport(sessionId: string) {
   return { exportReport, openReport };
 }
 
+/** Script k6 (agente Carga): se pide al tocar la acción, no antes. */
+export function useLoadScript(sessionId: string) {
+  const api = useApi();
+  return useMutation({ mutationFn: () => api.getLoadScript(sessionId) });
+}
+
 export function useSetFindingDecision(sessionId: string) {
   const api = useApi();
   const queryClient = useQueryClient();

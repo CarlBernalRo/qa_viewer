@@ -113,6 +113,18 @@
   font-weight: 650;
 }
 
+.navDivider {
+  height: 1px;
+  margin: var(--space-2) 6px;
+  background: var(--rule);
+}
+
+.navSoon {
+  color: var(--muted);
+  opacity: 0.55;
+  cursor: default;
+}
+
 .navFooter {
   margin-top: auto;
   display: flex;

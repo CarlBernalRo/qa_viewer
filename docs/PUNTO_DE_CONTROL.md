@@ -159,6 +159,261 @@
 - **Probado sin llamar a la API:** 10 tests con un modelo simulado (orquestación, caché del resumen, evidencia inventada, fallas, concurrencia, corridas interrumpidas) y la interfaz con un análisis simulado sobre "Home coord_2". **Falta una corrida real**, que necesita la clave del usuario y su consentimiento para enviar el resumen.
 - Pendiente: lanzar los agentes solos al terminar de grabar (modos "Sugeridos" / "Elegir yo" del asistente) e incluir sus propuestas en el informe PDF.
 
+## Undécima ronda (16-09): barra lateral con Hallazgos y Agentes globales
+
+- El mockup (`design/Agentes.dc.html`) mostraba una barra lateral con Sesiones, Hallazgos, Agentes, Ambientes,
+  Comparaciones y Ajustes del proyecto; en la app solo existía "Sesiones". Se agregó la barra lateral completa
+  al `AppShell` compartido:
+  - **`/hallazgos`**: hallazgos de todas las sesiones grabadas (reutiliza `getFindings` por sesión), sin
+    descartados, agrupados por severidad con un resumen arriba. Click abre la sesión en su detalle.
+  - **`/agentes`**: estado del proveedor configurado y la última corrida de agentes por sesión grabada.
+  - **Ambientes, Comparaciones y Ajustes del proyecto**: visibles pero deshabilitados ("Próximamente"). No
+    tienen mockup propio ni modelo de datos (el backend no tiene concepto de "proyecto" ni "ambiente" más allá
+    de la etiqueta `capture.environment` de cada sesión); construirlos de verdad requiere definir antes qué son.
+- Sin endpoints nuevos: ambas pantallas agregan del lado del cliente con `useQueries` sobre los endpoints
+  por sesión que ya existían.
+- Verificado con Playwright contra el backend y el frontend reales: navegación entre las tres rutas, estados
+  vacíos correctos sin sesiones grabadas. Typecheck, lint y los 35 tests de frontend en verde.
+- Se creó [`PLAN.md`](PLAN.md): checklist del proyecto por etapa, para ir marcando qué está hecho y qué falta.
+- Pendiente siguiente: lanzar agentes automáticamente al terminar de grabar (paso 2 de "Próximos pasos").
+
+## Duodécima ronda (16-09): modo "Sugeridos" automático y alineación con la visión de producto
+
+- **Modo "Sugeridos" ya funciona:** `analysisMode: 'suggested'` dejó de estar bloqueado en `CreateSession`
+  (solo `'manual'`, "Elegir yo", sigue rechazado: no hay nada que elegir todavía con 2 especialistas fijos).
+  `StopRecording` ahora, si la sesión quedó `completed` y el modo es `suggested`, lanza
+  `StartAgentRun.execute` sin bloquear la respuesta HTTP de "Detener grabación" (el `await` solo cubre el
+  arranque, rápido; el equipo sigue analizando en segundo plano, igual que al lanzarlo a mano). Si los
+  agentes no están configurados, no hace nada y no falla.
+  - Frontend: la opción "Sugeridos" en el paso de captura ya no está deshabilitada, con nota explicando qué
+    hace y una advertencia si se elige sin tener `GEMINI_API_KEY`/`OPENROUTER_API_KEY` configurada.
+  - Tests nuevos en `recording.test.ts`: arranca solo al completar, y no falla si no hay agentes.
+- **Se leyó `rastro-vision.html`** (documento de visión completo: por qué existe Rastro, comparación con
+  Jam.dev/webQsee/BugReel/etc., la matriz de 12 agentes por fase QA, y las 4 etapas del MVP). No había sido
+  revisado a fondo antes de esta ronda. Con eso se resolvió qué son de verdad "Ambientes" (comparar el mismo
+  flujo entre DEV/QA/STG/PROD) y "Comparaciones" (regresión contra una sesión base) — antes quedaban como
+  placeholders sin definición en la barra lateral. Ver [`PLAN.md`](PLAN.md), sección "Etapa 4".
+- Configurado `nvidia/nemotron-3-super-120b-a12b:free` vía OpenRouter en `backend/.env` del usuario para
+  probar con clave real (ya con la advertencia de que este modelo gratis no fue confiable en pruebas previas).
+- Typecheck, lint y los 113+35 tests (backend+frontend) en verde.
+
+## Decimotercera ronda (16-09): propuestas de agentes en el informe PDF
+
+- **Sección "Análisis de agentes"** en el PDF, después de "Hallazgos": el resumen del QA Lead, la propuesta
+  de veredicto por criterio (con confianza y justificación, aclarando que es una propuesta sin aplicar —
+  el veredicto real sigue siendo el que decidió el QA en "Objetivo") y las observaciones de los agentes con
+  quién las respalda. Solo aparece si hay una corrida de agentes **terminada**; sin agentes o con corridas
+  fallidas/en curso, el informe queda igual que antes.
+  - `ExportSessionReport` ahora también lee `AgentRunStore` y elige la corrida completada más reciente.
+  - `SessionReportData` (dominio) suma `latestAgentRun: AgentRun | null`.
+- Tests nuevos en `reportHtml.test.ts` (sin sección cuando no hay corrida; con resumen, propuesta y
+  observación cuando sí la hay) y prueba de humo real (20/20, PDF de 93 KB con 8 hallazgos).
+
+## Decimocuarta ronda (16-09): catálogo de 12 agentes, vista previa del equipo y arreglos de UI
+
+- **Corrida real confirmada:** con la clave de OpenRouter del usuario, se grabó una sesión de prueba en
+  modo "Sugeridos" de punta a punta (Playwright contra la app real): al detener la grabación, el agente
+  `api` arrancó solo contra `nvidia/nemotron-3-super-120b-a12b:free`. La corrida quedó interrumpida por un
+  reinicio del backend (hot-reload durante el desarrollo, no un fallo del modo), y es retomable con
+  "Reintentar" gracias al punto de control existente.
+- **Catálogo de 12 agentes** (`AGENT_ROSTER`/`AGENT_ROSTER_ORDER` en `@rastro/shared`, separado de
+  `AgentId`/`agentIdSchema` para no tocar la validación de lo que el modelo puede devolver de verdad):
+  Ambiente, Funcional, API REST, Front-end, Tiempo real, Rendimiento, Seguridad, Accesibilidad, UI/UX,
+  Carga, Regresión y Reportero, con rol y canales tomados de `rastro-vision.html`.
+- **`/agentes` rehecha** como "Equipo de agentes": grilla de 12 tarjetas con `RosterAvatar` (robot genérico
+  por color), badge "En el equipo" (los 3 reales) o "Próximamente" (los otros 9), más la lista de corridas
+  por sesión que ya existía debajo.
+- **"Nueva sesión" ya no queda corto respecto al diseño de agentes:** al elegir "Sugeridos" en el paso de
+  captura aparece la vista previa del equipo real (avatares de API REST, Front-end y QA Lead con qué lee
+  cada uno) y un enlace a "Ver el equipo completo de agentes".
+- **Bug de hover corregido:** `background: #f6f7f4` (usado en filas de tablas y listas: Sesiones, Hallazgos,
+  Agentes, Hallazgos por sesión, marcadores de criterios, conversación de WebSocket) es casi idéntico al
+  fondo de la página (`#f1f2ef`) y al de las superficies (`#fbfbf9`), así que el hover era casi invisible.
+  Reemplazado por `var(--surface-sunken)` (`#e1e5df`), el token que ya usaba el resto de la app (menú,
+  botones, desplegables) para hover visible.
+- **Responsividad en pantalla completa:** `Sesiones`, `Hallazgos`, `Agentes` y `Nueva sesión` tenían
+  `max-width` sin centrar, así que en una ventana grande o maximizada el contenido quedaba pegado a la
+  izquierda con un vacío enorme a la derecha. Se agregó `margin-inline: auto` a esas cuatro páginas.
+  `Sesión` (detalle) ya usaba todo el ancho disponible y no tenía este problema.
+- Typecheck, lint y los 35 tests de frontend en verde; verificado visualmente con Playwright a 1920×1080.
+
+## Decimoquinta ronda (16-09): agentes navegables, personalidad visual y ordenar niveles de alto a bajo
+
+- **`/agentes/:id`**: cada tarjeta del equipo abre una página de detalle por agente (`AgentDetailPage`) con
+  su rol, canales que lee, un panel "Configuración" honesto (los 3 implementados explican que corren
+  siempre juntos y que "Elegir yo" no existe todavía; los otros 9 dicen que no tienen prompt ni lógica
+  propia, sin fingir un ajuste que no hace nada) y, para los implementados, su actividad real: en cuántas
+  sesiones participaron, con qué estado y cuántos hallazgos aportaron.
+- **Personalidad visual por agente:** `AgentRosterMeta` suma `eyeShape` (redondos, visor, cuadrados) y
+  `animation` (parpadeo, parpadeo lento, pulso, barrido) en `@rastro/shared`. `agentVisuals.tsx`
+  (`AgentEyes`) centraliza el render y las animaciones, compartido entre `AgentAvatar` (los 3 agentes que
+  corren de verdad, en el panel de la sesión y en la vista previa de "Nueva sesión") y `RosterAvatar`
+  (catálogo de 12). Todos "respiran" en reposo (antes solo pasaba con `busy`); al pasar a "analizando", el
+  mismo movimiento se acelera en vez de cambiar a uno genérico. Los 9 agentes sin implementar quedan quietos
+  a propósito (no fingen estar "vivos").
+- **Niveles ordenados de mayor a menor:** `a11yImpactSchema` pasó de `minor→moderate→serious→critical` a
+  `critical→serious→moderate→minor`, y `confidenceSchema` de `low→medium→high` a `high→medium→low` (con
+  `CONFIDENCE_LABELS` reordenado igual). En ambos casos el orden ascendente solo vivía en la declaración del
+  enum: donde ya se usaban para ordenar de verdad (`IMPACT_RANK` en las reglas de accesibilidad y en los
+  overlays del video) el código ya rankeaba de alto a bajo; esto lo hace consistente también en la
+  declaración. `FINDING_SEVERITIES` (`critical→high→medium→low`) ya estaba bien y no se tocó.
+- Typecheck, lint y los 15+115+35 tests (shared+backend+frontend) en verde; verificado con Playwright
+  contra la app real: la grilla de 12 agentes ya es navegable y `/agentes/api` muestra su actividad real
+  (la corrida de prueba de la ronda anterior, con su estado y 0 hallazgos).
+
+## Decimosexta ronda (16-09): "Elegir yo" implementado de verdad
+
+- **`capture.selectedAgents`** (`@rastro/shared`, `specialistIdSchema`/`SPECIALIST_AGENTS`): el QA elige
+  cuáles de los 2 especialistas (API REST, Front-end) corren en modo "Elegir yo"; el QA Lead siempre se
+  agrega para juntar lo que encuentren. `CreateSession` rechaza `manual` sin ningún agente elegido (400).
+- **`StartAgentRun`** ya no asume siempre los 2 especialistas: arma los pasos, el bucle y el prompt del QA
+  Lead (`leadTask`, ahora con informes parciales) según `selectedAgents`, o el equipo completo si la sesión
+  no especificó ninguno (compatibilidad con `suggested` y con sesiones grabadas antes de este cambio).
+- **`StopRecording`** ahora lanza el análisis automático también en modo `manual` (antes solo en
+  `suggested`): ambos modos "usan agentes", solo cambia el equipo.
+- **Frontend:** "Elegir yo" dejó de estar deshabilitado; muestra checkboxes con el avatar real de cada
+  especialista y una nota fija de que el QA Lead siempre se incluye, con la misma validación (elegir al
+  menos uno) reflejada como error de campo antes de tocar el backend.
+- Verificado con Playwright contra la app real: crear una sesión en "Elegir yo" con solo API REST marcado
+  guarda `selectedAgents: ['api']` correctamente. Nota aparte: el `vite` del `dev:desktop` del usuario se
+  cayó solo en medio de esta ronda (sin relación con estos cambios) y se reinició sin pérdida de trabajo.
+- Tests nuevos en `agents.test.ts` (el especialista no elegido nunca se consulta) y `recording.test.ts`
+  ("Elegir yo" arranca solo al completar, igual que "Sugeridos", con solo el agente elegido). 118 tests de
+  backend, 35 de frontend, 15 de shared: todos en verde.
+
+## Decimoséptima ronda (16-09): infraestructura de tests de componentes
+
+- Se sumaron `jsdom`, `@testing-library/react` y `@testing-library/jest-dom` al frontend. `vite.config.ts`
+  pasa a `environment: 'jsdom'`, incluye `*.test.tsx` y carga `src/test/setup.ts` (matchers de jest-dom).
+  Hasta ahora los tests de frontend solo cubrían lógica pura (`*.test.ts`); esto habilita tests de
+  componentes reales.
+- Primeros ejemplos: `AppShell.test.tsx` (la navegación real tiene los `href` correctos; Ambientes/
+  Comparaciones/Ajustes del proyecto no son enlaces) y `RosterAvatar.test.tsx` (cada forma de ojos dibuja
+  lo que corresponde, y un agente no implementado no anima). 40 tests de frontend en verde (35 + 5 nuevos).
+
+## Decimoctava ronda (16-09): resultado de la corrida real contra Nemotron
+
+- Se reintentó el análisis interrumpido de la ronda 14 (`POST /agents/:runId/retry`) con la app en reposo
+  (sin ediciones en paralelo). Resultado real: falló con **"La respuesta del agente quedó cortada por su
+  largo"** en el especialista API REST. Es la misma falla de confiabilidad de `nvidia/nemotron-3-super-120b-a12b:free`
+  ya anotada en la décima ronda — no un bug del código: la detección y el mensaje de error funcionaron
+  como corresponde.
+- Conclusión: el modelo gratis de OpenRouter no sirve para una corrida real completa. Para probar el equipo
+  de agentes de verdad hace falta un modelo de pago — Gemini directo (`gemini-2.5-pro`/`gemini-2.5-flash`)
+  con `GEMINI_API_KEY`, o un modelo no `:free` en OpenRouter.
+
+## Decimonovena ronda (16-09): gestos de cabeza y un bug real de animaciones
+
+- **Gestos de cabeza por agente** (`AgentGesture`: `tilt`/`turn`/`nod` en `@rastro/shared`): además de los
+  ojos, cada robot inclina, gira o asiente a su propio ritmo. `AgentHead` (nuevo, en `agentVisuals.tsx`)
+  envuelve la antena, la cabeza, la cara y los ojos en un `<g>` que rota/traslada; los brazos quedan afuera
+  porque no deberían moverse. Mismo mecanismo que los ojos: se acelera con `.busy`, sin cambiar de tipo.
+- **Bug real encontrado y corregido: ninguna animación de agentes se veía.** Vite renombra los `@keyframes`
+  de un CSS Module (p. ej. `blink` → `_blink_1okyi_1`), pero el nombre de la animación de ojos y de cabeza
+  se arma como texto en `agentVisuals.tsx` y se pasa por una variable CSS (`--agent-anim`, `--agent-gesture`)
+  — nunca pasa por el build de Vite, así que seguía diciendo `blink` a secas. El navegador reportaba la
+  animación como "corriendo" (`animationName`/`animationPlayState` se veían bien en DevTools) pero no había
+  ningún `@keyframes blink` real con ese nombre: no se movía nada. Esto probablemente afectó **todas** las
+  animaciones de ojos y el "bob" de las rondas anteriores, no solo los gestos nuevos.
+  - Arreglo: los `@keyframes` que se referencian por nombre desde JS ahora usan `@keyframes :global(nombre)`
+    (con prefijo `rastro-agent-` para no chocar con nada global), y `agentVisuals.tsx` usa esos mismos
+    nombres. Verificado de verdad esta vez: se midió `getBoundingClientRect()` de un agente en vivo en el
+    navegador y la posición cambia cuadro a cuadro (antes quedaba fija).
+  - Las animaciones del loader de "Analizando…" (anillo de color, punto pulsante en `AgentsPanel.module.css`)
+    no tenían este problema porque su `animation:` y su `@keyframes` viven estáticos en el mismo archivo CSS,
+    así que Vite los renombra a los dos por igual.
+- Typecheck, lint y 118+40+15 tests en verde después del arreglo.
+
+## Vigésima ronda (16-09): loader del panel "Agentes" con anillo y punto del color del agente
+
+- El paso "Analizando…" en el panel de una sesión (el que mostró la captura del usuario) ahora tiene un
+  anillo pulsante alrededor del avatar y un punto animado junto al texto, ambos con el color propio del
+  agente (`--agent-color`, tomado de `AGENT_CATALOG`), además de la fila resaltada con un tinte muy suave
+  de ese mismo color mientras corre. Esto se suma al parpadeo/gesto de cabeza ya corregido arriba.
+
+## Vigesimoprimera ronda (16-09): agente Seguridad, el cuarto que corre de verdad
+
+- **Nuevo especialista real: Seguridad** (`sec`). Se sumó a `agentIdSchema`/`AGENT_ORDER`/`SPECIALIST_AGENTS`
+  en `@rastro/shared`, con su propio prompt (reutiliza `specialistTask`, ya genérico) y un digest propio,
+  `securityDigest` en `brief.ts`: headers de respuesta por origen (CSP, HSTS, X-Frame-Options, Server,
+  X-Powered-By…), cookies `Set-Cookie` con sus atributos, URLs del propio sitio con parámetros que parecen
+  credenciales, y contenido `http://` en una página `https://`. Es evidencia en bruto, distinta de los
+  hallazgos ya resueltos por las reglas fijas (esos ya los ve todo el equipo en el resumen compartido) —
+  así el agente puede razonar sobre la severidad en contexto, no repetir lo que ya está dicho.
+- **Por qué solo este y no los otros 8:** Accesibilidad y Rendimiento ya están cubiertos por Front-end
+  (`frontendDigest` manda axe-core y Web Vitals) y Tiempo real ya lo cubre API REST (WebSocket). Agregarlos
+  aparte hoy sería un agente redundante, no uno nuevo — haría falta primero sacarle ese alcance a Front-end/
+  API REST, que es un cambio de diseño aparte, no "agregar un agente que falta". Ambiente, Funcional, UI/UX,
+  Carga, Regresión y Reportero sí quedan genuinamente pendientes, sin overlap con nada existente.
+  Documentado en `PLAN.md` para no repetir la pregunta.
+- `leadTask` y `AgentCheckpoint.digests`/`reports` ya eran genéricos por el trabajo de "Elegir yo" de una
+  ronda anterior, así que sumar el cuarto agente fue extender datos (catálogo, digest, checkpoint) y no
+  tocar la lógica de orquestación.
+- Textos actualizados donde decían "dos especialistas" o nombraban solo API REST/Front-end (panel Agentes,
+  pantalla de agentes, "Nueva sesión").
+- Tests: `agents.test.ts` y `recording.test.ts` actualizados para el equipo de 3 especialistas por defecto;
+  nuevo test de `securityDigest` en `brief.test.ts`. 119 tests de backend, 40 de frontend, 15 de shared, y
+  prueba de humo real con Chromium (PDF incluido): todo en verde.
+
+## Vigesimosegunda ronda (16-09): equipo de 8 especialistas, sin solaparse, que se ayudan al sintetizar
+
+El usuario pidió separar lo que un agente ya cubría en agentes propios ("si dices que hay cosas que ya
+cubre uno, entonces separalo") y sumar los que faltaban, con una condición: los agentes se pueden ayudar
+entre sí, pero el alcance (scope) de cada uno debe ser independiente.
+
+- **Se partieron los dos agentes que tenían más de un tema:**
+  - Front-end tenía excepciones, consola, accesibilidad y rendimiento → se quedó con excepciones y consola;
+    accesibilidad y rendimiento pasaron a ser agentes propios.
+  - API REST tenía HTTP y WebSocket → se quedó con HTTP; WebSocket pasó a ser el agente Tiempo real.
+- **Se sumaron dos especialistas nuevos** que no eran overlap de nada: Funcional (une cada acción del
+  usuario con su consecuencia inmediata: requests, errores, cambio de pantalla, en los 2,5 s siguientes) y
+  Ambiente (headers y menciones de versión/build del propio sitio).
+- **Resultado: 8 especialistas + QA Lead**, cada uno con su propio digest en `brief.ts`
+  (`apiDigest`, `realtimeDigest`, `frontendDigest`, `a11yDigest`, `perfDigest`, `securityDigest`,
+  `funcDigest`, `envDigest`) y su propio `AgentId`. `AGENT_ORDER`/`SPECIALIST_AGENTS` pasaron de 3 a 8.
+- **"Se ayudan entre sí, scope independiente":** `AGENT_SYSTEM` (el prefijo común a todos, en `prompts.ts`)
+  ahora dice explícitamente que cada especialista no analiza fuera de su área, pero que si su evidencia es
+  la causa o la consecuencia de algo del área de otro agente debe decirlo igual, citando su propia
+  evidencia — los especialistas no se ven entre sí mientras trabajan, así que es el QA Lead quien cruza esas
+  menciones al final. `leadTask` pide explícitamente unir observaciones "conectadas causalmente", no solo
+  duplicadas literalmente.
+- **Catálogo actualizado:** los 4 que quedan sin implementar (UI/UX, Carga, Regresión, Reportero) tienen en
+  su `role` la razón puntual de por qué, sin fecha ("necesita imágenes", "genera un archivo, no analiza",
+  "necesita Comparaciones de la etapa 4", "necesita las integraciones de Ajustes del proyecto").
+- Reescritos `agents.test.ts` (equipo completo de 8+lead), `recording.test.ts` y `brief.test.ts` (un test
+  por digest nuevo). 124 tests de backend, 40 de frontend, 15 de shared, y prueba de humo real con Chromium
+  (PDF de 8 hallazgos): todo en verde. Verificado a mano en el navegador: `/agentes` muestra 9 "En el
+  equipo" y 4 "Próximamente" con motivo propio; "Elegir yo" ya lista los 8 especialistas como casillas.
+
+## Vigesimotercera ronda (16-09): Carga y Reportero, sin IA pero reales
+
+El usuario notó que 4 agentes seguían en "Próximamente" y pidió resolverlos. Revisando cada uno: 2 de los
+4 (Carga, Reportero) no necesitaban ninguna capacidad nueva — solo no encajaban en el flujo de especialista
+de IA → QA Lead porque su salida no es un análisis, es un archivo. Se implementaron aparte, como acciones
+determinísticas de la sesión, no como especialistas:
+
+- **`AgentRosterMeta.capability`** (`'analysis' | 'generator'`, nuevo en `@rastro/shared`): distingue a los
+  8 especialistas de IA (equipo de "Sugeridos"/"Elegir yo") de las funciones determinísticas sueltas. El
+  badge en `/agentes` y `/agentes/:id` ahora dice "Disponible" para estas en vez de "En el equipo", y la
+  sección "Actividad" (corridas de agentes) solo aparece para `capability: 'analysis'`.
+- **Carga**: `generateK6Script` (`backend/src/application/reports/k6Script.ts`) arma un script k6 real a
+  partir del tráfico HTTP del propio sitio: un request de muestra por endpoint (agrupado por método + path,
+  sin query), en el orden en que se lanzaron, con un check de status 2xx/3xx y una pausa entre pasos.
+  `GET /api/sessions/:id/load-script` devuelve `{ fileName, script }`; el frontend arma un Blob y dispara la
+  descarga del navegador. "Descargar script de carga (k6)" en el menú Acciones, junto a "Exportar informe
+  PDF". Probado contra el servidor real corriendo (no solo unit tests).
+- **Reportero**: `sessionToReport` (`frontend/src/features/session-detail/sessionReport.ts`, client-side,
+  igual que `findingToTicket`) arma el informe de toda la sesión en Markdown: objetivo, veredicto de cada
+  criterio, hallazgos confirmados (sin los descartados) y, si hay una corrida de agentes terminada, su
+  resumen y propuesta (aclarando que no está aplicada). "Copiar informe completo" en el menú Acciones.
+- Quedan genuinamente bloqueados, cada uno por una razón distinta: **UI/UX** necesita mandarle imágenes al
+  modelo (hoy no hay captura de pantallas ni wiring multimodal) y **Regresión** necesita "Comparaciones"
+  (marcar una sesión como base y compararla contra otra, etapa 4 — requiere modelo de datos nuevo).
+- Tests nuevos: `k6Script.test.ts` (backend, incluye que un tercero como analytics no aparece) y
+  `sessionReport.test.ts` (frontend, incluye que los descartados no salen y que una corrida sin terminar no
+  agrega su sección). 126 tests de backend, 44 de frontend, 15 de shared, y prueba de humo real con
+  Chromium: todo en verde. `GET /load-script` verificado a mano contra el backend real corriendo.
+
 ## Límites conocidos
 
 1. **Build de escritorio para distribuir:** en release, Tauri ejecuta `node backend/dist/main.js` desde el repo. Falta empaquetar el backend (Node como sidecar o un binario) junto al instalador.

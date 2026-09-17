@@ -21,8 +21,9 @@ export default defineConfig({
     sourcemap: true,
   },
   test: {
-    environment: 'node',
-    include: ['src/**/*.test.ts'],
+    environment: 'jsdom',
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+    setupFiles: ['src/test/setup.ts'],
     // Vitest resuelve como servidor: se apunta al código fuente del paquete compartido.
     alias: {
       '@rastro/shared': fileURLToPath(new URL('../packages/shared/src/index.ts', import.meta.url)),

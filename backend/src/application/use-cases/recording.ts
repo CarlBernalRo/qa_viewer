@@ -3,6 +3,7 @@ import { DomainError, InvalidStateError, NotFoundError } from '../../domain/erro
 import type { BrowserRecorder } from '../../domain/ports.js';
 import { Redactor } from '../../domain/redaction/Redactor.js';
 import { ActiveRecording, type RecordingDeps } from '../recording/ActiveRecording.js';
+import type { StartAgentRun } from './agents.js';
 
 export class StartRecording {
   constructor(
@@ -43,7 +44,11 @@ export class StartRecording {
 }
 
 export class StopRecording {
-  constructor(private readonly deps: RecordingDeps) {}
+  constructor(
+    private readonly deps: RecordingDeps,
+    /** null si los agentes no están configurados: el modo "Sugeridos" no tiene con qué arrancar. */
+    private readonly startAgentRun: StartAgentRun | null,
+  ) {}
 
   async execute(sessionId: string): Promise<SessionDto> {
     const entry = this.deps.registry.get(sessionId);
@@ -52,6 +57,15 @@ export class StopRecording {
     await entry.done;
     const session = await this.deps.sessions.findById(sessionId);
     if (!session) throw new NotFoundError('una sesión', sessionId);
+    if (session.status === 'completed' && session.capture.analysisMode !== 'none' && this.startAgentRun) {
+      // Solo espera a que arranque (rápido); los agentes siguen trabajando en segundo plano.
+      try {
+        await this.startAgentRun.execute(sessionId);
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : String(error);
+        this.deps.logger.warn('No se pudo lanzar el análisis automático de agentes', { sessionId, reason });
+      }
+    }
     return session.toDto();
   }
 }

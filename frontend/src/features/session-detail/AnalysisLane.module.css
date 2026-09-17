@@ -1,0 +1,169 @@
+/*
+ * AnalysisLane — visual grouping wrapper for analysis panels.
+ * Two variants: "deterministic" (teal) and "ai" (purple).
+ */
+
+/* ── Shared lane structure ── */
+
+.lane {
+  --lane-color: #16907f;
+  --lane-color-soft: color-mix(in srgb, var(--lane-color) 8%, var(--ground));
+  --lane-color-tint: color-mix(in srgb, var(--lane-color) 5%, transparent);
+  --lane-color-strong: color-mix(in srgb, var(--lane-color) 50%, white);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: 16px;
+  padding-left: 20px;
+  border-radius: var(--radius-lg);
+  background: var(--lane-color-soft);
+  border: none;
+}
+
+/* ── Premium Animated Border ── */
+.lane::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  padding: 1.5px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--lane-color) 40%, transparent) 0%,
+    var(--lane-color) 25%,
+    color-mix(in srgb, var(--lane-color) 15%, transparent) 50%,
+    var(--lane-color) 75%,
+    color-mix(in srgb, var(--lane-color) 40%, transparent) 100%
+  );
+  background-size: 250% 250%;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: lane-border-flow 5s ease-in-out infinite alternate;
+}
+
+@keyframes lane-border-flow {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 100% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lane::after {
+    animation: none;
+    background-position: 50% 50%;
+  }
+}
+
+/* ── Variant: AI ── */
+
+.ai {
+  --lane-color: #6b4fbb;
+}
+
+/* ── Header ── */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  z-index: 1; /* Stay above the border ::after if needed */
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--lane-color) 15%, var(--surface)) 0%,
+    color-mix(in srgb, var(--lane-color) 8%, var(--surface)) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--lane-color) 20%, var(--rule-soft));
+  color: var(--lane-color);
+  flex-shrink: 0;
+}
+
+/* Gear: slow rotation */
+.iconGear {
+  animation: lane-gear-spin 12s linear infinite;
+}
+
+@keyframes lane-gear-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Spark: gentle pulse */
+.iconSpark {
+  animation: lane-spark-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes lane-spark-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iconGear,
+  .iconSpark {
+    animation: none;
+  }
+}
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lane-color);
+}
+
+.subtitle {
+  font-size: 11.5px;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+/* ── Content area ── */
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}

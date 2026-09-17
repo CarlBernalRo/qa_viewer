@@ -11,6 +11,7 @@ import type {
   SessionAnalysis,
   SessionDto,
   SessionReview,
+  SpecialistId,
   SpecialistReport,
 } from '@rastro/shared';
 import type { Session } from './session/Session.js';
@@ -137,10 +138,10 @@ export interface AgentModel {
  */
 export interface AgentCheckpoint {
   brief: string;
-  digests: { api: string; frontend: string };
+  digests: Record<SpecialistId, string>;
   /** Referencia corta → id de evento (E1 → …). */
   refs: Array<[string, string]>;
-  reports: Partial<Record<'api' | 'frontend', SpecialistReport>>;
+  reports: Partial<Record<SpecialistId, SpecialistReport>>;
 }
 
 /** Corridas de los agentes por sesión. */
@@ -160,6 +161,8 @@ export interface SessionReportData {
   analysis: SessionAnalysis;
   review: SessionReview;
   generatedAt: Date;
+  /** Última corrida de agentes terminada, si la hay. null: sin agentes o ninguna corrida completa. */
+  latestAgentRun: AgentRun | null;
 }
 
 export interface ReportRenderer {

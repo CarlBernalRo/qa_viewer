@@ -138,6 +138,11 @@ export async function sessionRoutes(app: FastifyInstance, useCases: UseCases): P
     return reply.status(204).send();
   });
 
+  app.get('/api/sessions/:id/load-script', async (request) => {
+    const { id } = parseOrThrow(idParams, request.params);
+    return useCases.generateLoadScript.execute(id);
+  });
+
   app.post('/api/sessions/:id/recording/start', async (request) => {
     const { id } = parseOrThrow(idParams, request.params);
     return useCases.startRecording.execute(id);

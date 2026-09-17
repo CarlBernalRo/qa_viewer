@@ -1,4 +1,4 @@
-import { emptyReview, type Finding, type SessionAnalysis, type SessionReview } from '@rastro/shared';
+import { emptyReview, type AgentRun, type Finding, type SessionAnalysis, type SessionReview } from '@rastro/shared';
 import { describe, expect, it } from 'vitest';
 import { Session } from '../../src/domain/session/Session.js';
 import { buildReportHtml } from '../../src/infrastructure/reports/reportHtml.js';
@@ -22,7 +22,11 @@ function finding(overrides: Partial<Finding>): Finding {
   };
 }
 
-function html(findings: Finding[], review: SessionReview = emptyReview()): string {
+function html(
+  findings: Finding[],
+  review: SessionReview = emptyReview(),
+  latestAgentRun: AgentRun | null = null,
+): string {
   const session = Session.create({ id: 'ses_1', now: new Date('2026-09-14T10:00:00Z'), ...sampleInput() }).toDto();
   const analysis: SessionAnalysis = {
     sessionId: 'ses_1',
@@ -36,6 +40,7 @@ function html(findings: Finding[], review: SessionReview = emptyReview()): strin
     analysis,
     review,
     generatedAt: new Date('2026-09-14T11:00:00Z'),
+    latestAgentRun,
   });
 }
 
@@ -95,5 +100,47 @@ describe('informe HTML', () => {
     expect(main).not.toContain('Falso positivo');
     expect(dismissedSection).toContain('Falso positivo');
     expect(output).toContain('<a href="https://dequeuniversity.com/rules/axe/4.13/image-alt">');
+  });
+
+  it('sin corrida de agentes, no muestra la sección', () => {
+    const output = html([]);
+    expect(output).not.toContain('Análisis de agentes');
+  });
+
+  it('con una corrida de agentes, muestra el resumen, la propuesta por criterio y las observaciones', () => {
+    const run: AgentRun = {
+      id: 'run_1',
+      sessionId: 'ses_1',
+      status: 'completed',
+      model: 'gemini-2.5-pro',
+      startedAt: '2026-09-14T10:05:00.000Z',
+      finishedAt: '2026-09-14T10:06:00.000Z',
+      steps: [],
+      summary: 'El pago falla del lado del servidor.',
+      proposals: [
+        { criterionId: 'CA1', verdict: 'fail', confidence: 'high', rationale: 'POST /api/pay devolvió 500.', evidence: ['e1'] },
+      ],
+      findings: [
+        {
+          id: 'run_1:1',
+          agents: ['api', 'frontend'],
+          title: 'La pantalla no informa el error',
+          severity: 'high',
+          detail: 'Tras el 500 no hay mensaje visible.',
+          recommendation: 'Mostrar el error al usuario.',
+          criterionId: 'CA2',
+          evidence: ['e1'],
+        },
+      ],
+      usage: { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 },
+    };
+    const output = html([], emptyReview(), run);
+    expect(output).toContain('<h2>Análisis de agentes</h2>');
+    expect(output).toContain('gemini-2.5-pro');
+    expect(output).toContain('El pago falla del lado del servidor.');
+    expect(output).toContain('POST /api/pay devolvió 500.');
+    expect(output).toContain('>No cumple</span>');
+    expect(output).toContain('La pantalla no informa el error');
+    expect(output).toContain('API REST + Front-end');
   });
 });

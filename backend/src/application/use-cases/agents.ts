@@ -1,11 +1,13 @@
 import {
-  AGENT_ORDER,
   leadReportSchema,
   specialistReportSchema,
+  SPECIALIST_AGENTS,
   type AgentId,
   type AgentRun,
   type AgentStatus,
   type AgentStep,
+  type SpecialistId,
+  type SpecialistReport,
 } from '@rastro/shared';
 import { FeatureNotAvailableError, InvalidStateError, NotFoundError } from '../../domain/errors.js';
 import type {
@@ -21,7 +23,18 @@ import type {
   SessionReviewStore,
 } from '../../domain/ports.js';
 import type { Session } from '../../domain/session/Session.js';
-import { apiDigest, EvidenceRefs, frontendDigest, sharedBrief } from '../agents/brief.js';
+import {
+  a11yDigest,
+  apiDigest,
+  envDigest,
+  EvidenceRefs,
+  frontendDigest,
+  funcDigest,
+  perfDigest,
+  realtimeDigest,
+  securityDigest,
+  sharedBrief,
+} from '../agents/brief.js';
 import { AGENT_SYSTEM, leadTask, specialistTask } from '../agents/prompts.js';
 import type { AnalyzeSession } from './analysis.js';
 
@@ -42,7 +55,11 @@ export class GetAgentStatus {
   }
 }
 
-const SPECIALISTS = ['api', 'frontend'] as const;
+/** Especialistas de la corrida: los que eligió el QA ("Elegir yo"), o el equipo completo por defecto. */
+function specialistsFor(session: Session): readonly SpecialistId[] {
+  const selected = session.capture.selectedAgents;
+  return selected && selected.length > 0 ? selected : SPECIALIST_AGENTS;
+}
 
 function addUsage(total: AgentModelUsage, usage: AgentModelUsage): void {
   total.inputTokens += usage.inputTokens;
@@ -136,13 +153,14 @@ export class StartAgentRun {
   }
 
   private async start(model: AgentModel, session: Session): Promise<AgentRun> {
+    const order: readonly AgentId[] = [...specialistsFor(session), 'lead'];
     const run: AgentRun = {
       id: this.ids.eventId(),
       sessionId: session.id,
       status: 'running',
       model: model.model,
       startedAt: this.clock.now().toISOString(),
-      steps: AGENT_ORDER.map((agentId): AgentStep => ({ agentId, status: 'pending' })),
+      steps: order.map((agentId): AgentStep => ({ agentId, status: 'pending' })),
       proposals: [],
       findings: [],
       usage: { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 },
@@ -187,9 +205,18 @@ export class StartAgentRun {
     ]);
     const dto = session.toDto();
     const refs = new EvidenceRefs();
-    // El resumen se arma primero y es idéntico para los tres agentes: así se reutiliza en caché.
+    // El resumen se arma primero y es idéntico para todos los agentes: así se reutiliza en caché.
     const brief = sharedBrief({ session: dto, review, analysis, events }, refs);
-    const digests = { api: apiDigest(dto, events, refs), frontend: frontendDigest(events, refs) };
+    const digests = {
+      api: apiDigest(dto, events, refs),
+      frontend: frontendDigest(events, refs),
+      sec: securityDigest(dto, events, refs),
+      a11y: a11yDigest(events, refs),
+      perf: perfDigest(events, refs),
+      rt: realtimeDigest(dto, events, refs),
+      func: funcDigest(events, refs),
+      env: envDigest(dto, events, refs),
+    };
     return { brief, digests, refs: refs.entries(), reports: {} };
   }
 
@@ -202,8 +229,10 @@ export class StartAgentRun {
     const context = checkpoint ?? (await this.buildContext(session));
     if (!checkpoint) await this.runs.saveCheckpoint(session.id, run.id, context);
     const refs = EvidenceRefs.fromEntries(context.refs);
+    const criteria = new Set(session.objective.criteria.map((criterion) => criterion.id));
 
-    for (const agentId of SPECIALISTS) {
+    const specialists = specialistsFor(session);
+    for (const agentId of specialists) {
       // Ya respondió en un intento anterior: no se vuelve a consultar.
       if (context.reports[agentId]) continue;
       await this.setStep(run, agentId, { status: 'running' });
@@ -220,23 +249,27 @@ export class StartAgentRun {
       await this.setStep(run, agentId, {
         status: 'done',
         summary: result.output.summary,
+        // El desglose por criterio del especialista: sin esto, su razonamiento queda comprimido en una sola frase.
+        criteria: result.output.criteria
+          .filter((item) => criteria.has(item.criterionId))
+          .map((item) => ({ ...item, evidence: refs.resolve(item.evidence) })),
         finishedAt: this.clock.now().toISOString(),
       });
     }
 
-    const { api, frontend } = context.reports;
-    if (!api || !frontend) throw new Error('Faltan los informes de los especialistas.');
+    if (specialists.some((id) => !context.reports[id])) throw new Error('Faltan los informes de los especialistas.');
+    const reports: Partial<Record<SpecialistId, SpecialistReport>> = {};
+    for (const id of specialists) reports[id] = context.reports[id];
     await this.setStep(run, 'lead', { status: 'running' });
     const lead = await model.run({
       agentId: 'lead',
       system: AGENT_SYSTEM,
       brief: context.brief,
-      task: leadTask({ api, frontend }),
+      task: leadTask(reports),
       schema: leadReportSchema,
     });
     addUsage(run.usage, lead.usage);
 
-    const criteria = new Set(session.objective.criteria.map((criterion) => criterion.id));
     run.proposals = lead.output.verdicts
       .filter((verdict) => criteria.has(verdict.criterionId))
       .map((verdict) => ({ ...verdict, evidence: refs.resolve(verdict.evidence) }));

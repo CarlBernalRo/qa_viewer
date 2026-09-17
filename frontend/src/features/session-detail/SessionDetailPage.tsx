@@ -24,6 +24,7 @@ import {
 import {
   useAgentRuns,
   useAgentStatus,
+  useLoadScript,
   useRecordingControls,
   useSession,
   useSessionEvents,
@@ -33,6 +34,7 @@ import {
 } from '../sessions/api';
 import { DeleteSessionDialog } from '../sessions/DeleteSessionDialog';
 import { AgentsPanel } from './agents/AgentsPanel';
+import { AnalysisLane } from './AnalysisLane';
 import { CriteriaPanel } from './criteria/CriteriaPanel';
 import { EventInspector } from './EventInspector';
 import { FindingsPanel } from './FindingsPanel';
@@ -44,6 +46,7 @@ import { ProblemsPanel } from './ProblemsPanel';
 import { RecordingPanel } from './RecordingPanel';
 import { RecordingWidget } from './RecordingWidget';
 import { ReportNotice } from './ReportNotice';
+import { sessionToReport } from './sessionReport';
 import styles from './SessionDetail.module.css';
 import { buildTimeline, type TimelineItem, type TimelineModel } from './timeline/buildTimeline';
 import {
@@ -244,42 +247,46 @@ function ReplayWorkspace({
           {...(latestCompletedRun ? { proposals: latestCompletedRun.proposals } : {})}
         />
 
-        <AgentsPanel
-          session={session}
-          status={agentStatus.data}
-          runs={agentRuns.data}
-          loading={agentStatus.isPending || agentRuns.isPending}
-          eventTime={(eventId) => model.eventsById.get(eventId)?.t}
-          onSelectEvidence={selectEventId}
-        />
-
-        {loading ? (
-          <Panel title="Errores y avisos">
-            <SkeletonGroup label="Cargando errores…">
-              <Skeleton height={14} width="80%" />
-              <Skeleton height={14} width="65%" />
-            </SkeletonGroup>
-          </Panel>
-        ) : (
-          <ProblemsPanel
-            errors={errors}
-            warnings={warnings}
-            selectedId={selectedId}
-            activeIds={activeIds}
-            onSelect={select}
-          />
-        )}
-
-        {!loading && (
-          <FindingsPanel
+        <AnalysisLane variant="ai">
+          <AgentsPanel
             session={session}
-            analysis={findings.data}
-            loading={findings.isPending}
-            error={findings.error}
-            selectedEventId={selectedId}
+            status={agentStatus.data}
+            runs={agentRuns.data}
+            loading={agentStatus.isPending || agentRuns.isPending}
+            eventTime={(eventId) => model.eventsById.get(eventId)?.t}
             onSelectEvidence={selectEventId}
           />
-        )}
+        </AnalysisLane>
+
+        <AnalysisLane variant="deterministic">
+          {loading ? (
+            <Panel title="Errores y avisos">
+              <SkeletonGroup label="Cargando errores…">
+                <Skeleton height={14} width="80%" />
+                <Skeleton height={14} width="65%" />
+              </SkeletonGroup>
+            </Panel>
+          ) : (
+            <ProblemsPanel
+              errors={errors}
+              warnings={warnings}
+              selectedId={selectedId}
+              activeIds={activeIds}
+              onSelect={select}
+            />
+          )}
+
+          {!loading && (
+            <FindingsPanel
+              session={session}
+              analysis={findings.data}
+              loading={findings.isPending}
+              error={findings.error}
+              selectedEventId={selectedId}
+              onSelectEvidence={selectEventId}
+            />
+          )}
+        </AnalysisLane>
 
         <Panel
           title="Línea de tiempo"
@@ -356,7 +363,11 @@ export function SessionDetailPage() {
   const model = useMemo(() => buildTimeline(events.data ?? []), [events.data]);
   const { errors, warnings } = useMemo(() => collectProblems(model), [model]);
   const report = useSessionReport(id);
+  const loadScript = useLoadScript(id);
   const review = useSessionReview(id, Boolean(session && session.status !== 'draft'));
+  // Mismas queries que usa ReplayWorkspace: React Query comparte la caché, no duplica el pedido.
+  const findings = useSessionFindings(id, Boolean(isReplay));
+  const agentRuns = useAgentRuns(id, Boolean(isReplay));
 
   if (compact && session) {
     return <RecordingWidget session={session} onExpand={() => setExpanded(true)} />;
@@ -381,6 +392,33 @@ export function SessionDetailPage() {
           disabled: !isReplay || report.exportReport.isPending,
           ...(!isReplay ? { hint: 'Disponible cuando la sesión termina de grabarse' } : {}),
           onSelect: () => report.exportReport.mutate(),
+        },
+        {
+          label: 'Descargar script de carga (k6)',
+          disabled: session.status !== 'completed' || loadScript.isPending,
+          ...(session.status !== 'completed' ? { hint: 'Disponible cuando la sesión termina de grabarse' } : {}),
+          onSelect: () =>
+            loadScript.mutate(undefined, {
+              onSuccess: ({ fileName, script }) => {
+                const url = URL.createObjectURL(new Blob([script], { type: 'text/javascript' }));
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                link.click();
+                URL.revokeObjectURL(url);
+              },
+            }),
+        },
+        {
+          label: 'Copiar informe completo',
+          icon: <IconCopy width={15} height={15} />,
+          disabled: !review.data,
+          ...(!review.data ? { hint: 'Disponible cuando la sesión termina de grabarse' } : {}),
+          onSelect: () =>
+            review.data &&
+            void navigator.clipboard
+              .writeText(sessionToReport(session, review.data, findings.data, agentRuns.data?.[0]))
+              .catch(() => undefined),
         },
         {
           label: 'Copiar ID de la sesión',

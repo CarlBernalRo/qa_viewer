@@ -1,4 +1,4 @@
-import type { AgentRun, LeadReport, SpecialistReport } from '@rastro/shared';
+import type { AgentId, AgentRun, LeadReport, SpecialistReport } from '@rastro/shared';
 import { describe, expect, it } from 'vitest';
 import { createUseCases } from '../../src/application/index.js';
 import { FeatureNotAvailableError, InvalidStateError } from '../../src/domain/errors.js';
@@ -30,11 +30,29 @@ const lead: LeadReport = {
   ],
 };
 
-async function recorded(model: FakeAgentModel | null) {
+/** El equipo completo (8 especialistas + QA Lead), todos respondiendo "ok" salvo lo que se pise en overrides. */
+function fullTeamModel(overrides: Partial<Record<AgentId, unknown>> = {}): FakeAgentModel {
+  return new FakeAgentModel({
+    api: specialist('api ok'),
+    frontend: specialist('frontend ok'),
+    sec: specialist('sec ok'),
+    a11y: specialist('a11y ok'),
+    perf: specialist('perf ok'),
+    rt: specialist('rt ok'),
+    func: specialist('func ok'),
+    env: specialist('env ok'),
+    lead,
+    ...overrides,
+  });
+}
+
+const FULL_TEAM_ORDER: readonly AgentId[] = ['api', 'frontend', 'sec', 'a11y', 'perf', 'rt', 'func', 'env', 'lead'];
+
+async function recorded(model: FakeAgentModel | null, captureOverrides: Parameters<typeof sampleInput>[0] = {}) {
   const deps = createTestDeps();
   deps.agentModel = model;
   const useCases = createUseCases(deps);
-  const session = await useCases.createSession.execute(sampleInput());
+  const session = await useCases.createSession.execute(sampleInput(captureOverrides));
   await useCases.startRecording.execute(session.id);
   deps.recorder.sink?.onEvent({
     kind: 'http-request',
@@ -62,8 +80,8 @@ async function recorded(model: FakeAgentModel | null) {
 }
 
 describe('agentes', () => {
-  it('corre los tres agentes con el mismo resumen y guarda propuestas con evidencia real', async () => {
-    const model = new FakeAgentModel({ api: specialist('Falla el POST'), frontend: specialist('Excepción al pagar'), lead });
+  it('corre el equipo completo con el mismo resumen y guarda propuestas con evidencia real', async () => {
+    const model = fullTeamModel({ api: specialist('Falla el POST'), frontend: specialist('Excepción al pagar') });
     const { useCases, id, eventIds } = await recorded(model);
 
     const started = await useCases.startAgentRun.execute(id);
@@ -72,29 +90,52 @@ describe('agentes', () => {
     const [run] = await useCases.listAgentRuns.execute(id);
 
     expect(run?.status).toBe('completed');
-    expect(run?.steps.map((step) => [step.agentId, step.status])).toEqual([
-      ['api', 'done'],
-      ['frontend', 'done'],
-      ['lead', 'done'],
-    ]);
+    expect(run?.steps.map((step) => step.agentId)).toEqual(FULL_TEAM_ORDER);
+    expect(run?.steps.every((step) => step.status === 'done')).toBe(true);
     expect(run?.summary).toBe('El pago falla del lado del servidor.');
     // CA9 no existe y E999 es inventada: se descartan.
     expect(run?.proposals.map((proposal) => [proposal.criterionId, proposal.verdict])).toEqual([['CA1', 'fail']]);
     expect(run?.proposals[0]?.evidence).toHaveLength(1);
     expect(eventIds.has(run?.proposals[0]?.evidence[0] ?? '')).toBe(true);
     expect(run?.findings[0]).toMatchObject({ agents: ['api', 'frontend'], criterionId: 'CA2', severity: 'high' });
-    expect(run?.usage).toEqual({ inputTokens: 3000, outputTokens: 600, cacheReadTokens: 1600, cacheWriteTokens: 800 });
+    // El desglose por criterio de cada especialista se guarda con evidencia ya resuelta a eventos reales.
+    const apiStep = run?.steps.find((step) => step.agentId === 'api');
+    expect(apiStep?.criteria).toMatchObject([{ criterionId: 'CA1', assessment: 'supports_fail', reason: 'El pago devolvió 500' }]);
+    expect(apiStep?.criteria?.[0]?.evidence).toHaveLength(1);
+    expect(eventIds.has(apiStep?.criteria?.[0]?.evidence[0] ?? '')).toBe(true);
+    // 8 especialistas + QA Lead = 9 llamadas; solo la primera (api) escribe caché, el resto lo lee.
+    expect(run?.usage).toEqual({ inputTokens: 9000, outputTokens: 1800, cacheReadTokens: 6400, cacheWriteTokens: 800 });
 
-    // El resumen es idéntico para los tres (para que se cachee) y cada agente recibe su evidencia.
+    // El resumen es idéntico para todos (para que se cachee) y cada agente recibe su evidencia.
     expect(new Set(model.calls.map((call) => call.brief)).size).toBe(1);
-    expect(model.calls.map((call) => call.agentId)).toEqual(['api', 'frontend', 'lead']);
+    expect(model.calls.map((call) => call.agentId)).toEqual(FULL_TEAM_ORDER);
     expect(model.calls[0]?.task).toContain('POST /api/pay');
     expect(model.calls[1]?.task).toContain('TypeError: order is undefined');
-    expect(model.calls[2]?.task).toContain('"summary": "Falla el POST"');
+    expect(model.calls[8]?.task).toContain('"summary": "Falla el POST"');
+  });
+
+  it('"Elegir yo" con un solo especialista no consulta a los que no se eligieron', async () => {
+    const leadOneSpecialist: LeadReport = { ...lead, observations: [] };
+    const model = new FakeAgentModel({ api: specialist('Falla el POST'), lead: leadOneSpecialist });
+    // analysisMode "none" para aislar esto de que "manual" ya arranca solo al terminar de grabar
+    // (eso se prueba en recording.test.ts); acá interesa que execute() respete la elección.
+    const { useCases, id } = await recorded(model, { selectedAgents: ['api'] });
+
+    const started = await useCases.startAgentRun.execute(id);
+    expect(started.steps.map((step) => step.agentId)).toEqual(['api', 'lead']);
+    await useCases.startAgentRun.settled(id);
+
+    const [run] = await useCases.listAgentRuns.execute(id);
+    expect(run?.status).toBe('completed');
+    expect(run?.steps.map((step) => [step.agentId, step.status])).toEqual([
+      ['api', 'done'],
+      ['lead', 'done'],
+    ]);
+    expect(model.calls.map((call) => call.agentId)).toEqual(['api', 'lead']);
   });
 
   it('si un agente falla, la corrida queda fallida y dice cuál', async () => {
-    const model = new FakeAgentModel({ api: specialist('ok'), frontend: specialist('ok'), lead });
+    const model = fullTeamModel();
     model.failOn = 'frontend';
     const { useCases, id } = await recorded(model);
     await useCases.startAgentRun.execute(id);
@@ -102,11 +143,21 @@ describe('agentes', () => {
     const [run] = await useCases.listAgentRuns.execute(id);
     expect(run?.status).toBe('failed');
     expect(run?.error).toBe('El agente frontend no respondió');
-    expect(run?.steps.map((step) => step.status)).toEqual(['done', 'failed', 'pending']);
+    expect(run?.steps.map((step) => step.status)).toEqual([
+      'done',
+      'failed',
+      'pending',
+      'pending',
+      'pending',
+      'pending',
+      'pending',
+      'pending',
+      'pending',
+    ]);
   });
 
   it('reintentar retoma desde el agente que falló, con el mismo resumen y la misma evidencia', async () => {
-    const model = new FakeAgentModel({ api: specialist('Falla el POST'), frontend: specialist('Excepción al pagar'), lead });
+    const model = fullTeamModel({ api: specialist('Falla el POST'), frontend: specialist('Excepción al pagar') });
     model.failOn = 'frontend';
     const { useCases, id, eventIds } = await recorded(model);
     const failed = await useCases.startAgentRun.execute(id);
@@ -122,16 +173,27 @@ describe('agentes', () => {
     const runs = await useCases.listAgentRuns.execute(id);
     expect(runs).toHaveLength(1);
     expect(runs[0]?.status).toBe('completed');
-    expect(runs[0]?.steps.map((step) => step.status)).toEqual(['done', 'done', 'done']);
+    expect(runs[0]?.steps.every((step) => step.status === 'done')).toBe(true);
     // API REST respondió en el primer intento: no se lo vuelve a consultar.
-    expect(model.calls.map((call) => call.agentId)).toEqual(['api', 'frontend', 'frontend', 'lead']);
+    expect(model.calls.map((call) => call.agentId)).toEqual([
+      'api',
+      'frontend',
+      'frontend',
+      'sec',
+      'a11y',
+      'perf',
+      'rt',
+      'func',
+      'env',
+      'lead',
+    ]);
     expect(new Set(model.calls.map((call) => call.brief)).size).toBe(1);
     expect(runs[0]?.proposals[0]?.evidence.every((eventId) => eventIds.has(eventId))).toBe(true);
-    expect(runs[0]?.usage.inputTokens).toBe(3000);
+    expect(runs[0]?.usage.inputTokens).toBe(9000);
   });
 
   it('un análisis sin punto de control (versión anterior) se reintenta desde cero', async () => {
-    const model = new FakeAgentModel({ api: specialist('ok'), frontend: specialist('ok'), lead });
+    const model = fullTeamModel();
     const { deps, useCases, id } = await recorded(model);
     await deps.agentRuns.save({
       id: 'viejo',
@@ -147,11 +209,11 @@ describe('agentes', () => {
     const retried = await useCases.startAgentRun.retry(id, 'viejo');
     expect(retried.id).not.toBe('viejo');
     await useCases.startAgentRun.settled(id);
-    expect(model.calls.map((call) => call.agentId)).toEqual(['api', 'frontend', 'lead']);
+    expect(model.calls.map((call) => call.agentId)).toEqual(FULL_TEAM_ORDER);
   });
 
   it('no reintenta un análisis que ya terminó ni uno que no existe', async () => {
-    const model = new FakeAgentModel({ api: specialist('ok'), frontend: specialist('ok'), lead });
+    const model = fullTeamModel();
     const { useCases, id } = await recorded(model);
     const run = await useCases.startAgentRun.execute(id);
     await useCases.startAgentRun.settled(id);
@@ -171,7 +233,7 @@ describe('agentes', () => {
   });
 
   it('no deja lanzar dos análisis a la vez ni analizar una sesión sin grabar', async () => {
-    const model = new FakeAgentModel({ api: specialist('ok'), frontend: specialist('ok'), lead });
+    const model = fullTeamModel();
     const { deps, useCases, id } = await recorded(model);
     await useCases.startAgentRun.execute(id);
     await expect(useCases.startAgentRun.execute(id)).rejects.toBeInstanceOf(InvalidStateError);

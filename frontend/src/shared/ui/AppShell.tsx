@@ -3,7 +3,16 @@ import { NavLink } from 'react-router';
 import { cx } from '../lib/cx';
 import { usePersistentState } from '../lib/usePersistentState';
 import styles from './AppShell.module.css';
-import { IconChevronLeft, IconChevronRight, IconSessions } from './icons';
+import {
+  IconAgents,
+  IconChevronLeft,
+  IconChevronRight,
+  IconCompare,
+  IconEnvironments,
+  IconSearch,
+  IconSessions,
+  IconSettings,
+} from './icons';
 
 interface AppShellProps {
   breadcrumb?: ReactNode;
@@ -12,7 +21,19 @@ interface AppShellProps {
 }
 
 // "Nueva sesión" vive como botón en la pantalla de sesiones, no en el menú.
-const NAV = [{ to: '/', label: 'Sesiones', end: false, icon: IconSessions }];
+const NAV = [
+  { to: '/', label: 'Sesiones', end: true, icon: IconSessions },
+  { to: '/hallazgos', label: 'Hallazgos', end: false, icon: IconSearch },
+  { to: '/agentes', label: 'Agentes', end: false, icon: IconAgents },
+];
+
+// Etapa 4 de la visión de producto: comparar el mismo flujo entre ambientes o
+// contra una sesión base. Tienen definición, pero no modelo de datos todavía.
+const NAV_SOON = [
+  { label: 'Ambientes', icon: IconEnvironments, soon: 'El mismo flujo grabado en DEV, QA, STG y PROD: qué cambió en tráfico, errores y pantallas. Etapa 4.' },
+  { label: 'Comparaciones', icon: IconCompare, soon: 'Regresión contra una sesión base: tráfico nuevo, errores nuevos, cambios visuales. Etapa 4.' },
+  { label: 'Ajustes del proyecto', icon: IconSettings, soon: 'Integraciones (Jira, Xray, Slack), reglas de envío y datos por defecto del proyecto. Etapa 4.' },
+];
 
 export function AppShell({ breadcrumb, actions, children }: AppShellProps) {
   // El menú arranca oculto; la preferencia se recuerda entre aperturas.
@@ -54,10 +75,22 @@ export function AppShell({ breadcrumb, actions, children }: AppShellProps) {
               {!collapsed && <span>{item.label}</span>}
             </NavLink>
           ))}
+          <div className={styles.navDivider} role="separator" aria-hidden="true" />
+          {NAV_SOON.map((item) => (
+            <span
+              key={item.label}
+              className={cx(styles.navItem, styles.navSoon)}
+              title={collapsed ? `${item.label} · ${item.soon}` : item.soon}
+              aria-disabled="true"
+            >
+              <item.icon />
+              {!collapsed && <span>{item.label}</span>}
+            </span>
+          ))}
           {!collapsed && (
             <div className={styles.navFooter}>
-              <span className="cap">Etapa 1</span>
-              <span>Grabación sin agentes</span>
+              <span className="cap">Etapa 3</span>
+              <span>Agentes de IA</span>
             </div>
           )}
         </nav>

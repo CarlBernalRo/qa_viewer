@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { specialistIdSchema } from './agents.js';
 
 export const environmentSchema = z.enum(['DEV', 'QA', 'STG', 'PROD']);
 export type Environment = z.infer<typeof environmentSchema>;
@@ -64,6 +65,8 @@ export const captureConfigSchema = z.object({
     customPatterns: z.array(z.string().min(1).max(200)).max(20),
   }),
   analysisMode: analysisModeSchema,
+  /** Solo con analysisMode "manual" ("Elegir yo"): qué especialistas corren. El QA Lead siempre se agrega. */
+  selectedAgents: z.array(specialistIdSchema).optional(),
 });
 export type CaptureConfig = z.infer<typeof captureConfigSchema>;
 

@@ -1,8 +1,9 @@
+import type { LeadReport, SpecialistReport } from '@rastro/shared';
 import { describe, expect, it } from 'vitest';
 import { createUseCases } from '../../src/application/index.js';
-import { DomainError, FeatureNotAvailableError, LimitReachedError } from '../../src/domain/errors.js';
+import { DomainError, LimitReachedError } from '../../src/domain/errors.js';
 import { REDACTED } from '../../src/domain/redaction/Redactor.js';
-import { createTestDeps } from '../fakes.js';
+import { createTestDeps, FakeAgentModel } from '../fakes.js';
 import { sampleInput } from '../samples.js';
 
 async function setup(maxConcurrent = 1) {
@@ -19,11 +20,19 @@ describe('crear sesión', () => {
     expect(await useCases.listSessions.execute()).toHaveLength(1);
   });
 
-  it('rechaza los modos con agentes en la etapa 1', async () => {
+  it('"Elegir yo" sin ningún agente elegido se rechaza', async () => {
     const { useCases } = await setup();
     await expect(
-      useCases.createSession.execute(sampleInput({ analysisMode: 'suggested' })),
-    ).rejects.toBeInstanceOf(FeatureNotAvailableError);
+      useCases.createSession.execute(sampleInput({ analysisMode: 'manual' })),
+    ).rejects.toBeInstanceOf(DomainError);
+  });
+
+  it('"Elegir yo" con al menos un agente elegido se acepta', async () => {
+    const { useCases } = await setup();
+    const session = await useCases.createSession.execute(
+      sampleInput({ analysisMode: 'manual', selectedAgents: ['api'] }),
+    );
+    expect(session.capture.selectedAgents).toEqual(['api']);
   });
 });
 
@@ -122,5 +131,65 @@ describe('grabación', () => {
     deps.registry.remove(session.id);
     expect(await useCases.recoverInterruptedSessions.execute()).toBe(1);
     expect((await useCases.getSession.execute(session.id)).status).toBe('failed');
+  });
+});
+
+describe('modo "Sugeridos": agentes automáticos al terminar de grabar', () => {
+  const specialist = (summary: string): SpecialistReport => ({
+    summary,
+    criteria: [],
+    observations: [],
+  });
+  const lead: LeadReport = { summary: 'Todo en orden.', verdicts: [], observations: [] };
+
+  it('lanza el equipo de agentes solo al completar la sesión', async () => {
+    const model = new FakeAgentModel({
+      api: specialist('api'),
+      frontend: specialist('frontend'),
+      sec: specialist('sec'),
+      a11y: specialist('a11y'),
+      perf: specialist('perf'),
+      rt: specialist('rt'),
+      func: specialist('func'),
+      env: specialist('env'),
+      lead,
+    });
+    const deps = createTestDeps();
+    deps.agentModel = model;
+    const useCases = createUseCases(deps);
+    const session = await useCases.createSession.execute(sampleInput({ analysisMode: 'suggested' }));
+
+    await useCases.startRecording.execute(session.id);
+    await useCases.stopRecording.execute(session.id);
+    await useCases.startAgentRun.settled(session.id);
+
+    const [run] = await useCases.listAgentRuns.execute(session.id);
+    expect(run?.status).toBe('completed');
+  });
+
+  it('sin agentes configurados, terminar de grabar en modo "Sugeridos" no falla ni intenta nada', async () => {
+    const deps = createTestDeps();
+    const useCases = createUseCases(deps);
+    const session = await useCases.createSession.execute(sampleInput({ analysisMode: 'suggested' }));
+    await useCases.startRecording.execute(session.id);
+    await expect(useCases.stopRecording.execute(session.id)).resolves.toMatchObject({ status: 'completed' });
+  });
+
+  it('"Elegir yo" también arranca solo al completar, con solo el agente elegido', async () => {
+    const model = new FakeAgentModel({ api: specialist('api'), lead });
+    const deps = createTestDeps();
+    deps.agentModel = model;
+    const useCases = createUseCases(deps);
+    const session = await useCases.createSession.execute(
+      sampleInput({ analysisMode: 'manual', selectedAgents: ['api'] }),
+    );
+
+    await useCases.startRecording.execute(session.id);
+    await useCases.stopRecording.execute(session.id);
+    await useCases.startAgentRun.settled(session.id);
+
+    const [run] = await useCases.listAgentRuns.execute(session.id);
+    expect(run?.status).toBe('completed');
+    expect(run?.steps.map((step) => step.agentId)).toEqual(['api', 'lead']);
   });
 });

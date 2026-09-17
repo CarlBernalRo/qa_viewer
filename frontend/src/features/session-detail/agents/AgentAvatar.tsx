@@ -1,6 +1,7 @@
-import { AGENT_CATALOG, type AgentId } from '@rastro/shared';
+import { AGENT_CATALOG, AGENT_ROSTER, type AgentId } from '@rastro/shared';
 import { cx } from '../../../shared/lib/cx';
 import styles from './AgentAvatar.module.css';
+import { AgentEyes, AgentHead } from './agentVisuals';
 
 /** Lo que distingue a cada robot arriba de la cabeza: una antena, dos, o la insignia del líder. */
 function Top({ agent, color }: { agent: AgentId; color: string }) {
@@ -26,6 +27,7 @@ function Top({ agent, color }: { agent: AgentId; color: string }) {
 /** El robot de cada agente: mismo cuerpo, distinto color y cabeza según su rol. */
 export function AgentAvatar({ agent, size = 28, busy = false }: { agent: AgentId; size?: number; busy?: boolean }) {
   const { color, name } = AGENT_CATALOG[agent];
+  const { eyeShape, animation, gesture } = AGENT_ROSTER[agent];
   return (
     <svg
       className={cx(styles.avatar, busy && styles.busy)}
@@ -36,13 +38,14 @@ export function AgentAvatar({ agent, size = 28, busy = false }: { agent: AgentId
       aria-label={`Agente ${name}`}
     >
       <title>{`Agente ${name}`}</title>
-      <Top agent={agent} color={color} />
       <rect x="2" y="14" width="3" height="6" rx="1.5" fill={color} />
       <rect x="27" y="14" width="3" height="6" rx="1.5" fill={color} />
-      <rect x="5" y="8" width="22" height="19" rx="6" fill={color} />
-      <rect x="8.5" y="12.5" width="15" height="9" rx="4.5" fill="#ffffff" />
-      <circle className={styles.eye} cx="13" cy="17" r="1.9" fill={color} />
-      <circle className={styles.eye} cx="19" cy="17" r="1.9" fill={color} />
+      <AgentHead gesture={gesture}>
+        <Top agent={agent} color={color} />
+        <rect x="5" y="8" width="22" height="19" rx="6" fill={color} />
+        <rect x="8.5" y="12.5" width="15" height="9" rx="4.5" fill="#ffffff" />
+        <AgentEyes shape={eyeShape} color={color} animation={animation} />
+      </AgentHead>
     </svg>
   );
 }

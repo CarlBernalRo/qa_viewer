@@ -5,6 +5,7 @@ import {
   API_ROUTES,
   apiErrorSchema,
   healthSchema,
+  loadScriptSchema,
   sessionAnalysisSchema,
   sessionReportSchema,
   sessionReviewSchema,
@@ -16,6 +17,7 @@ import {
   type CreateSessionInput,
   type FindingDecisionValue,
   type Health,
+  type LoadScriptDto,
   type SessionAnalysis,
   type SessionDto,
   type SessionReportDto,
@@ -122,6 +124,11 @@ export class ApiClient {
   /** Abre el último informe exportado o, con `reveal`, lo muestra en su carpeta. */
   async openReport(id: string, reveal: boolean): Promise<void> {
     await this.request(API_ROUTES.sessionReportOpen(id), { method: 'POST', body: JSON.stringify({ reveal }) });
+  }
+
+  /** Script k6 armado del tráfico real de la sesión (agente Carga, determinístico). */
+  getLoadScript(id: string): Promise<LoadScriptDto> {
+    return this.request(API_ROUTES.sessionLoadScript(id), { method: 'GET' }, loadScriptSchema);
   }
 
   /** `decision: null` limpia una decisión anterior. Devuelve el análisis completo, ya actualizado. */

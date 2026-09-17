@@ -18,6 +18,7 @@ import { formatClock } from '../../../shared/lib/format';
 import { ErrorMessage, InfoTip, Panel } from '../../../shared/ui';
 import { useReviewMutations } from '../../sessions/api';
 import { AgentAvatar } from '../agents/AgentAvatar';
+import { AgentTooltip } from '../agents/AgentTooltip';
 import { MarkerForm } from '../markers/MarkerForm';
 import styles from './CriteriaPanel.module.css';
 
@@ -83,7 +84,9 @@ function Proposal({
   const { verdict } = proposal;
   return (
     <div className={styles.proposal}>
-      <AgentAvatar agent="lead" size={22} />
+      <AgentTooltip agent="lead">
+        <AgentAvatar agent="lead" size={22} />
+      </AgentTooltip>
       <div className={styles.proposalBody}>
         <span>
           El QA Lead propone: <strong>{PROPOSED_VERDICT_LABELS[verdict]}</strong> · {CONFIDENCE_LABELS[proposal.confidence]}

@@ -3,6 +3,7 @@
   flex-direction: column;
   gap: var(--space-5);
   max-width: 1240px;
+  margin-inline: auto;
 }
 
 .crumbCurrent {
@@ -129,6 +130,58 @@
   font-size: 13px;
   color: var(--ink-soft);
   line-height: 1.5;
+}
+
+.analysisWarning {
+  font-size: 12.5px;
+  color: var(--warn, #b7801a);
+  line-height: 1.5;
+}
+
+.teamPreview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  background: var(--ground);
+}
+
+.teamMember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+}
+
+.teamMember strong {
+  margin-right: 6px;
+}
+
+.teamCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.teamCheckbox strong {
+  margin-right: 6px;
+}
+
+.teamCheckbox input {
+  cursor: pointer;
+}
+
+.teamReads {
+  color: var(--muted);
+}
+
+.teamLink {
+  align-self: flex-start;
+  font-size: 12.5px;
 }
 
 .actions {

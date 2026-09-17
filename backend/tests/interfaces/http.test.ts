@@ -84,14 +84,14 @@ describe('sesiones', () => {
     expect(response.json().error.code).toBe('VALIDATION_ERROR');
   });
 
-  it('responde 501 si se pide análisis con agentes', async () => {
+  it('responde 400 si "Elegir yo" no eligió ningún agente', async () => {
     const response = await app.inject({
       method: 'POST',
       url: API_ROUTES.sessions,
       headers: auth,
       payload: sampleInput({ analysisMode: 'manual' }),
     });
-    expect(response.statusCode).toBe(501);
+    expect(response.statusCode).toBe(400);
   });
 
   it('elimina una sesión y responde 204', async () => {

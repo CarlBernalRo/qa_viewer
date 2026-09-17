@@ -78,3 +78,33 @@ export const IconCopy = (props: IconProps) => (
     <path d="M13 7V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2" />
   </Svg>
 );
+
+export const IconAgents = (props: IconProps) => (
+  <Svg {...props}>
+    <circle cx="10" cy="5" r="2.2" />
+    <circle cx="4.5" cy="15" r="2.2" />
+    <circle cx="15.5" cy="15" r="2.2" />
+    <path d="M10 7.2v3.3M10 10.5l-4 2.8M10 10.5l4 2.8" />
+  </Svg>
+);
+
+export const IconEnvironments = (props: IconProps) => (
+  <Svg {...props}>
+    <path d="M10 3l7 4-7 4-7-4 7-4z" />
+    <path d="M3 11l7 4 7-4" />
+  </Svg>
+);
+
+export const IconCompare = (props: IconProps) => (
+  <Svg {...props}>
+    <path d="M4 7h11l-3-3M16 13H5l3 3" />
+  </Svg>
+);
+
+export const IconSettings = (props: IconProps) => (
+  <Svg {...props}>
+    <path d="M3 6h14M3 14h14" />
+    <circle cx="7" cy="6" r="2" fill="var(--ground, #F1F2EF)" />
+    <circle cx="13" cy="14" r="2" fill="var(--ground, #F1F2EF)" />
+  </Svg>
+);

@@ -77,6 +77,225 @@
   cursor: wait;
 }
 
+.stepsWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/*
+ * ── QA Lead completed card ──
+ * The protagonist: dark card with animated gradient border, ambient glow,
+ * and premium typography.  Uses the same seamless alternate-direction
+ * shimmer as the specialist reason cards but more prominent.
+ */
+.leadCard {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 18px 20px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    145deg,
+    var(--ink) 0%,
+    color-mix(in srgb, var(--ink) 92%, #6b4fbb) 100%
+  );
+  color: var(--surface);
+  overflow: hidden;
+}
+
+/* Animated gradient border – wraps all four sides */
+.leadCardBorder {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  padding: 2px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, #6b4fbb 30%, transparent) 0%,
+    #6b4fbb 15%,
+    color-mix(in srgb, #6b4fbb 50%, white) 30%,
+    #c4b5ff 50%,
+    color-mix(in srgb, #6b4fbb 50%, white) 70%,
+    #6b4fbb 85%,
+    color-mix(in srgb, #6b4fbb 30%, transparent) 100%
+  );
+  background-size: 250% 100%;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: lead-border-shimmer 3s ease-in-out infinite alternate;
+}
+
+@keyframes lead-border-shimmer {
+  0% {
+    background-position: 0% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+/* Ambient glow — large blurred circle behind the card */
+.leadCardGlow {
+  position: absolute;
+  top: -80px;
+  right: -60px;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #6b4fbb, transparent 65%);
+  opacity: 0.12;
+  pointer-events: none;
+  animation: lead-glow-pulse 4s ease-in-out infinite;
+}
+
+@keyframes lead-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.08;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 0.15;
+    transform: scale(1.05);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .leadCardBorder {
+    animation: none;
+    background-position: 50% 0;
+  }
+  .leadCardGlow {
+    animation: none;
+    opacity: 0.1;
+    transform: none;
+  }
+}
+
+/* Also used during the running state — keep basic dark style */
+.leadStep {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.leadStep_pending {
+  opacity: 0.6;
+}
+
+.leadText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.leadHead {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.leadHead strong {
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+.leadBadge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: linear-gradient(
+    135deg,
+    #6b4fbb 0%,
+    color-mix(in srgb, #6b4fbb 65%, white) 100%
+  );
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.leadRole {
+  font-size: 12px;
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--surface) 55%, transparent);
+}
+
+.leadStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: color-mix(in srgb, var(--agent-color, #6b4fbb) 55%, white);
+}
+
+.leadStatusBusy {
+  font-weight: 600;
+}
+
+.leadSummary {
+  color: color-mix(in srgb, var(--surface) 82%, transparent);
+  line-height: 1.5;
+}
+
+.leadSection {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-top: 6px;
+}
+
+.leadSection + .leadSection {
+  padding-top: 10px;
+  border-top: 1px solid color-mix(in srgb, var(--surface) 12%, transparent);
+}
+
+.leadSectionTitle {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, #c4b5ff 70%, white);
+}
+
+.leadBullets {
+  margin: 0;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: color-mix(in srgb, var(--surface) 90%, transparent);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.leadBullets li::marker {
+  color: color-mix(in srgb, #c4b5ff 60%, transparent);
+}
+
+.leadBullets .criterionTag {
+  border-color: color-mix(in srgb, var(--surface) 35%, transparent);
+  color: color-mix(in srgb, var(--surface) 80%, transparent);
+}
+
 .steps {
   margin: 0;
   padding: 0;
@@ -90,10 +309,54 @@
   display: flex;
   gap: 10px;
   align-items: flex-start;
+  padding: 4px 6px;
+  margin: -4px -6px;
+  border-radius: var(--radius-md);
+  transition: background-color 0.3s ease;
+}
+
+.step_running {
+  background: color-mix(in srgb, var(--agent-color) 8%, transparent);
 }
 
 .step_pending {
   opacity: 0.55;
+}
+
+.stepAvatar {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+/* Anillo del color propio del agente, pulsando mientras analiza. */
+.stepAvatarBusy::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 2px solid var(--agent-color);
+  animation: agent-ring 1.3s ease-in-out infinite;
+}
+
+@keyframes agent-ring {
+  0%,
+  100% {
+    opacity: 0.18;
+    transform: scale(0.82);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stepAvatarBusy::after {
+    animation: none;
+    opacity: 0.5;
+  }
 }
 
 .stepText {
@@ -111,8 +374,42 @@
 }
 
 .stepStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-size: 11.5px;
   color: var(--muted);
+}
+
+.stepStatusBusy {
+  color: var(--agent-color);
+  font-weight: 600;
+}
+
+.stepStatusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--agent-color);
+  animation: agent-dot 1.3s ease-in-out infinite;
+}
+
+@keyframes agent-dot {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stepStatusDot {
+    animation: none;
+  }
 }
 
 .step_done .stepStatus {
@@ -129,43 +426,514 @@
   line-height: 1.45;
 }
 
-.summary {
+.reasonsSection {
   display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+}
+
+.reasonsSection:focus {
+  outline: none;
+}
+
+/* ── Section header ── */
+
+.reasonsTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reasonsTitleAccent {
+  width: 3px;
+  height: 16px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--agent-color, #6b4fbb) 0%, var(--link) 100%);
+  flex-shrink: 0;
+}
+
+.reasonsTitle {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.reasonsHeadRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+/* ── Navigation arrows ── */
+
+.reasonsNav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.reasonsNavBtn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+}
+
+.reasonsNavBtn:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--surface);
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(26, 31, 28, 0.18);
+}
+
+.reasonsNavBtn:active {
+  transform: scale(0.95);
+}
+
+.reasonsCounter {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  min-width: 36px;
+  text-align: center;
+}
+
+/* ── Viewport / carousel ── */
+
+.reasonsViewport {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+}
+
+.reasonsTrack {
+  display: flex;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reasonsTrack {
+    transition: none;
+  }
+}
+
+.reasonsSlide {
+  flex: 0 0 100%;
+  min-width: 0;
+  opacity: 0.4;
+  transform: scale(0.97);
+  filter: blur(1px);
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s ease,
+    filter 0.45s ease;
+}
+
+.reasonsSlideActive {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reasonsSlide {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+}
+
+/* ── Dot navigation ── */
+
+.reasonsDots {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding-top: 2px;
+}
+
+.reasonsDot {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 2px solid var(--rule);
+  border-radius: 50%;
+  background: var(--surface);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.2s ease;
+}
+
+.reasonsDot:hover {
+  border-color: var(--agent-color);
+  transform: scale(1.12);
+}
+
+.reasonsDotActive {
+  border-color: var(--agent-color);
+  background: color-mix(in srgb, var(--agent-color) 12%, var(--surface));
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--agent-color) 18%, transparent),
+    0 2px 8px color-mix(in srgb, var(--agent-color) 22%, transparent);
+  transform: scale(1.15);
+}
+
+/* ── Reason card ── */
+
+.reasonCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
-  align-items: flex-start;
-  padding: 10px 12px;
-  border-radius: var(--radius-md);
-  background: #f1eefa;
-  font-size: 13px;
-  line-height: 1.5;
+  padding: 16px 18px;
+  border: 1px solid var(--rule-soft);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+  transition:
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+/*
+ * ── Animated gradient top border ──
+ * Two layers: ::before is the vivid gradient bar, ::after is a soft diffused
+ * glow beneath it for depth.  The animation uses `alternate` so the shimmer
+ * ping-pongs left↔right with zero jump on reset.
+ */
+.reasonCard::before,
+.reasonCard::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+/* The sharp gradient bar */
+.reasonCard::before {
+  top: 0;
+  height: 3px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--agent-color) 25%, transparent) 0%,
+    var(--agent-color) 15%,
+    color-mix(in srgb, var(--agent-color) 55%, white) 30%,
+    white 50%,
+    color-mix(in srgb, var(--agent-color) 55%, white) 70%,
+    var(--agent-color) 85%,
+    color-mix(in srgb, var(--agent-color) 25%, transparent) 100%
+  );
+  background-size: 250% 100%;
+}
+
+/* Diffused glow beneath the bar */
+.reasonCard::after {
+  top: 0;
+  height: 20px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--agent-color) 14%, transparent) 0%,
+    transparent 100%
+  );
+}
+
+.reasonCardActive::before {
+  opacity: 1;
+  animation: reason-shimmer 2.4s ease-in-out infinite alternate;
+}
+
+.reasonCardActive::after {
+  opacity: 1;
+  animation: reason-glow-pulse 3s ease-in-out infinite;
+}
+
+/* Seamless: ping-pongs from left to right, no hard reset. */
+@keyframes reason-shimmer {
+  0% {
+    background-position: 0% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+@keyframes reason-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reasonCardActive::before,
+  .reasonCardActive::after {
+    animation: none;
+    opacity: 1;
+    background-position: 50% 0;
+  }
+}
+
+/* Subtle radial glow behind active card */
+.reasonCardGlow {
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--agent-color), transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+.reasonCardActive .reasonCardGlow {
+  opacity: 0.07;
+}
+
+.reasonCardActive {
+  border-color: color-mix(in srgb, var(--agent-color) 35%, var(--rule-soft));
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 20px color-mix(in srgb, var(--agent-color) 10%, transparent);
+}
+
+.reasonCardFailed {
+  border-color: color-mix(in srgb, var(--crit) 30%, var(--rule-soft));
+  background: color-mix(in srgb, var(--crit) 4%, var(--surface));
+}
+
+.reasonCardFailed::before {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--crit) 30%,
+    color-mix(in srgb, var(--crit) 50%, white) 50%,
+    var(--crit) 70%,
+    transparent 100%
+  );
+  background-size: 250% 100%;
+}
+
+.reasonCardFailed::after {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--crit) 12%, transparent) 0%,
+    transparent 100%
+  );
+}
+
+/* ── Card header ── */
+
+.reasonHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.reasonHeadInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.reasonHeadInfo strong {
+  font-size: 13.5px;
+  color: var(--ink);
+}
+
+.reasonRole {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+/* ── Card sections ── */
+
+.reasonSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 4px;
+}
+
+.reasonSection + .reasonSection {
+  padding-top: 8px;
+  border-top: 1px solid var(--rule-soft);
+}
+
+.reasonSectionTitle {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--agent-color, var(--muted));
+  opacity: 0.7;
+}
+
+.reasonBullets {
+  margin: 0;
+  padding-left: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.reasonBullets li::marker {
+  color: var(--agent-color, var(--muted));
+}
+
+.reasonBullets em {
+  font-style: italic;
+}
+
+.findingsWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.findingsSections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 20px);
+}
+
+.findingsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.findingsSectionTitle {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.findingsSectionCount {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.sectionTitle_critical {
+  color: var(--crit);
+}
+
+.sectionTitle_high {
+  color: #c1502a;
+}
+
+.sectionTitle_medium {
+  color: var(--warn);
+}
+
+.sectionTitle_low {
+  color: var(--muted);
 }
 
 .findings {
   margin: 0;
   padding: 0;
   list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 10px;
+  align-items: start;
 }
 
 .finding {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--rule-soft);
-}
-
-.finding:last-child {
-  padding-bottom: 0;
-  border-bottom: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--rule-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface);
 }
 
 .findingHead {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 8px;
+}
+
+.findingBullet {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.finding_critical .findingBullet {
+  color: var(--crit);
+}
+
+.finding_high .findingBullet {
+  color: #c1502a;
+}
+
+.finding_medium .findingBullet {
+  color: var(--warn);
+}
+
+.finding_low .findingBullet {
+  color: var(--muted);
 }
 
 .findingTitle {
@@ -179,33 +947,6 @@
   gap: 2px;
 }
 
-.severity {
-  flex-shrink: 0;
-  padding: 2px 7px;
-  border-radius: 3px;
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: #ffffff;
-}
-
-.critical {
-  background: var(--crit);
-}
-
-.high {
-  background: #c1502a;
-}
-
-.medium {
-  background: var(--warn);
-}
-
-.low {
-  background: var(--faint);
-}
-
 .findingDetail {
   font-size: 12.5px;
   line-height: 1.45;
@@ -216,6 +957,16 @@
   font-size: 12px;
   line-height: 1.45;
   color: var(--muted);
+}
+
+.findingRecommendationLabel {
+  font-weight: 600;
+  font-style: normal;
+  color: var(--ink-soft);
+}
+
+.findingRecommendation em {
+  font-style: italic;
 }
 
 .findingMeta {

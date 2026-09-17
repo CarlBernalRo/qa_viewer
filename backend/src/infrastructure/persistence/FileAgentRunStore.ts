@@ -7,9 +7,27 @@ import type { SessionPaths } from './SessionPaths.js';
 
 const checkpointSchema = z.object({
   brief: z.string(),
-  digests: z.object({ api: z.string(), frontend: z.string() }),
+  digests: z.object({
+    api: z.string(),
+    frontend: z.string(),
+    sec: z.string(),
+    a11y: z.string(),
+    perf: z.string(),
+    rt: z.string(),
+    func: z.string(),
+    env: z.string(),
+  }),
   refs: z.array(z.tuple([z.string(), z.string()])),
-  reports: z.object({ api: specialistReportSchema.optional(), frontend: specialistReportSchema.optional() }),
+  reports: z.object({
+    api: specialistReportSchema.optional(),
+    frontend: specialistReportSchema.optional(),
+    sec: specialistReportSchema.optional(),
+    a11y: specialistReportSchema.optional(),
+    perf: specialistReportSchema.optional(),
+    rt: specialistReportSchema.optional(),
+    func: specialistReportSchema.optional(),
+    env: specialistReportSchema.optional(),
+  }),
 });
 
 /** Corridas de los agentes en `agents.json`, dentro de la carpeta de la sesión. */

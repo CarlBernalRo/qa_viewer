@@ -1,16 +1,23 @@
 import {
+  AGENT_CATALOG,
+  CONFIDENCE_LABELS,
   CRITERION_VERDICT_LABELS,
   FINDING_CATEGORY_LABELS,
   FINDING_SEVERITIES,
   FINDING_SEVERITY_LABELS,
+  PROPOSED_VERDICT_LABELS,
   RULE_CATALOG,
   summarizeCriteria,
   TEST_TYPE_LABELS,
+  type AgentFinding,
+  type AgentProposal,
+  type AgentRun,
   type CriterionVerdict,
   type Finding,
   type FindingCategory,
   type FindingSeverity,
   type Marker,
+  type ProposedVerdict,
   type SessionStatus,
 } from '@rastro/shared';
 import type { SessionReportData } from '../../domain/ports.js';
@@ -34,6 +41,13 @@ const VERDICT_COLORS: Record<CriterionVerdict | 'pending', string> = {
   fail: '#b42318',
   blocked: '#b26a00',
   pending: '#8a938d',
+};
+
+const PROPOSAL_COLORS: Record<ProposedVerdict, string> = {
+  pass: '#2e7d4f',
+  fail: '#b42318',
+  blocked: '#b26a00',
+  inconclusive: '#8a938d',
 };
 
 const CATEGORY_ORDER: readonly FindingCategory[] = [
@@ -105,6 +119,52 @@ function findingBlock(finding: Finding): string {
     </article>`;
 }
 
+function proposalRow(proposal: AgentProposal, criterionText: string | undefined): string {
+  return `<tr>
+    <td>${escapeHtml(proposal.criterionId)}</td>
+    <td>${criterionText ? escapeHtml(criterionText) : ''}<p class="crit-note">${withLinks(proposal.rationale)}</p></td>
+    <td class="verdict">
+      <span class="v" style="background:${PROPOSAL_COLORS[proposal.verdict]}">${PROPOSED_VERDICT_LABELS[proposal.verdict]}</span>
+      <p class="marks">${CONFIDENCE_LABELS[proposal.confidence]}</p>
+    </td>
+  </tr>`;
+}
+
+function agentFindingBlock(finding: AgentFinding): string {
+  const agentNames = finding.agents.map((agent) => AGENT_CATALOG[agent].name).join(' + ');
+  return `
+    <article class="finding" style="border-left-color:${SEVERITY_COLORS[finding.severity]}">
+      <div class="finding-head">
+        <span class="sev" style="background:${SEVERITY_COLORS[finding.severity]}">${FINDING_SEVERITY_LABELS[finding.severity]}</span>
+        <h4>${escapeHtml(finding.title)}</h4>
+      </div>
+      <p>${withLinks(finding.detail)}</p>
+      ${finding.recommendation ? `<p class="rec"><strong>Recomendación:</strong> ${withLinks(finding.recommendation)}</p>` : ''}
+      <p class="meta">${escapeHtml(agentNames)}${finding.criterionId ? ` · ${escapeHtml(finding.criterionId)}` : ''}</p>
+    </article>`;
+}
+
+/** Sección "Análisis de agentes": propuesta por criterio y observaciones, aparte del veredicto del QA. */
+function agentSection(run: AgentRun | null, criteriaTexts: Record<string, string>): string {
+  if (!run) return '';
+  return `
+  <section>
+    <h2>Análisis de agentes</h2>
+    <p class="notice">Propuesta de la IA (${escapeHtml(run.model)}), sin aplicar: el veredicto de cada criterio en la sección Objetivo es el que decidió el QA.</p>
+    ${run.summary ? `<p class="statement">${withLinks(run.summary)}</p>` : ''}
+    ${
+      run.proposals.length > 0
+        ? `<table class="criteria">${run.proposals.map((proposal) => proposalRow(proposal, criteriaTexts[proposal.criterionId])).join('')}</table>`
+        : ''
+    }
+    ${
+      run.findings.length > 0
+        ? run.findings.map(agentFindingBlock).join('')
+        : '<p class="empty">Los agentes no reportaron observaciones adicionales.</p>'
+    }
+  </section>`;
+}
+
 const STYLES = `
   * { box-sizing: border-box; }
   body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; color: #1a1f1c; line-height: 1.45; }
@@ -142,7 +202,7 @@ const STYLES = `
 `;
 
 /** Informe de la sesión en HTML estático, listo para imprimir a PDF. */
-export function buildReportHtml({ session, analysis, review, generatedAt }: SessionReportData): string {
+export function buildReportHtml({ session, analysis, review, generatedAt, latestAgentRun }: SessionReportData): string {
   const { objective, capture, stats } = session;
   const criteriaTotal = objective.criteria.length;
   const criteria = summarizeCriteria(
@@ -253,6 +313,11 @@ export function buildReportHtml({ session, analysis, review, generatedAt }: Sess
             .join('')
     }
   </section>
+
+  ${agentSection(
+    latestAgentRun,
+    Object.fromEntries(objective.criteria.map((criterion) => [criterion.id, criterion.text])),
+  )}
 
   ${
     dismissed.length > 0

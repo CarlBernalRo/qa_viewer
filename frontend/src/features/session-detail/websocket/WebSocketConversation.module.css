@@ -53,7 +53,7 @@
 }
 
 .summary:hover {
-  background: #f6f7f4;
+  background: var(--surface-sunken);
 }
 
 .direction {

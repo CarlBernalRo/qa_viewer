@@ -11,7 +11,7 @@ export type Viewport = z.infer<typeof viewportSchema>;
 
 const headersSchema = z.record(z.string(), z.string());
 
-export const a11yImpactSchema = z.enum(['minor', 'moderate', 'serious', 'critical']);
+export const a11yImpactSchema = z.enum(['critical', 'serious', 'moderate', 'minor']);
 export type A11yImpact = z.infer<typeof a11yImpactSchema>;
 
 /** Una regla de axe-core que falló en una pantalla, con algunos de los elementos afectados. */

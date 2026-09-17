@@ -59,3 +59,4 @@ logs/
 Thumbs.db
 desktop.ini
 $RECYCLE.BIN/
+.playwright-mcp/

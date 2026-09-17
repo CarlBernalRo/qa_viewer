@@ -1,13 +1,16 @@
 import type { SessionReportDto } from '@rastro/shared';
-import { NotFoundError } from '../../domain/errors.js';
+import { InvalidStateError, NotFoundError } from '../../domain/errors.js';
 import type {
+  AgentRunStore,
   Clock,
+  EventStore,
   FileOpener,
   ReportRenderer,
   ReportStore,
   SessionRepository,
   SessionReviewStore,
 } from '../../domain/ports.js';
+import { generateK6Script } from '../reports/k6Script.js';
 import type { AnalyzeSession } from './analysis.js';
 
 /**
@@ -36,6 +39,7 @@ export class ExportSessionReport {
     private readonly renderer: ReportRenderer,
     private readonly store: ReportStore,
     private readonly clock: Clock,
+    private readonly agentRuns: AgentRunStore,
   ) {}
 
   async execute(id: string): Promise<SessionReportDto> {
@@ -44,8 +48,10 @@ export class ExportSessionReport {
     // Una sesión en borrador no tiene nada que informar: el análisis responde 409.
     const analysis = await this.analyze.execute(id);
     const review = await this.reviews.read(id);
+    const runs = await this.agentRuns.list(id);
+    const latestAgentRun = runs.find((run) => run.status === 'completed') ?? null;
     const generatedAt = this.clock.now();
-    const pdf = await this.renderer.renderPdf({ session: session.toDto(), analysis, review, generatedAt });
+    const pdf = await this.renderer.renderPdf({ session: session.toDto(), analysis, review, generatedAt, latestAgentRun });
     const fileName = reportFileName(id, session.objective.sessionName);
     const path = await this.store.save(fileName, pdf);
     return {
@@ -54,6 +60,24 @@ export class ExportSessionReport {
       generatedAt: generatedAt.toISOString(),
       findings: analysis.findings.filter((finding) => finding.decision?.decision !== 'dismissed').length,
     };
+  }
+}
+
+/** Genera el script k6 (agente Carga): determinístico, sin IA, a partir del tráfico real de la sesión. */
+export class GenerateLoadScript {
+  constructor(
+    private readonly sessions: SessionRepository,
+    private readonly events: EventStore,
+  ) {}
+
+  async execute(id: string): Promise<{ fileName: string; script: string }> {
+    const session = await this.sessions.findById(id);
+    if (!session) throw new NotFoundError('una sesión', id);
+    if (session.status !== 'completed') throw new InvalidStateError('La sesión todavía no terminó de grabarse.');
+    const events = await this.events.read(id);
+    const script = generateK6Script(session.toDto(), events);
+    const fileName = reportFileName(id, session.objective.sessionName).replace(/\.pdf$/, '.k6.js');
+    return { fileName, script };
   }
 }
 

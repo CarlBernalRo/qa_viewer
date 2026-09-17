@@ -8,6 +8,7 @@ import {
   type CreateSessionInput,
   type Environment,
   type RedactionPreset,
+  type SpecialistId,
   type TestType,
 } from '@rastro/shared';
 import type { z } from 'zod';
@@ -28,6 +29,8 @@ export interface NewSessionForm {
   presets: RedactionPreset[];
   customPatterns: string[];
   analysisMode: AnalysisMode;
+  /** Solo con analysisMode "manual" ("Elegir yo"). */
+  selectedAgents: SpecialistId[];
 }
 
 export const INITIAL_FORM: NewSessionForm = {
@@ -45,6 +48,7 @@ export const INITIAL_FORM: NewSessionForm = {
   presets: [...ALL_REDACTION_PRESETS],
   customPatterns: [],
   analysisMode: 'none',
+  selectedAgents: [],
 };
 
 export type FieldErrors = Partial<Record<string, string>>;
@@ -73,6 +77,7 @@ function toCapture(form: NewSessionForm) {
     channels: form.channels,
     redaction: { presets: form.presets, customPatterns: form.customPatterns },
     analysisMode: form.analysisMode,
+    ...(form.analysisMode === 'manual' ? { selectedAgents: form.selectedAgents } : {}),
   };
 }
 
@@ -93,7 +98,11 @@ export function validateObjective(form: NewSessionForm): FieldErrors {
 
 export function validateCapture(form: NewSessionForm): FieldErrors {
   const result = captureConfigSchema.safeParse(toCapture(form));
-  return result.success ? {} : firstErrors(result.error);
+  const errors = result.success ? {} : firstErrors(result.error);
+  if (form.analysisMode === 'manual' && form.selectedAgents.length === 0) {
+    errors.selectedAgents = 'Elegí al menos un agente.';
+  }
+  return errors;
 }
 
 export function toCreateInput(form: NewSessionForm): CreateSessionInput {

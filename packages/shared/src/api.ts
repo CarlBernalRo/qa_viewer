@@ -22,6 +22,7 @@ export const API_ROUTES = {
     `/api/sessions/${encodeURIComponent(id)}/criteria/${encodeURIComponent(criterionId)}`,
   sessionReport: (id: string) => `/api/sessions/${encodeURIComponent(id)}/report`,
   sessionReportOpen: (id: string) => `/api/sessions/${encodeURIComponent(id)}/report/open`,
+  sessionLoadScript: (id: string) => `/api/sessions/${encodeURIComponent(id)}/load-script`,
   findingDecision: (sessionId: string, findingId: string) =>
     `/api/sessions/${encodeURIComponent(sessionId)}/findings/${encodeURIComponent(findingId)}/decision`,
   startRecording: (id: string) => `/api/sessions/${encodeURIComponent(id)}/recording/start`,
@@ -57,6 +58,10 @@ export type SessionReportDto = z.infer<typeof sessionReportSchema>;
 
 /** `reveal: true` muestra el archivo en su carpeta en vez de abrirlo. */
 export const openReportInputSchema = z.object({ reveal: z.boolean().default(false) });
+
+/** Script k6 generado del tráfico real de la sesión (determinístico, sin IA). */
+export const loadScriptSchema = z.object({ fileName: z.string(), script: z.string() });
+export type LoadScriptDto = z.infer<typeof loadScriptSchema>;
 
 export const healthSchema = z.object({
   status: z.literal('ok'),

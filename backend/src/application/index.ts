@@ -12,7 +12,7 @@ import type { RecordingDeps } from './recording/ActiveRecording.js';
 import { GetAgentStatus, ListAgentRuns, StartAgentRun } from './use-cases/agents.js';
 import { AnalyzeSession, SetFindingDecision } from './use-cases/analysis.js';
 import { StartRecording, StopRecording } from './use-cases/recording.js';
-import { ExportSessionReport, OpenSessionReport } from './use-cases/report.js';
+import { ExportSessionReport, GenerateLoadScript, OpenSessionReport } from './use-cases/report.js';
 import { AddMarker, GetSessionReview, RemoveMarker, SetCriterionVerdict } from './use-cases/review.js';
 import {
   CreateSession,
@@ -74,10 +74,11 @@ export function createUseCases(deps: AppDeps) {
     addMarker: new AddMarker(sessions, reviews, clock, ids),
     removeMarker: new RemoveMarker(sessions, reviews),
     setCriterionVerdict: new SetCriterionVerdict(sessions, reviews, clock),
-    exportSessionReport: new ExportSessionReport(sessions, analyzeSession, reviews, renderer, reportStore, clock),
+    exportSessionReport: new ExportSessionReport(sessions, analyzeSession, reviews, renderer, reportStore, clock, deps.agentRuns),
     openSessionReport: new OpenSessionReport(sessions, reportStore, opener),
+    generateLoadScript: new GenerateLoadScript(sessions, events),
     startRecording: new StartRecording(recorder, deps),
-    stopRecording: new StopRecording(deps),
+    stopRecording: new StopRecording(deps, deps.agentModel ? startAgentRun : null),
     recoverInterruptedSessions: new RecoverInterruptedSessions(sessions, clock),
   };
 }
