@@ -8,6 +8,8 @@ import {
   openReportInputSchema,
   setCriterionVerdictInputSchema,
   setFindingDecisionInputSchema,
+  setSessionBaselineInputSchema,
+  startAgentRunInputSchema,
 } from '@rastro/shared';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
@@ -15,6 +17,7 @@ import type { UseCases } from '../../../application/index.js';
 import { HttpError, parseOrThrow } from '../errors.js';
 
 const idParams = z.object({ id: z.string().min(1).max(80) });
+const screenshotParams = z.object({ id: z.string().min(1).max(80), file: z.string().min(1).max(200) });
 const findingParams = z.object({ id: z.string().min(1).max(80), findingId: z.string().min(1).max(120) });
 const markerParams = z.object({ id: z.string().min(1).max(80), markerId: z.string().min(1).max(80) });
 const agentRunParams = z.object({ id: z.string().min(1).max(80), runId: z.string().regex(/^[A-Za-z0-9_-]{1,80}$/) });
@@ -96,7 +99,8 @@ export async function sessionRoutes(app: FastifyInstance, useCases: UseCases): P
 
   app.post('/api/sessions/:id/agents', async (request, reply) => {
     const { id } = parseOrThrow(idParams, request.params);
-    return reply.status(202).send(await useCases.startAgentRun.execute(id));
+    const { note, agentId } = parseOrThrow(startAgentRunInputSchema, request.body ?? {});
+    return reply.status(202).send(await useCases.startAgentRun.execute(id, note, agentId));
   });
 
   app.post('/api/sessions/:id/agents/:runId/retry', async (request, reply) => {
@@ -143,6 +147,12 @@ export async function sessionRoutes(app: FastifyInstance, useCases: UseCases): P
     return useCases.generateLoadScript.execute(id);
   });
 
+  app.put('/api/sessions/:id/baseline', async (request) => {
+    const { id } = parseOrThrow(idParams, request.params);
+    const { baselineSessionId } = parseOrThrow(setSessionBaselineInputSchema, request.body ?? {});
+    return useCases.setSessionBaseline.execute(id, baselineSessionId);
+  });
+
   app.post('/api/sessions/:id/recording/start', async (request) => {
     const { id } = parseOrThrow(idParams, request.params);
     return useCases.startRecording.execute(id);
@@ -151,6 +161,12 @@ export async function sessionRoutes(app: FastifyInstance, useCases: UseCases): P
   app.post('/api/sessions/:id/recording/stop', async (request) => {
     const { id } = parseOrThrow(idParams, request.params);
     return useCases.stopRecording.execute(id);
+  });
+
+  app.get('/api/sessions/:id/screenshots/:file', async (request, reply) => {
+    const { id, file } = parseOrThrow(screenshotParams, request.params);
+    const buffer = await useCases.getSessionScreenshot.execute(id, file);
+    return reply.header('Content-Type', 'image/jpeg').send(buffer);
   });
 
   app.get('/api/sessions/:id/video', async (request, reply) => {

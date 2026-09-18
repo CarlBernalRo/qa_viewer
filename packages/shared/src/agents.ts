@@ -2,16 +2,39 @@ import { z } from 'zod';
 import { findingSeveritySchema } from './findings.js';
 
 /** El equipo de agentes: especialistas y un QA Lead que junta lo que encuentran. */
-export const agentIdSchema = z.enum(['api', 'frontend', 'sec', 'a11y', 'perf', 'rt', 'func', 'env', 'lead']);
+export const agentIdSchema = z.enum(['api', 'frontend', 'sec', 'a11y', 'perf', 'rt', 'func', 'env', 'ux', 'reg', 'lead']);
 export type AgentId = z.infer<typeof agentIdSchema>;
 
 /** Orden de trabajo: los especialistas primero; el QA Lead lee sus informes. */
-export const AGENT_ORDER: readonly AgentId[] = ['api', 'frontend', 'sec', 'a11y', 'perf', 'rt', 'func', 'env', 'lead'];
+export const AGENT_ORDER: readonly AgentId[] = [
+  'api',
+  'frontend',
+  'sec',
+  'a11y',
+  'perf',
+  'rt',
+  'func',
+  'env',
+  'ux',
+  'reg',
+  'lead',
+];
 
 /** Los especialistas que el QA puede elegir en el modo "Elegir yo" (el QA Lead siempre corre, junta lo que encuentren). */
-export const specialistIdSchema = z.enum(['api', 'frontend', 'sec', 'a11y', 'perf', 'rt', 'func', 'env']);
+export const specialistIdSchema = z.enum(['api', 'frontend', 'sec', 'a11y', 'perf', 'rt', 'func', 'env', 'ux', 'reg']);
 export type SpecialistId = z.infer<typeof specialistIdSchema>;
-export const SPECIALIST_AGENTS: readonly SpecialistId[] = ['api', 'frontend', 'sec', 'a11y', 'perf', 'rt', 'func', 'env'];
+export const SPECIALIST_AGENTS: readonly SpecialistId[] = [
+  'api',
+  'frontend',
+  'sec',
+  'a11y',
+  'perf',
+  'rt',
+  'func',
+  'env',
+  'ux',
+  'reg',
+];
 
 export interface AgentMeta {
   name: string;
@@ -72,6 +95,18 @@ export const AGENT_CATALOG: Record<AgentId, AgentMeta> = {
     reads: 'Red y consola (versión y build)',
     color: '#5f6863',
   },
+  ux: {
+    name: 'UI/UX',
+    role: 'Revisa las capturas de pantalla de cada pantalla distinta que se visitó: inconsistencias visuales, heurísticas de Nielsen (feedback, jerarquía, consistencia) y problemas de layout o responsive que se noten a simple vista.',
+    reads: 'Capturas de pantalla',
+    color: '#8c6a4f',
+  },
+  reg: {
+    name: 'Regresión',
+    role: 'Compara esta sesión con la sesión base configurada: tráfico nuevo o que desapareció, cambios de status en los mismos endpoints, errores de consola nuevos. Sin sesión base configurada, lo dice explícitamente y no opina.',
+    reads: 'Comparación con la sesión base',
+    color: '#8a7a2a',
+  },
   lead: {
     name: 'QA Lead',
     role: 'Junta lo que encontraron los especialistas, une lo repetido y propone un veredicto para cada criterio de aceptación.',
@@ -82,12 +117,10 @@ export const AGENT_CATALOG: Record<AgentId, AgentMeta> = {
 
 // ---------------------------------------------------------------------------
 // Equipo completo de la visión de producto (rastro-vision.html, "Un agente por
-// aspecto"): 12 especialistas + QA Lead. Los 8 especialistas de AGENT_CATALOG
-// (arriba) más el QA Lead corren de verdad; UI/UX, Carga, Regresión y Reportero
-// quedan en catálogo porque necesitan una capacidad que Rastro todavía no tiene
-// (ver la nota en cada uno) y no tienen lógica de ejecución ni schema propio.
-// No confundir con AgentId/agentIdSchema, que valida lo que de verdad puede
-// devolver el modelo.
+// aspecto"): 12 especialistas + QA Lead. Los 10 especialistas de AGENT_CATALOG
+// (arriba) más el QA Lead corren de verdad, igual que Carga y Reportero (sin
+// IA, generadores determinísticos). No confundir con AgentId/agentIdSchema,
+// que valida lo que de verdad puede devolver el modelo.
 // ---------------------------------------------------------------------------
 
 export type AgentRosterId =
@@ -122,13 +155,16 @@ export const AGENT_ROSTER_ORDER: readonly AgentRosterId[] = [
 ];
 
 /** Forma de los ojos del robot: da identidad visual propia a cada rol. */
-export type AgentEyeShape = 'round' | 'visor' | 'square';
+export const agentEyeShapeSchema = z.enum(['round', 'visor', 'square']);
+export type AgentEyeShape = z.infer<typeof agentEyeShapeSchema>;
 
 /** Estilo de animación de ojos en reposo, para que cada agente "respire" distinto. */
-export type AgentAnimation = 'blink' | 'blink-slow' | 'pulse' | 'scan';
+export const agentAnimationSchema = z.enum(['blink', 'blink-slow', 'pulse', 'scan']);
+export type AgentAnimation = z.infer<typeof agentAnimationSchema>;
 
 /** Gesto de cabeza en reposo, aparte del parpadeo: la otra mitad de la personalidad de cada robot. */
-export type AgentGesture = 'tilt' | 'nod' | 'turn';
+export const agentGestureSchema = z.enum(['tilt', 'nod', 'turn']);
+export type AgentGesture = z.infer<typeof agentGestureSchema>;
 
 export interface AgentRosterMeta extends AgentMeta {
   /** true: hace algo real hoy (como especialista de IA o como generador determinístico). false: solo catálogo. */
@@ -169,11 +205,9 @@ export const AGENT_ROSTER: Record<AgentRosterId, AgentRosterMeta> = {
     gesture: 'tilt',
   },
   ux: {
-    name: 'UI/UX',
-    role: 'Inconsistencias visuales, heurísticas de Nielsen y problemas de responsive. Necesita ver capturas de pantalla (entrada con imágenes), algo que los agentes de Rastro todavía no reciben.',
-    reads: 'Capturas y DOM',
-    color: '#8c6a4f',
-    implemented: false,
+    ...AGENT_CATALOG.ux,
+    implemented: true,
+    capability: 'analysis',
     eyeShape: 'square',
     animation: 'blink',
     gesture: 'tilt',
@@ -190,11 +224,9 @@ export const AGENT_ROSTER: Record<AgentRosterId, AgentRosterMeta> = {
     gesture: 'nod',
   },
   reg: {
-    name: 'Regresión',
-    role: 'Compara con una sesión base: tráfico nuevo, errores nuevos, cambios visuales. Necesita "Comparaciones" (etapa 4): marcar una sesión como base y comparar contra otra, algo que Rastro todavía no tiene.',
-    reads: 'Red, consola y capturas',
-    color: '#8a7a2a',
-    implemented: false,
+    ...AGENT_CATALOG.reg,
+    implemented: true,
+    capability: 'analysis',
     eyeShape: 'round',
     animation: 'scan',
     gesture: 'turn',
@@ -237,6 +269,8 @@ export const specialistReportSchema = z.object({
     }),
   ),
   observations: z.array(modelObservationSchema),
+  /** Qué tan aprobado ve su propio alcance (0-100), dado el objetivo y los criterios de aceptación. */
+  approvalPercentage: z.number().int().min(0).max(100),
 });
 export type SpecialistReport = z.infer<typeof specialistReportSchema>;
 
@@ -289,6 +323,8 @@ export const agentStepSchema = z.object({
   status: z.enum(['pending', 'running', 'done', 'failed']),
   summary: z.string().optional(),
   criteria: z.array(agentStepCriterionSchema).optional(),
+  /** Qué tan aprobado ve su propio alcance (0-100). Ausente en corridas guardadas antes de este campo. */
+  approvalPercentage: z.number().int().min(0).max(100).optional(),
   error: z.string().optional(),
   finishedAt: z.iso.datetime().optional(),
 });

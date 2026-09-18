@@ -23,6 +23,7 @@ const CHANNEL_NAMES: Record<CaptureChannel, string> = {
   performance: 'rendimiento',
   accessibility: 'accesibilidad',
   video: 'video',
+  screenshots: 'capturas de pantalla',
 };
 
 const ACTION_VERBS: Record<CaptureEventOf<'user-action'>['action'], string> = {

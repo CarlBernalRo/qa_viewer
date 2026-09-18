@@ -176,14 +176,59 @@
 }
 
 .proposal {
+  position: relative;
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: flex-start;
   margin-left: 48px;
-  padding: 8px 10px;
-  border-radius: var(--radius-md);
-  background: #f1eefa;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    145deg,
+    var(--ink) 0%,
+    color-mix(in srgb, var(--ink) 92%, #6b4fbb) 100%
+  );
+  color: var(--surface);
   font-size: 12.5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.proposalBorder {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, #6b4fbb 50%, transparent) 0%,
+    transparent 40%,
+    transparent 60%,
+    color-mix(in srgb, #c4b5ff 40%, transparent) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: shine 4s ease-in-out infinite alternate;
+}
+
+@keyframes shine {
+  0% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.proposalAvatar {
+  z-index: 1;
+  padding-top: 2px;
 }
 
 .proposalBody {
@@ -191,37 +236,116 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 8px;
+  z-index: 1;
+}
+
+.proposalHeader {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.proposalTitle {
+  font-weight: 650;
+  color: #ffffff;
+}
+
+.proposalTags {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.proposalVerdict {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+}
+
+.proposalVerdict_pass {
+  background: color-mix(in srgb, var(--ok) 80%, var(--ink));
+  border: 1px solid color-mix(in srgb, var(--ok) 40%, transparent);
+}
+
+.proposalVerdict_fail {
+  background: color-mix(in srgb, var(--crit) 80%, var(--ink));
+  border: 1px solid color-mix(in srgb, var(--crit) 40%, transparent);
+}
+
+.proposalVerdict_inconclusive {
+  background: color-mix(in srgb, var(--warn) 80%, var(--ink));
+  border: 1px solid color-mix(in srgb, var(--warn) 40%, transparent);
+}
+
+.proposalConfidence {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 650;
+  background: color-mix(in srgb, #c4b5ff 15%, transparent);
+  border: 1px solid color-mix(in srgb, #c4b5ff 30%, transparent);
+  color: color-mix(in srgb, #c4b5ff 95%, white);
 }
 
 .proposalText {
-  color: var(--ink-soft);
-  line-height: 1.45;
+  color: color-mix(in srgb, var(--surface) 85%, transparent);
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.proposalText p {
+  margin: 0;
 }
 
 .accept {
   flex-shrink: 0;
   height: 28px;
-  padding: 0 12px;
-  border: 0;
+  padding: 0 14px;
+  border: 1px solid color-mix(in srgb, #c4b5ff 30%, transparent);
   border-radius: var(--radius-md);
-  background: #6b4fbb;
+  background: color-mix(in srgb, #6b4fbb 60%, transparent);
   color: #ffffff;
   font-size: 12.5px;
   font-weight: 650;
   cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.accept:hover:not(:disabled) {
+  background: #6b4fbb;
+  border-color: color-mix(in srgb, #c4b5ff 50%, transparent);
+  transform: translateY(-1px);
 }
 
 .accept:disabled {
   opacity: 0.6;
   cursor: wait;
+  transform: none;
 }
 
 .agree {
   flex-shrink: 0;
-  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 14px;
+  border: 1px solid color-mix(in srgb, var(--ok) 40%, transparent);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--ok) 15%, transparent);
+  color: color-mix(in srgb, var(--ok) 85%, white);
+  font-size: 12.5px;
   font-weight: 650;
-  color: var(--ok);
+  z-index: 1;
 }
 
 .markBar {

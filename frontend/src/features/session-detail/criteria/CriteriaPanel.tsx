@@ -84,14 +84,29 @@ function Proposal({
   const { verdict } = proposal;
   return (
     <div className={styles.proposal}>
-      <AgentTooltip agent="lead">
-        <AgentAvatar agent="lead" size={22} />
-      </AgentTooltip>
+      <div className={styles.proposalBorder} aria-hidden="true" />
+      <div className={styles.proposalAvatar}>
+        <AgentTooltip agent="lead">
+          <AgentAvatar agent="lead" size={22} />
+        </AgentTooltip>
+      </div>
       <div className={styles.proposalBody}>
-        <span>
-          El QA Lead propone: <strong>{PROPOSED_VERDICT_LABELS[verdict]}</strong> · {CONFIDENCE_LABELS[proposal.confidence]}
-        </span>
-        <span className={styles.proposalText}>{proposal.rationale}</span>
+        <div className={styles.proposalHeader}>
+          <span className={styles.proposalTitle}>Análisis del QA Lead</span>
+          <div className={styles.proposalTags}>
+            <span className={cx(styles.proposalVerdict, styles[`proposalVerdict_${verdict}`])}>
+              {PROPOSED_VERDICT_LABELS[verdict]}
+            </span>
+            <span className={styles.proposalConfidence}>
+              {CONFIDENCE_LABELS[proposal.confidence]}
+            </span>
+          </div>
+        </div>
+        <div className={styles.proposalText}>
+          {proposal.rationale.split('\n').map((line, i) => (
+            line.trim() ? <p key={i}>{line.trim().replace(/^- /, '• ')}</p> : null
+          ))}
+        </div>
       </div>
       {verdict !== 'inconclusive' &&
         (current === verdict ? (

@@ -13,10 +13,13 @@ import {
   Chip,
   DropdownMenu,
   ErrorMessage,
+  Field,
   IconAlert,
   IconCopy,
   IconTrash,
   Panel,
+  SegmentedControl,
+  Select,
   Skeleton,
   SkeletonGroup,
   StatusBadge,
@@ -31,6 +34,8 @@ import {
   useSessionFindings,
   useSessionReport,
   useSessionReview,
+  useSessions,
+  useSetSessionBaseline,
 } from '../sessions/api';
 import { DeleteSessionDialog } from '../sessions/DeleteSessionDialog';
 import { AgentsPanel } from './agents/AgentsPanel';
@@ -135,6 +140,37 @@ function TimelineSkeleton() {
   );
 }
 
+/** Elige la sesión base contra la que el agente de Regresión compara esta sesión. */
+function BaselinePicker({ session }: { session: SessionDto }) {
+  const sessions = useSessions();
+  const setBaseline = useSetSessionBaseline(session.id);
+  const candidates = (sessions.data ?? []).filter((item) => item.id !== session.id && item.status === 'completed');
+
+  return (
+    <Field
+      label="Sesión base para el agente de Regresión"
+      optional
+      info="El agente de Regresión compara esta sesión contra la que elijas acá: endpoints nuevos o que desaparecieron, cambios de status y errores de consola nuevos."
+    >
+      {(id) => (
+        <Select
+          id={id}
+          value={session.baselineSessionId ?? ''}
+          disabled={setBaseline.isPending}
+          onChange={(event) => setBaseline.mutate(event.target.value || undefined)}
+        >
+          <option value="">Sin sesión base</option>
+          {candidates.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.objective.sessionName}
+            </option>
+          ))}
+        </Select>
+      )}
+    </Field>
+  );
+}
+
 interface ReplayWorkspaceProps {
   session: SessionDto;
   loading: boolean;
@@ -163,6 +199,7 @@ function ReplayWorkspace({
   const agentStatus = useAgentStatus();
   const agentRuns = useAgentRuns(session.id, true);
   const latestCompletedRun = agentRuns.data?.find((run) => run.status === 'completed');
+  const [lane, setLane] = useState<'deterministic' | 'ai'>('deterministic');
   const [filters, setFilters] = useState<TimelineFilters>(DEFAULT_FILTERS);
   const visibleModel = useMemo(() => applyFilters(model, filters), [model, filters]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -247,46 +284,61 @@ function ReplayWorkspace({
           {...(latestCompletedRun ? { proposals: latestCompletedRun.proposals } : {})}
         />
 
-        <AnalysisLane variant="ai">
-          <AgentsPanel
-            session={session}
-            status={agentStatus.data}
-            runs={agentRuns.data}
-            loading={agentStatus.isPending || agentRuns.isPending}
-            eventTime={(eventId) => model.eventsById.get(eventId)?.t}
-            onSelectEvidence={selectEventId}
+        <div className={styles.laneSwitch}>
+          <SegmentedControl
+            ariaLabel="Fuente del análisis"
+            value={lane}
+            onChange={setLane}
+            options={[
+              { value: 'deterministic', label: 'Análisis del proyecto' },
+              { value: 'ai', label: 'Análisis de IA' },
+            ]}
           />
-        </AnalysisLane>
+        </div>
 
-        <AnalysisLane variant="deterministic">
-          {loading ? (
-            <Panel title="Errores y avisos">
-              <SkeletonGroup label="Cargando errores…">
-                <Skeleton height={14} width="80%" />
-                <Skeleton height={14} width="65%" />
-              </SkeletonGroup>
-            </Panel>
-          ) : (
-            <ProblemsPanel
-              errors={errors}
-              warnings={warnings}
-              selectedId={selectedId}
-              activeIds={activeIds}
-              onSelect={select}
-            />
-          )}
-
-          {!loading && (
-            <FindingsPanel
+        {lane === 'ai' ? (
+          <AnalysisLane variant="ai">
+            <BaselinePicker session={session} />
+            <AgentsPanel
               session={session}
-              analysis={findings.data}
-              loading={findings.isPending}
-              error={findings.error}
-              selectedEventId={selectedId}
+              status={agentStatus.data}
+              runs={agentRuns.data}
+              loading={agentStatus.isPending || agentRuns.isPending}
+              eventTime={(eventId) => model.eventsById.get(eventId)?.t}
               onSelectEvidence={selectEventId}
             />
-          )}
-        </AnalysisLane>
+          </AnalysisLane>
+        ) : (
+          <AnalysisLane variant="deterministic">
+            {loading ? (
+              <Panel title="Errores y avisos">
+                <SkeletonGroup label="Cargando errores…">
+                  <Skeleton height={14} width="80%" />
+                  <Skeleton height={14} width="65%" />
+                </SkeletonGroup>
+              </Panel>
+            ) : (
+              <ProblemsPanel
+                errors={errors}
+                warnings={warnings}
+                selectedId={selectedId}
+                activeIds={activeIds}
+                onSelect={select}
+              />
+            )}
+
+            {!loading && (
+              <FindingsPanel
+                session={session}
+                analysis={findings.data}
+                loading={findings.isPending}
+                error={findings.error}
+                selectedEventId={selectedId}
+                onSelectEvidence={selectEventId}
+              />
+            )}
+          </AnalysisLane>
+        )}
 
         <Panel
           title="Línea de tiempo"
@@ -317,7 +369,7 @@ function ReplayWorkspace({
         </Panel>
       </div>
       <aside className={styles.sideColumn} aria-label="Detalle del evento">
-        <EventInspector event={selected} model={model} />
+        <EventInspector event={selected} model={model} sessionId={session.id} />
       </aside>
     </div>
   );

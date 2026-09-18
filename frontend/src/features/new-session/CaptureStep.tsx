@@ -1,5 +1,4 @@
 import {
-  AGENT_CATALOG,
   AGENT_ORDER,
   ALL_CAPTURE_CHANNELS,
   ALL_REDACTION_PRESETS,
@@ -10,7 +9,9 @@ import {
 } from '@rastro/shared';
 import { Link } from 'react-router';
 import { CHANNEL_META, ENVIRONMENT_DESCRIPTIONS, ENVIRONMENTS, PRESET_META } from '../../shared/lib/labels';
-import { Field, InfoTip, Panel, SegmentedControl, TagInput, TextInput, Toggle } from '../../shared/ui';
+import { Field, InfoTip, Panel, Select, SegmentedControl, TagInput, TextInput, Toggle } from '../../shared/ui';
+import { useAgentCatalog } from '../agents-overview/AgentCatalogContext';
+import { useProjects } from '../projects/api';
 import { AgentAvatar } from '../session-detail/agents/AgentAvatar';
 import { AgentTooltip } from '../session-detail/agents/AgentTooltip';
 import { useAgentStatus } from '../sessions/api';
@@ -47,6 +48,9 @@ function toggleIn<T>(list: readonly T[], value: T, on: boolean): T[] {
 
 export function CaptureStep({ form, errors, update }: StepProps) {
   const agentStatus = useAgentStatus();
+  const { catalog } = useAgentCatalog();
+  const projects = useProjects();
+  const selectedProject = projects.data?.find((project) => project.id === form.projectId);
   return (
     <div className={styles.columns}>
       <div className={styles.form}>
@@ -91,6 +95,42 @@ export function CaptureStep({ form, errors, update }: StepProps) {
               />
             )}
           </Field>
+        </div>
+
+        <div className={styles.rowUrl}>
+          <Field label="Proyecto" optional info="Empresa o cliente al que pertenece la sesión. Se usa para filtrar Sesiones y Hallazgos.">
+            {(id) => (
+              <Select
+                id={id}
+                value={form.projectId}
+                onChange={(event) => {
+                  update('projectId', event.target.value);
+                  update('appName', '');
+                }}
+              >
+                <option value="">Sin proyecto</option>
+                {(projects.data ?? []).map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {project.name}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+          {selectedProject && selectedProject.apps.length > 0 && (
+            <Field label="App" optional info="App dentro del proyecto elegido.">
+              {(id) => (
+                <Select id={id} value={form.appName} onChange={(event) => update('appName', event.target.value)}>
+                  <option value="">Sin app</option>
+                  {selectedProject.apps.map((app) => (
+                    <option key={app} value={app}>
+                      {app}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            </Field>
+          )}
         </div>
 
         <Field
@@ -144,8 +184,8 @@ export function CaptureStep({ form, errors, update }: StepProps) {
                         <AgentAvatar agent={agentId} size={26} />
                       </AgentTooltip>
                       <span>
-                        <strong>{AGENT_CATALOG[agentId].name}</strong>
-                        <span className={styles.teamReads}>{AGENT_CATALOG[agentId].reads}</span>
+                        <strong>{catalog[agentId].name}</strong>
+                        <span className={styles.teamReads}>{catalog[agentId].reads}</span>
                       </span>
                     </li>
                   ))}
@@ -175,8 +215,8 @@ export function CaptureStep({ form, errors, update }: StepProps) {
                         <AgentAvatar agent={agentId} size={26} />
                       </AgentTooltip>
                       <span>
-                        <strong>{AGENT_CATALOG[agentId].name}</strong>
-                        <span className={styles.teamReads}>{AGENT_CATALOG[agentId].reads}</span>
+                        <strong>{catalog[agentId].name}</strong>
+                        <span className={styles.teamReads}>{catalog[agentId].reads}</span>
                       </span>
                     </label>
                   ))}
@@ -185,7 +225,7 @@ export function CaptureStep({ form, errors, update }: StepProps) {
                       <AgentAvatar agent="lead" size={26} />
                     </AgentTooltip>
                     <span>
-                      <strong>{AGENT_CATALOG.lead.name}</strong>
+                      <strong>{catalog.lead.name}</strong>
                       <span className={styles.teamReads}>Siempre incluido, junta lo que encuentren los demás</span>
                     </span>
                   </div>

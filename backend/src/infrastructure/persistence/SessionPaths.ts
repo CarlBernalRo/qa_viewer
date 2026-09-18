@@ -55,4 +55,13 @@ export class SessionPaths {
   videoTmpDir(id: string): string {
     return join(this.dir(id), '.video-tmp');
   }
+
+  screenshotsDir(id: string): string {
+    return join(this.dir(id), 'screenshots');
+  }
+
+  /** `file` ya viene validado por el llamador (nombre simple, sin separadores). */
+  screenshotFile(id: string, file: string): string {
+    return join(this.screenshotsDir(id), file);
+  }
 }

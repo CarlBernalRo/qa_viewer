@@ -61,15 +61,28 @@
 }
 
 .start {
-  height: 32px;
-  padding: 0 14px;
+  height: 36px;
+  padding: 0 16px;
   border: 0;
   border-radius: var(--radius-md);
-  background: var(--ink);
+  background: linear-gradient(135deg, var(--ink) 0%, #2a312d 100%);
   color: var(--surface);
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 650;
   cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.start:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  filter: brightness(1.1);
+}
+
+.start:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .start:disabled {
@@ -181,15 +194,44 @@
   }
 }
 
-/* Also used during the running state — keep basic dark style */
+/* Also used during the running state — distinctive dark gradient */
 .leadStep {
+  position: relative;
   display: flex;
   gap: 12px;
-  align-items: flex-start;
+  align-items: center;
   padding: 12px 14px;
   border-radius: var(--radius-md);
-  background: var(--ink);
+  background: linear-gradient(145deg, var(--ink) 0%, color-mix(in srgb, var(--ink) 95%, #6b4fbb) 100%);
   color: var(--surface);
+  border: 1px solid color-mix(in srgb, #6b4fbb 30%, transparent);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.leadStep::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, #6b4fbb 40%, transparent) 50%,
+    transparent 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  background-size: 200% 100%;
+  animation: lead-border-shimmer 3s infinite linear;
 }
 
 .leadStep_pending {
@@ -202,6 +244,7 @@
   gap: 6px;
   min-width: 0;
   font-size: 13px;
+  flex: 1;
 }
 
 .leadHead {
@@ -253,6 +296,50 @@
 .leadSummary {
   color: color-mix(in srgb, var(--surface) 82%, transparent);
   line-height: 1.5;
+}
+
+/* Loader de "trabajo en equipo": los especialistas ya listos convergen hacia el QA Lead. */
+.teamFlow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.teamFlowAvatars {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  align-items: center;
+}
+
+.teamFlowAvatar {
+  display: flex;
+  align-items: center;
+  margin-right: 4px;
+}
+
+.teamFlowAvatar:last-child .teamFlowTrack {
+  display: none;
+}
+
+.teamFlowTrack {
+  position: relative;
+  width: 20px;
+  height: 8px;
+  margin-left: 2px;
+}
+
+.teamFlowAvatar .dataFlowLine {
+  background-image: linear-gradient(90deg, color-mix(in srgb, var(--surface) 45%, transparent) 50%, transparent 50%);
+}
+
+.teamFlowLabel {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: color-mix(in srgb, var(--surface) 60%, transparent);
+  white-space: nowrap;
 }
 
 .leadSection {
@@ -307,16 +394,21 @@
 
 .step {
   display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  padding: 4px 6px;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 10px;
   margin: -4px -6px;
-  border-radius: var(--radius-md);
+  border-radius: 12px;
   transition: background-color 0.3s ease;
 }
 
 .step_running {
-  background: color-mix(in srgb, var(--agent-color) 8%, transparent);
+  position: relative;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--agent-color) 8%, transparent) 0%, transparent 100%);
+  border-left: 3px solid var(--agent-color);
+  border-radius: 12px;
+  padding-left: 8px; /* Compensate for the 3px border */
+  margin-left: -4px;
 }
 
 .step_pending {
@@ -362,35 +454,82 @@
 .stepText {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 6px;
   min-width: 0;
   font-size: 12.5px;
+  flex: 1;
 }
 
 .stepHead {
   display: flex;
   gap: 8px;
-  align-items: baseline;
+  align-items: center;
 }
 
 .stepStatus {
   display: inline-flex;
   align-items: center;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   gap: 5px;
-  font-size: 11.5px;
-  color: var(--muted);
+  margin-left: auto;
 }
 
-.stepStatusBusy {
-  color: var(--agent-color);
-  font-weight: 600;
+.stepStatus_pending {
+  background: var(--surface-sunken);
+  color: var(--muted);
+  border: 1px solid var(--rule);
+}
+
+.stepStatus_running {
+  background: color-mix(in srgb, var(--agent-color) 15%, transparent);
+  color: color-mix(in srgb, var(--agent-color) 80%, var(--ink));
+  border: 1px solid color-mix(in srgb, var(--agent-color) 30%, transparent);
+}
+
+/* Para el QA lead que tiene fondo oscuro, running debe verse bien */
+.leadStep .stepStatus_running {
+  background: color-mix(in srgb, var(--surface) 15%, transparent);
+  color: #ffffff;
+  border: 1px solid color-mix(in srgb, var(--surface) 30%, transparent);
+}
+
+.stepStatus_done {
+  background: color-mix(in srgb, var(--ok) 15%, transparent);
+  color: color-mix(in srgb, var(--ok) 90%, var(--ink));
+  border: 1px solid color-mix(in srgb, var(--ok) 30%, transparent);
+}
+
+/* Para el QA lead, done */
+.leadStep .stepStatus_done {
+  background: color-mix(in srgb, var(--ok) 30%, transparent);
+  color: #ffffff;
+  border: 1px solid color-mix(in srgb, var(--ok) 50%, transparent);
+}
+
+.stepStatus_failed {
+  background: color-mix(in srgb, var(--crit) 15%, transparent);
+  color: color-mix(in srgb, var(--crit) 90%, var(--ink));
+  border: 1px solid color-mix(in srgb, var(--crit) 30%, transparent);
+}
+
+/* Para el QA lead, failed */
+.leadStep .stepStatus_failed {
+  background: color-mix(in srgb, var(--crit) 30%, transparent);
+  color: #ffffff;
+  border: 1px solid color-mix(in srgb, var(--crit) 50%, transparent);
 }
 
 .stepStatusDot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--agent-color);
+  background: currentColor;
   animation: agent-dot 1.3s ease-in-out infinite;
 }
 
@@ -412,11 +551,6 @@
   }
 }
 
-.step_done .stepStatus {
-  color: var(--ok);
-}
-
-.step_failed .stepStatus,
 .stepError {
   color: var(--crit);
 }
@@ -424,6 +558,82 @@
 .stepSummary {
   color: var(--ink-soft);
   line-height: 1.45;
+}
+
+/* Línea punteada con un punto viajero: el especialista está armando lo que le va a mandar al QA Lead. */
+.dataFlow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0;
+}
+
+.dataFlowTrack {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 32px;
+  height: 10px;
+}
+
+.dataFlowLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 4px;
+  height: 1.5px;
+  background-image: linear-gradient(90deg, var(--rule-strong) 50%, transparent 50%);
+  background-size: 8px 1.5px;
+  background-repeat: repeat-x;
+  animation: dataDash 0.8s linear infinite;
+}
+
+@keyframes dataDash {
+  to {
+    background-position: 16px 0;
+  }
+}
+
+.dataFlowDot {
+  position: absolute;
+  top: 1px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--agent-color);
+  animation: dataTravel 1.6s ease-in-out infinite;
+}
+
+@keyframes dataTravel {
+  0% {
+    left: 0;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    left: calc(100% - 8px);
+    opacity: 0;
+  }
+}
+
+.dataFlowLabel {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dataFlowLine,
+  .dataFlowDot {
+    animation: none;
+  }
 }
 
 .reasonsSection {
@@ -786,6 +996,31 @@
   line-height: 1.3;
 }
 
+.approvalBadge {
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.approval_ok {
+  background: color-mix(in srgb, var(--ok) 15%, transparent);
+  color: var(--ok);
+}
+
+.approval_warn {
+  background: color-mix(in srgb, var(--warn) 18%, transparent);
+  color: color-mix(in srgb, var(--warn) 75%, black);
+}
+
+.approval_crit {
+  background: color-mix(in srgb, var(--crit) 15%, transparent);
+  color: var(--crit);
+}
+
 /* ── Card sections ── */
 
 .reasonSection {
@@ -885,37 +1120,48 @@
   color: var(--muted);
 }
 
-.findings {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 10px;
-  align-items: start;
+.findingsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .finding {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 10px 12px;
   border: 1px solid var(--rule-soft);
   border-radius: var(--radius-md);
   background: var(--surface);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.findingExpanded {
+  border-color: var(--rule-strong);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .findingHead {
+  width: 100%;
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s ease;
+}
+
+.findingHead:hover {
+  background: var(--surface-sunken);
 }
 
 .findingBullet {
   flex-shrink: 0;
-  width: 6px;
-  height: 6px;
-  margin-top: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: currentColor;
 }
@@ -936,10 +1182,15 @@
   color: var(--muted);
 }
 
-.findingTitle {
+.findingTitleWrap {
   flex: 1 1 auto;
   min-width: 0;
+}
+
+.findingTitle {
   font-size: 13.5px;
+  color: var(--ink);
+  font-weight: 600;
 }
 
 .findingAgents {
@@ -947,16 +1198,36 @@
   gap: 2px;
 }
 
+.findingChevron {
+  flex-shrink: 0;
+  font-size: 10px;
+  color: var(--muted);
+  width: 16px;
+  text-align: center;
+}
+
+.findingBody {
+  padding: 0 12px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px dashed var(--rule-soft);
+  margin-top: 4px;
+  padding-top: 10px;
+}
+
 .findingDetail {
   font-size: 12.5px;
   line-height: 1.45;
   color: var(--ink-soft);
+  margin: 0;
 }
 
 .findingRecommendation {
   font-size: 12px;
   line-height: 1.45;
   color: var(--muted);
+  margin: 0;
 }
 
 .findingRecommendationLabel {
@@ -1013,3 +1284,33 @@
   font-size: 11.5px;
   color: var(--muted);
 }
+
+.runAgentBtn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.member:hover .runAgentBtn,
+.step:hover .runAgentBtn {
+  opacity: 1;
+}
+
+.runAgentBtn:hover:not(:disabled) {
+  background: var(--surface-raised);
+  color: var(--ink);
+}
+
+.runAgentBtn:disabled {
+  cursor: not-allowed;
+}
+

@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { mkdir, rename, writeFile } from 'node:fs/promises';
-import { dirname } from 'node:path';
+import { mkdir, readdir, rename, stat, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 
 function errorCode(error: unknown): string | undefined {
   return typeof error === 'object' && error !== null ? (error as NodeJS.ErrnoException).code : undefined;
@@ -37,4 +37,25 @@ export async function writeFileAtomic(path: string, content: string): Promise<vo
   const tmp = `${path}.${randomUUID()}.tmp`;
   await writeFile(tmp, content, 'utf8');
   await retryWhileBusy(() => rename(tmp, path));
+}
+
+/** Bytes totales de una carpeta (recursivo). 0 si no existe. */
+export async function folderSize(dir: string): Promise<number> {
+  let entries;
+  try {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch (error) {
+    if (isNotFound(error)) return 0;
+    throw error;
+  }
+  let total = 0;
+  for (const entry of entries) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      total += await folderSize(path);
+    } else if (entry.isFile()) {
+      total += (await stat(path)).size;
+    }
+  }
+  return total;
 }

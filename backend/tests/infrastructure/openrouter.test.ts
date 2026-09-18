@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { AgentModelRequest } from '../../src/domain/ports.js';
 import { OpenRouterAgentModel } from '../../src/infrastructure/agents/OpenRouterAgentModel.js';
 
-const report: SpecialistReport = { summary: 'Todo en orden', criteria: [], observations: [] };
+const report: SpecialistReport = { summary: 'Todo en orden', criteria: [], observations: [], approvalPercentage: 100 };
 
 const request: AgentModelRequest<SpecialistReport> = {
   agentId: 'api',

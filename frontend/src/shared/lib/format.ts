@@ -37,3 +37,16 @@ export function sessionDurationMs(startedAt?: string, endedAt?: string, now = Da
   const end = endedAt ? new Date(endedAt).getTime() : now;
   return Math.max(0, end - new Date(startedAt).getTime());
 }
+
+/** 1_536_000 → "1.5 MB". */
+export function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  const units = ['KB', 'MB', 'GB', 'TB'];
+  let value = bytes / 1024;
+  let unit = 0;
+  while (value >= 1024 && unit < units.length - 1) {
+    value /= 1024;
+    unit += 1;
+  }
+  return `${value.toFixed(value >= 10 ? 0 : 1)} ${units[unit]}`;
+}

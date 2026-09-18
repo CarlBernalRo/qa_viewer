@@ -10,4 +10,6 @@ export const queryKeys = {
   liveStats: (id: string) => ['live-stats', id] as const,
   /** true/false según el WebSocket en vivo esté conectado; null antes del primer intento. */
   liveConnection: ['live-connection'] as const,
+  projects: ['projects'] as const,
+  agentSettings: ['agent-settings'] as const,
 };

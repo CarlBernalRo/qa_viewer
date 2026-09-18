@@ -99,3 +99,24 @@ export function AgentEyes({ shape, color, animation, animate = true, delayMs = 0
     </>
   );
 }
+
+/** Lo que distingue a cada robot arriba de la cabeza: una antena, dos, o la insignia del líder. */
+export function AgentTop({ agent, color }: { agent?: string; color: string }) {
+  if (agent === 'frontend') {
+    return (
+      <>
+        <line x1="11" y1="3" x2="12" y2="8" stroke={color} strokeWidth="2" strokeLinecap="round" />
+        <line x1="21" y1="3" x2="20" y2="8" stroke={color} strokeWidth="2" strokeLinecap="round" />
+      </>
+    );
+  }
+  if (agent === 'lead') {
+    return <path d="M10 8 L11.5 2.5 L16 5.5 L20.5 2.5 L22 8 Z" fill={color} />;
+  }
+  return (
+    <>
+      <line x1="16" y1="3.5" x2="16" y2="8" stroke={color} strokeWidth="2" strokeLinecap="round" />
+      <circle cx="16" cy="3" r="2.2" fill={color} />
+    </>
+  );
+}

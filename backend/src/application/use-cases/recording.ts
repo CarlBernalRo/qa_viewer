@@ -12,7 +12,7 @@ export class StartRecording {
   ) {}
 
   async execute(sessionId: string): Promise<SessionDto> {
-    const { sessions, media, clock, notifier, registry, logger } = this.deps;
+    const { sessions, media, screenshots, clock, notifier, registry, logger } = this.deps;
     const session = await sessions.findById(sessionId);
     if (!session) throw new NotFoundError('una sesión', sessionId);
     if (registry.has(sessionId)) throw new InvalidStateError('Esta sesión ya está grabando.');
@@ -22,10 +22,11 @@ export class StartRecording {
     await sessions.save(session);
 
     const videoDir = await media.prepareVideoDir(sessionId);
+    const screenshotsDir = await screenshots.prepareDir(sessionId);
     const recording = new ActiveRecording(session, new Redactor(session.capture.redaction), this.deps);
     try {
       const handle = await this.recorder.start(
-        { sessionId, config: session.capture, videoDir },
+        { sessionId, config: session.capture, videoDir, screenshotsDir },
         recording,
       );
       if (!recording.isEnded) registry.add(sessionId, { handle, done: recording.done });

@@ -54,6 +54,12 @@ export const CHANNEL_META: Record<CaptureChannel, ChannelMeta> = {
     info: 'Graba la pestaña principal para ver después exactamente qué pasó. Al tocar un evento de la línea de tiempo, el video salta a ese momento.',
     color: 'var(--ch-video)',
   },
+  screenshots: {
+    label: 'Capturas de pantalla',
+    description: 'Una imagen por cada pantalla distinta',
+    info: 'Guarda una captura de cada pantalla distinta que se visitó, para que el agente UI/UX la revise como evidencia visual.',
+    color: 'var(--ch-video)',
+  },
 };
 
 export const PRESET_META: Record<RedactionPreset, { label: string; description: string }> = {
@@ -98,4 +104,5 @@ export const EVENT_KIND_LABELS: Record<CaptureEventKind, string> = {
   exception: 'Excepción',
   'web-vital': 'Métrica de rendimiento',
   'a11y-scan': 'Revisión de accesibilidad',
+  screenshot: 'Captura de pantalla',
 };

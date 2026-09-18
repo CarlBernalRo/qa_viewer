@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatClock, formatDuration, sessionDurationMs } from './format';
+import { formatBytes, formatClock, formatDuration, sessionDurationMs } from './format';
 
 describe('formatClock', () => {
   it('muestra minutos, segundos y décimas', () => {
@@ -17,6 +17,20 @@ describe('formatDuration', () => {
     expect(formatDuration(850)).toBe('850 ms');
     expect(formatDuration(252_000)).toBe('4 min 12 s');
     expect(formatDuration(120_000)).toBe('2 min');
+  });
+});
+
+describe('formatBytes', () => {
+  it('elige la unidad según el tamaño', () => {
+    expect(formatBytes(0)).toBe('0 B');
+    expect(formatBytes(512)).toBe('512 B');
+    expect(formatBytes(1536)).toBe('1.5 KB');
+    expect(formatBytes(1_572_864)).toBe('1.5 MB');
+    expect(formatBytes(1_073_741_824)).toBe('1.0 GB');
+  });
+
+  it('sin decimales de 10 en adelante', () => {
+    expect(formatBytes(15 * 1024)).toBe('15 KB');
   });
 });
 

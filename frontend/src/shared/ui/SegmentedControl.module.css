@@ -1,23 +1,26 @@
 .group {
   display: grid;
-  gap: 2px;
-  padding: 3px;
+  gap: 4px;
+  padding: 4px;
   background: var(--surface-sunken);
-  border-radius: 7px;
+  border-radius: 9px;
   min-height: var(--control-height);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .option {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 8px;
+  padding: 6px 12px;
   border: 0;
-  border-radius: 5px;
+  border-radius: 6px;
   background: transparent;
   color: var(--ink-soft);
-  font-size: 13px;
+  font-size: 13.5px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .option:disabled {
@@ -25,11 +28,16 @@
   cursor: not-allowed;
 }
 
+.option:hover:not(:disabled):not(.selected) {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--ink);
+}
+
 .selected {
-  background: var(--surface-strong);
+  background: var(--surface);
   color: var(--ink);
   font-weight: 650;
-  box-shadow: 0 1px 2px rgba(26, 31, 28, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 .mono {

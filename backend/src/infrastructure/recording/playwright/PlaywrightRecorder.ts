@@ -13,6 +13,7 @@ import type {
 import { attachAccessibilityScanner } from './a11yScanner.js';
 import { attachConsoleCollector, attachNetworkCollector } from './cdpCollectors.js';
 import { pageInstrumentation } from './pageInstrumentation.js';
+import { attachScreenshotCapture } from './screenshotCapture.js';
 
 export interface PlaywrightRecorderOptions {
   videoSize: { width: number; height: number };
@@ -57,7 +58,7 @@ export class PlaywrightRecorder implements BrowserRecorder {
   constructor(private readonly options: PlaywrightRecorderOptions) {}
 
   async start(
-    { sessionId, config, videoDir }: StartRecordingOptions,
+    { sessionId, config, videoDir, screenshotsDir }: StartRecordingOptions,
     sink: RecordingSink,
   ): Promise<RecordingHandle> {
     const { videoSize, maxBodyBytes, headless, logger } = this.options;
@@ -133,6 +134,7 @@ export class PlaywrightRecorder implements BrowserRecorder {
           await attachNetworkCollector(cdp, collectorOptions);
           await attachConsoleCollector(cdp, collectorOptions);
           if (channels.has('accessibility')) attachAccessibilityScanner(page, cdp, { pageId, emit, onError });
+          if (channels.has('screenshots')) attachScreenshotCapture(page, { pageId, dir: screenshotsDir, emit, onError });
         } catch (error) {
           onError('No se pudo instrumentar una pestaña', error);
         }

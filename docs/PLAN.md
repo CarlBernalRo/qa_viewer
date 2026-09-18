@@ -88,10 +88,41 @@ antes en el punto de control.
       IA) — objetivo, veredicto por criterio, hallazgos confirmados y la propuesta de los agentes si hay una
       corrida terminada. "Copiar informe completo" en el menú Acciones. No crea el ticket en la herramienta
       todavía (eso sigue necesitando las integraciones de "Ajustes del proyecto", etapa 4).
-- [ ] UI/UX y Regresión siguen en catálogo, cada uno bloqueado por algo que Rastro no tiene todavía (no por
-      falta de tiempo): UI/UX necesita mandarle imágenes al modelo (hoy todo es texto, no hay captura de
-      pantallas ni wiring multimodal); Regresión necesita "Comparaciones" (sesión base, etapa 4). El motivo
-      de cada uno está en su `role` (`AGENT_ROSTER`) y en el detalle de agente (`/agentes/:id`).
+- [x] **UI/UX y Regresión, los últimos 2 especialistas (10 + QA Lead en total)**:
+      - **UI/UX** (`uxDigest` + imágenes): nuevo canal de captura `screenshots` — el grabador guarda una
+        JPEG por cada pantalla distinta que se visita (`attachScreenshotCapture`, mismo patrón de dedupe
+        por URL que `a11yScanner`), servida por `GET /api/sessions/:id/screenshots/:file` y visible en el
+        inspector de eventos y en la línea de tiempo (carril PANTALLAS). `AgentModelRequest` ahora acepta
+        `images` (base64 + mimeType); Gemini las manda como `inlineData` y OpenRouter como `image_url`
+        (`data:` URL) — el resto de los agentes sigue mandando solo texto, sin tocar su formato.
+      - **Regresión** (`regDigest`): compara la sesión contra una "sesión base" que el QA elige desde un
+        selector nuevo en el panel de IA (`PUT /api/sessions/:id/baseline`, `Session.baselineSessionId`):
+        endpoints nuevos, endpoints que desaparecieron, cambios de status en los mismos endpoints y errores
+        de consola/excepciones nuevos. Sin sesión base configurada lo dice explícito y no opina (no inventa
+        una comparación).
+      - Ambos ya están "en el equipo" en `/agentes`, participan en "Elegir yo" y en el modo "Sugeridos".
+      - Probado real: smoke test con Chromium confirma la captura de la screenshot en disco; sesión real
+        grabada contra example.com confirma imagen visible en el inspector y en la línea de tiempo, y el
+        selector de sesión base persistiendo `baselineSessionId` de punta a punta contra el backend real.
+- [x] **Pantalla de Ajustes (`/configuracion`) y 6 proveedores de IA más**: la pantalla que el usuario había
+      agregado por su cuenta se rompía al entrar (imports a componentes que no existen); se arregló, y de
+      paso se sumaron OpenAI, Anthropic, Groq, Mistral, DeepSeek y se terminó de verdad la integración de
+      Ollama (antes solo aparecía en el selector, el backend no lo soportaba). Cada uno con su propio
+      cliente probado (`OpenAICompatibleAgentModel` genérico para los 5 que hablan el formato de OpenAI,
+      `AnthropicAgentModel` aparte para la API de Messages de Claude), listado real de modelos por
+      proveedor (`GET /api/settings/models`) y una pantalla rediseñada con tarjetas por proveedor.
+
+## Mejoras pedidas el 17-09 (plan de 5 tareas, por fases)
+
+- [x] **Tamaño de sesión en disco**: columna "Tamaño" en `/`, calculado al leer (`SessionStorageInspector`),
+      no persistido.
+- [x] **% de aprobación por especialista**: cada uno devuelve 0-100 sobre su propio alcance; badge en el
+      carrusel de razones y promedio en `/agentes/:id`.
+- [x] **Dos pantallas de análisis, misma vista**: selector entre "Análisis del proyecto" (reglas fijas) y
+      "Análisis de IA" (agentes) dentro de la misma sesión, sin perder el video/timeline compartido.
+- [x] **Proyectos**: entidad nueva (Empresa → Apps) para agrupar sesiones; filtro en Sesiones y Hallazgos.
+- [x] **Configuración completa de agente**: avatar + objetivo principal/secundarios editables (persistente),
+      más recomendaciones que el QA puede darle al equipo antes de lanzar un análisis puntual (por corrida).
 
 ## Navegación y estructura de pantallas
 
@@ -112,16 +143,15 @@ inventar alcance cuando llegue el momento de construir esto:
 
 - [ ] **Ambientes**: el mismo flujo grabado en DEV, QA, STG y PROD (o dos versiones), mostrando qué
       cambió en tráfico, errores y pantallas entre esas grabaciones
-- [ ] **Comparaciones**: agente de Regresión — compara una sesión nueva contra una sesión base del mismo
-      objetivo (tráfico nuevo, errores nuevos, cambios visuales)
+- [x] **Comparaciones (agente de Regresión)**: implementado en Etapa 3 — el QA marca una sesión base desde
+      un selector en el panel de IA (`baselineSessionId`) y el agente compara tráfico nuevo/desaparecido,
+      cambios de status y errores de consola nuevos. Sin construir todavía: comparación visual (diff de
+      screenshots) y una pantalla dedicada de "Comparaciones" fuera del detalle de sesión.
 - [ ] **Ajustes del proyecto**: integraciones por API directa (Jira, Azure DevOps, Linear, GitHub Issues,
       Xray, Zephyr Scale, TestRail, Qase), webhooks (Slack, Teams, Google Chat) y reglas de envío (cuándo
       sale un reporte: al cerrar sesión, al confirmar un hallazgo crítico, al cerrar el sprint)
 - [ ] Exportes adicionales: script de carga k6/JMeter parametrizado desde el tráfico real, contrato OpenAPI
       inferido, servidor MCP propio de Rastro para que Claude u otros asistentes consulten sesiones
-
-Requiere antes: concepto de "proyecto" agrupando sesiones (hoy no existe; `Environment` es solo una
-etiqueta por sesión) y una sesión "base" marcable para comparar contra ella.
 
 ## Límites conocidos (no bloquean, pero hay que tenerlos presentes)
 

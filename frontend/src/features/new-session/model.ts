@@ -31,6 +31,10 @@ export interface NewSessionForm {
   analysisMode: AnalysisMode;
   /** Solo con analysisMode "manual" ("Elegir yo"). */
   selectedAgents: SpecialistId[];
+  /** Proyecto (empresa/cliente) al que pertenece la sesión. Vacío: "Sin proyecto". */
+  projectId: string;
+  /** App dentro del proyecto elegido (SIS, LMS, CRM…). Solo tiene sentido con projectId. */
+  appName: string;
 }
 
 export const INITIAL_FORM: NewSessionForm = {
@@ -49,6 +53,8 @@ export const INITIAL_FORM: NewSessionForm = {
   customPatterns: [],
   analysisMode: 'none',
   selectedAgents: [],
+  projectId: '',
+  appName: '',
 };
 
 export type FieldErrors = Partial<Record<string, string>>;
@@ -78,6 +84,8 @@ function toCapture(form: NewSessionForm) {
     redaction: { presets: form.presets, customPatterns: form.customPatterns },
     analysisMode: form.analysisMode,
     ...(form.analysisMode === 'manual' ? { selectedAgents: form.selectedAgents } : {}),
+    ...(form.projectId ? { projectId: form.projectId } : {}),
+    ...(form.projectId && form.appName ? { appName: form.appName } : {}),
   };
 }
 

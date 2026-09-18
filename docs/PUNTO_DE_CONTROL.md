@@ -414,6 +414,191 @@ determinísticas de la sesión, no como especialistas:
   agrega su sección). 126 tests de backend, 44 de frontend, 15 de shared, y prueba de humo real con
   Chromium: todo en verde. `GET /load-script` verificado a mano contra el backend real corriendo.
 
+## Vigesimocuarta ronda (17-09): tamaño de sesión, % de aprobación, loaders de equipo
+
+El usuario pidió 5 mejoras (config de agente, hallazgos por proyecto, tamaño de sesión, dos pantallas de
+análisis, % de aprobación); se investigó el código con 3 exploraciones en paralelo y se armó un plan por
+fases, de menor a mayor riesgo. Esta ronda cubre las dos primeras fases, más dos pedidos de loader que
+llegaron a mitad de camino.
+
+- **Tamaño de sesión en disco**: nuevo puerto `SessionStorageInspector` (`domain/ports.ts`) +
+  `FileSessionStorageInspector` (`folderSize` recursivo en `fs-utils.ts`, reutilizado por `ListSessions` y
+  `GetSession`). `SessionDto.sizeBytes` es opcional y se calcula al leer, nunca se persiste. Columna "Tamaño"
+  en `/` con `formatBytes` (`shared/lib/format.ts`). Verificado contra el backend real: sesión sin video
+  1.0 KB, sesión con video 195 KB.
+- **% de aprobación por especialista**: `specialistReportSchema.approvalPercentage` (0-100, requerido: es
+  salida fresca del modelo) y `AgentStep.approvalPercentage` (opcional: no rompe corridas viejas). Un cuarto
+  punto en `specialistTask()` le pide al modelo el porcentaje según el objetivo y los criterios. Badge de
+  color (rojo/ámbar/verde según el valor) en cada tarjeta del carrusel "Por qué cada agente", y el promedio
+  entre corridas en el subtítulo de "Actividad" de `/agentes/:id`.
+- **Loader de "compartiendo datos"**: mientras un especialista está "Analizando…", una línea punteada con un
+  punto viajero conecta su avatar con el del QA Lead ("preparando informe para el QA Lead") — mismo lenguaje
+  visual que el mockup original (`design/Agentes.dc.html`, sección "Intercambio en curso"), pero honesto con
+  el pipeline real (los especialistas no se ven entre sí; sí le entregan su informe al Lead).
+- **Loader de "trabajo en equipo"**: mientras el QA Lead corre, los avatares de los especialistas ya
+  terminados convergen hacia el suyo con la misma línea punteada, con la etiqueta "uniendo N informes en uno
+  solo" — esto ya pasaba de verdad (el Lead siempre sintetiza a todo el equipo en un solo resultado); lo que
+  faltaba era que el loader lo mostrara.
+- Tests nuevos: `folderSize` (`fs-utils.test.ts`, incluye subcarpetas y carpeta inexistente), `formatBytes`
+  (`format.test.ts`), y una aserción de `approvalPercentage` en `agents.test.ts`. Los 3 fixtures de
+  `SpecialistReport` escritos a mano (`agents.test.ts`, `recording.test.ts`, `openrouter.test.ts`) se
+  actualizaron con el campo nuevo. 128 tests de backend, 46 de frontend, 15 de shared, y prueba de humo real
+  con Chromium: todo en verde.
+- **Dos pantallas de análisis, misma vista**: `SessionDetailPage` ahora tiene un `SegmentedControl`
+  ("Análisis del proyecto" / "Análisis de IA") en vez de mostrar las dos `AnalysisLane` siempre. Es estado
+  local dentro de `ReplayWorkspace`, no un cambio de ruta: el video y la línea de tiempo no se remontan al
+  cambiar de pestaña. Verificado en el navegador cambiando de pestaña sin perder la posición del video.
+- **Proyectos**: nueva entidad `ProjectDto` (`packages/shared/src/project.ts`) — nombre + lista de apps
+  (SIS, LMS, CRM…). Persistida en un solo índice `data/projects.json` (`FileProjectRepository`, mismo patrón
+  de cola de escritura serializada que `FileAgentRunStore`). `capture.projectId`/`capture.appName` opcionales
+  en la sesión (sesiones viejas quedan "Sin proyecto"). CRUD completo (`/api/projects`, `PATCH`/`DELETE` por
+  id; borrar un proyecto con sesiones asignadas da error). Pantalla nueva `/proyectos`: crear, renombrar,
+  editar apps (`TagInput`) y eliminar. Select de Proyecto/App en "Nueva sesión" (junto a Ambiente). Filtro de
+  proyecto en `/` (Sesiones, con columna "Proyecto" + "Tamaño") y en `/hallazgos` — esto es lo que resuelve
+  el pedido original de "hallazgos más específico por proyecto".
+  - Bug real encontrado y corregido durante la verificación manual: `TagInput` en `ProjectsPage` leía
+    `project.apps` directo del caché de React Query; agregar dos apps rápido (Enter, Enter) hacía que la
+    segunda pisara a la primera porque la mutación de la primera todavía no había vuelto del server. Se
+    corrigió con estado local optimista en `ProjectRow`, no derivado del prop en cada render.
+  - La tabla de Sesiones ganó 2 columnas (Proyecto, Tamaño) y se desbordaba sin aviso (`Panel` recorta con
+    `overflow: hidden`); se envolvió en un contenedor con `overflow-x: auto`.
+  - Tests nuevos: `projects.test.ts` (backend: crear, listar ordenado, editar, bloquear borrado con sesiones
+    asignadas). 132 tests de backend, 46 de frontend, 15 de shared, y prueba de humo real con Chromium: todo
+    en verde. Verificado a mano en el navegador: crear proyecto, agregar 3 apps, elegirlo en "Nueva sesión"
+    (aparece el select de App), filtrar Sesiones por proyecto.
+- **Configuración completa de agente** (fase 5, la más grande de las 5): nuevo `AgentSettings`
+  (`packages/shared/src/agent-settings.ts`) por agente — color, ojos, animación, gesto, objetivo principal y
+  objetivos secundarios, todo opcional. Persistido en un solo índice `data/agent-settings.json`
+  (`FileAgentSettingsStore`, mismo patrón que Proyectos).
+  - **Catálogo efectivo en el frontend**: `AgentCatalogProvider` (montado una vez en `App.tsx`) trae los
+    overrides guardados y arma `AGENT_CATALOG`/`AGENT_ROSTER` "efectivos" (`effectiveCatalog.ts`); el hook
+    `useAgentCatalog()` los expone. Sin overrides es exactamente el catálogo fijo de siempre. Se migraron los
+    6 puntos que antes leían `AGENT_CATALOG`/`AGENT_ROSTER` directo (`AgentAvatar`, `AgentTooltip`,
+    `CaptureStep`, `AgentsOverviewPage`, `AgentDetailPage`, `AgentsPanel`, este último con ~11 usos) para
+    consultar el catálogo efectivo en vez del fijo.
+  - **Formulario real** en `/agentes/:id` (`AgentSettingsForm`, panel "Personalizar"): vista previa en vivo del
+    avatar, color, selects de ojos/animación/gesto, objetivo principal y lista editable de objetivos
+    secundarios (`TagInput`). El objetivo principal reemplaza el `role` del catálogo tanto en la UI como en
+    el prompt real (`specialistTask` en `prompts.ts` usa el override si existe).
+  - **Recomendación por corrida** (efímera, no se guarda): textarea "Recomendaciones para este análisis" en
+    el panel Agentes de la sesión, antes de "Analizar con agentes"/"Volver a analizar". Viaja en el body de
+    `POST /api/sessions/:id/agents` y se inyecta como sección propia en `sharedBrief` (el resumen que ven
+    todos los especialistas), no en el prompt de un agente en particular — así el equipo entero la tiene en
+    cuenta sin mezclarla con la config persistente de cada agente.
+  - **Bug real encontrado y corregido durante la verificación manual**: `agentSettingsMapSchema` usaba
+    `z.record(agentIdSchema, agentSettingsSchema)` — en zod 4, `z.record` con una clave `enum` exige las 9
+    claves presentes (no es un mapa parcial), así que guardar el override de un solo agente tiraba
+    `ZodError` al releer el archivo. Se cambió a `z.partialRecord(...)`. El bug no lo agarraron los tests
+    porque el use-case se prueba con un store en memoria (`InMemoryAgentSettingsStore`) que no pasa por el
+    schema; se agregó un test de integración real contra disco (`FileAgentSettingsStore`,
+    `persistence.test.ts`) para que este tipo de regresión no vuelva a pasar desapercibido.
+  - Tests nuevos: `agent-settings.test.ts` (use-cases), 2 tests de `FileAgentSettingsStore` contra disco real,
+    una aserción en `brief.test.ts` (la recomendación aparece en el resumen compartido) y un test end-to-end
+    en `agents.test.ts` que confirma que el override de un agente y la recomendación de la corrida llegan de
+    verdad al prompt que recibe el modelo (y que un agente sin override sigue con su rol fijo). 138 tests de
+    backend, 46 de frontend, 15 de shared, y prueba de humo real con Chromium: todo en verde. Verificado a
+    mano contra el backend real: cambiar el color/ojos de API REST y ver el cambio reflejado en `/agentes`,
+    guardar objetivos, y confirmar que persiste tras recargar la página.
+
+Con esto se completaron las 5 tareas pedidas el 17-09 (ver el plan guardado de la sesión para el detalle
+completo de cada fase).
+
+## Vigesimoquinta ronda (17-09): UI/UX y Regresión, los últimos 2 especialistas del equipo
+
+El usuario pidió terminar la integración de los 2 agentes que quedaban en catálogo, y de paso una revisión
+del funcionamiento de los agentes en general (envío/recepción de la IA). Ambos necesitaban una capacidad
+real que Rastro no tenía (no solo wiring), así que se confirmó el alcance con el usuario antes de construir:
+implementar los dos completos, no una versión mínima.
+
+- **Nuevo canal de captura `screenshots`**: `attachScreenshotCapture` (Playwright), mismo patrón de
+  debounce + dedupe por URL que `a11yScanner` — una JPEG por pantalla distinta, en la carpeta de la sesión.
+  Nuevo evento `screenshot` (`file`, `url`) en `@rastro/shared`. Servido por
+  `GET /api/sessions/:id/screenshots/:file` (autenticado por query token, igual que el video) y visible
+  tanto en el inspector de eventos (`<img>`) como en el carril "PANTALLAS" de la línea de tiempo.
+- **Multimodal en `AgentModel`**: `AgentModelRequest` ganó `images?: { mimeType, data }[]`. Gemini las manda
+  como `inlineData`; OpenRouter arma el contenido del mensaje de usuario como array `[{type:'text'},
+  {type:'image_url', image_url:{url:'data:...;base64,...'}}]` en vez de un string plano, solo cuando hay
+  imágenes — el resto de los agentes no cambia su formato de mensaje.
+- **Agente UI/UX**: `uxDigest` lista las capturas tomadas; el prompt (`specialistTask`) avisa que además del
+  texto recibe las imágenes adjuntas en el mismo orden. `StartAgentRun` arma las imágenes desde
+  `ScreenshotStore.read()` (nuevo puerto, `FileScreenshotStore`) solo para este agente, con un tope de 8 por
+  corrida.
+- **Agente Regresión**: nuevo `Session.baselineSessionId` (opcional, seteable con
+  `PUT /api/sessions/:id/baseline`, `SetSessionBaseline`) — la sesión contra la que comparar. Selector nuevo
+  ("Sesión base para el agente de Regresión") en el panel de IA, con las sesiones completas disponibles
+  (menos la propia). `regDigest` compara: endpoints nuevos, endpoints que desaparecieron, cambios de status
+  en los mismos endpoints y errores de consola/excepciones nuevos. Sin sesión base configurada, el digest le
+  dice al modelo explícitamente que no compare nada e informe inconclusive — no inventa una comparación.
+- `agentIdSchema`/`specialistIdSchema`/`AGENT_ORDER`/`SPECIALIST_AGENTS` ganaron `ux` y `reg`: el equipo
+  completo pasó de 8 a 10 especialistas + QA Lead. Ambos ya aparecen "En el equipo" en `/agentes`, con su
+  formulario de configuración (Fase 5) funcionando igual que el resto.
+- Tests actualizados: todos los fixtures y aserciones de `agents.test.ts`/`recording.test.ts` que asumían
+  8 especialistas (usage, orden de llamadas, arrays de status) se actualizaron a 10. Se agregaron
+  `regDigest`/`uxDigest` implícitamente cubiertos por los tests existentes de `agents.ts` (el checkpoint
+  exige las 10 claves). 138 tests de backend, 46 de frontend, 15 de shared: todo en verde.
+- Prueba de humo real (Chromium) confirma la captura de una screenshot real en disco. Verificación manual
+  contra el backend real: se grabó una sesión nueva contra `example.com` con el canal `screenshots` activo,
+  se vio la miniatura real en el inspector de eventos y en la línea de tiempo, se eligió esa sesión como
+  base desde otra sesión y se confirmó `baselineSessionId` persistido con un `GET` directo — y se revirtió
+  después para no dejar datos de prueba en el entorno del usuario.
+- No se cambió nada del resto de agentes: `apiDigest`, `securityDigest`, etc. siguen igual, y el mensaje que
+  reciben (sin `images`) tampoco cambió de formato.
+
+## Vigesimosexta ronda (17-09): pantalla de Ajustes arreglada, y 6 proveedores de IA más
+
+El usuario había agregado por su cuenta una pantalla `/configuracion` (Ajustes globales) para elegir el
+proveedor de IA y guardar sus claves en `backend/.env` sin salir de la app; se rompía al entrar. Además pidió
+sumar "los proveedores más populares" con la misma calidad de integración que Gemini/OpenRouter, y rediseñar
+la pantalla con tarjetas por proveedor en vez de un formulario plano.
+
+- **Arreglo real (`SettingsPage.tsx`)**: importaba `Input`, `Select` y `Spinner` desde archivos que no existen
+  (`shared/ui/Input.tsx`, `.../Select.tsx`, `.../Spinner.tsx`); esos componentes viven en `Field.tsx` como
+  `TextInput`/`Select` y no hay `Spinner` en el proyecto. Eso rompía la resolución de módulos de Vite al
+  entrar a la ruta. Se corrigió importando del barrel `shared/ui` y usando `SkeletonGroup` para el loading.
+  De paso, `AppDeps.envPath` (que el usuario había agregado) no estaba en `tests/fakes.ts` ni en
+  `scripts/smoke.ts`, y `settings.routes.ts` importaba `parseOrThrow` de `@rastro/shared` (vive en
+  `interfaces/http/errors.ts`) — los tres rompían `npm run typecheck` en todo el backend.
+- **6 proveedores nuevos, con el mismo nivel real que Gemini/OpenRouter** (no solo la opción en el selector):
+  OpenAI, Anthropic (Claude), Groq, Mistral, DeepSeek, y Ollama arreglado (antes aparecía en Ajustes pero el
+  backend ni siquiera lo aceptaba en `RASTRO_AGENT_PROVIDER`).
+  - `packages/shared/src/providers.ts` (nuevo): lista única de proveedores (`AGENT_PROVIDER_IDS`) y su
+    metadata (`AGENT_PROVIDER_META`: nombre, variable de entorno de la clave, si necesita clave para listar
+    modelos, modelo por defecto, color). Única fuente de verdad para backend y frontend.
+  - `OpenAICompatibleAgentModel` (nuevo): un solo cliente para los proveedores que hablan el formato "chat
+    completions" de OpenAI (OpenAI, Groq, Mistral, DeepSeek, Ollama), con reintentos, imágenes como
+    `image_url`, y `json_schema` estricto solo para OpenAI (el resto usa `json_object`, más ampliamente
+    soportado; la respuesta se valida igual contra el schema real al final).
+  - `AnthropicAgentModel` (nuevo): API de Messages de Claude. La salida estructurada se pide forzando una
+    única `tool` cuyo `input_schema` es el schema real (`tool_choice: {type:'tool', name}`) — Claude devuelve
+    el JSON ya parseado en `input`, sin parsear texto de por medio. Imágenes como bloques `base64`.
+  - `createAgentModel` (nuevo, `infrastructure/agents/`): factory único que arma el cliente según el
+    proveedor elegido; reemplaza la función que vivía suelta en `main.ts`.
+  - `ListProviderModels` (nuevo use-case) + `GET /api/settings/models?provider=X`: pide la lista real de
+    modelos de cada proveedor (OpenRouter público sin clave; OpenAI/Groq/Mistral/DeepSeek con
+    `GET /v1/models` + Bearer; Anthropic con `GET /v1/models` + `x-api-key`; Gemini con
+    `GET .../models?key=`; Ollama con `GET /api/tags` local). Sin la clave guardada, explica qué falta en vez
+    de fallar feo.
+  - `use-cases/settings.ts` reescrito para leer/escribir las 8 claves de forma genérica a partir de
+    `AGENT_PROVIDER_META` (antes tenía un `if` por proveedor y un `as any`).
+- **Rediseño de Ajustes**: grilla de tarjetas por proveedor (mismo lenguaje visual que `/agentes`, con
+  animación de entrada y una tarjeta que se agranda al seleccionarse), badge "Activo"/"Listo"/"Sin
+  configurar" por tarjeta. Al elegir una tarjeta se ve su panel: clave, selector de modelos reales (con
+  botón "Actualizar lista") más un campo de texto libre para escribir cualquier modelo a mano, y un botón
+  "Usar {proveedor}" para activarlo.
+  - **Bug real encontrado y corregido en la propia verificación manual**: el campo de modelo estaba atado
+    directo al estado global (`form.agentModel`); navegar de tarjeta en tarjeta sin activar arrastraba el
+    modelo del proveedor activo a la vista de otro proveedor, y si ahí se guardaba, quedaba un modelo de un
+    proveedor totalmente distinto. Se corrigió con un modelo "en edición" local por tarjeta que solo se
+    escribe al estado real al tocar "Usar {proveedor}" (o en vivo, si esa tarjeta ya es la activa).
+- Tests nuevos: `openAICompatible.test.ts` y `anthropic.test.ts` (fetch simulado, mismo patrón que
+  `openrouter.test.ts`: éxito, reintentos, errores traducidos, imágenes, longitud cortada),
+  `provider-models.test.ts` (por proveedor, con y sin clave) y `settings.test.ts` (round-trip de
+  `GetAppSettings`/`UpdateAppSettings`, no pisar la clave de otro proveedor, proveedor inválido en el
+  archivo cae a "auto"). 162 tests de backend, 46 de frontend, 15 de shared, y prueba de humo real: todo en
+  verde. Verificado a mano contra el backend real: la lista de OpenRouter trajo modelos reales en vivo (sin
+  clave, endpoint público), y el mensaje "Guarda la clave de Anthropic (Claude) antes de pedir sus modelos"
+  se vio real al elegir un proveedor sin clave guardada.
+
 ## Límites conocidos
 
 1. **Build de escritorio para distribuir:** en release, Tauri ejecuta `node backend/dist/main.js` desde el repo. Falta empaquetar el backend (Node como sidecar o un binario) junto al instalador.

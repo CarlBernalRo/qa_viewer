@@ -139,6 +139,7 @@ describe('modo "Sugeridos": agentes automáticos al terminar de grabar', () => {
     summary,
     criteria: [],
     observations: [],
+    approvalPercentage: 100,
   });
   const lead: LeadReport = { summary: 'Todo en orden.', verdicts: [], observations: [] };
 
@@ -152,6 +153,8 @@ describe('modo "Sugeridos": agentes automáticos al terminar de grabar', () => {
       rt: specialist('rt'),
       func: specialist('func'),
       env: specialist('env'),
+      ux: specialist('ux'),
+      reg: specialist('reg'),
       lead,
     });
     const deps = createTestDeps();

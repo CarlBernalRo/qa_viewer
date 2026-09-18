@@ -44,6 +44,7 @@ export const captureChannelSchema = z.enum([
   'performance',
   'accessibility',
   'video',
+  'screenshots',
 ]);
 export type CaptureChannel = z.infer<typeof captureChannelSchema>;
 export const ALL_CAPTURE_CHANNELS = captureChannelSchema.options;
@@ -67,6 +68,10 @@ export const captureConfigSchema = z.object({
   analysisMode: analysisModeSchema,
   /** Solo con analysisMode "manual" ("Elegir yo"): qué especialistas corren. El QA Lead siempre se agrega. */
   selectedAgents: z.array(specialistIdSchema).optional(),
+  /** Proyecto (empresa/cliente) al que pertenece la sesión. Sin definir: "Sin proyecto". */
+  projectId: z.string().optional(),
+  /** App dentro del proyecto (p. ej. SIS, LMS, CRM). Solo tiene sentido junto a projectId. */
+  appName: z.string().optional(),
 });
 export type CaptureConfig = z.infer<typeof captureConfigSchema>;
 
@@ -109,5 +114,9 @@ export const sessionSchema = z.object({
   hasVideo: z.boolean(),
   /** Cuántos ms después del inicio de la sesión empezó el video (para alinear video y eventos). */
   videoOffsetMs: z.number().nonnegative().optional(),
+  /** Bytes en disco de todo lo que dejó la sesión (video, eventos, agentes…). Se calcula al leer, no se guarda. */
+  sizeBytes: z.number().int().nonnegative().optional(),
+  /** Sesión contra la que el agente de Regresión compara esta. Sin definir: no hay comparación. */
+  baselineSessionId: z.string().optional(),
 });
 export type SessionDto = z.infer<typeof sessionSchema>;

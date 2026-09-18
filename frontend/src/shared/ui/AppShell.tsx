@@ -9,6 +9,7 @@ import {
   IconChevronRight,
   IconCompare,
   IconEnvironments,
+  IconProjects,
   IconSearch,
   IconSessions,
   IconSettings,
@@ -20,11 +21,12 @@ interface AppShellProps {
   children: ReactNode;
 }
 
-// "Nueva sesión" vive como botón en la pantalla de sesiones, no en el menú.
 const NAV = [
   { to: '/', label: 'Sesiones', end: true, icon: IconSessions },
   { to: '/hallazgos', label: 'Hallazgos', end: false, icon: IconSearch },
   { to: '/agentes', label: 'Agentes', end: false, icon: IconAgents },
+  { to: '/proyectos', label: 'Proyectos', end: false, icon: IconProjects },
+  { to: '/configuracion', label: 'Ajustes', end: false, icon: IconSettings },
 ];
 
 // Etapa 4 de la visión de producto: comparar el mismo flujo entre ambientes o
@@ -32,7 +34,6 @@ const NAV = [
 const NAV_SOON = [
   { label: 'Ambientes', icon: IconEnvironments, soon: 'El mismo flujo grabado en DEV, QA, STG y PROD: qué cambió en tráfico, errores y pantallas. Etapa 4.' },
   { label: 'Comparaciones', icon: IconCompare, soon: 'Regresión contra una sesión base: tráfico nuevo, errores nuevos, cambios visuales. Etapa 4.' },
-  { label: 'Ajustes del proyecto', icon: IconSettings, soon: 'Integraciones (Jira, Xray, Slack), reglas de envío y datos por defecto del proyecto. Etapa 4.' },
 ];
 
 export function AppShell({ breadcrumb, actions, children }: AppShellProps) {

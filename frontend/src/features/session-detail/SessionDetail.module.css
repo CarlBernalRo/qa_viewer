@@ -207,6 +207,18 @@
   min-width: 0;
 }
 
+/* Elige entre las dos "pantallas" de análisis sin cambiar de ruta (no se pierde el video/timeline). */
+.laneSwitch {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-3) 0 var(--space-1) 0;
+}
+
+.laneSwitch > * {
+  max-width: 480px;
+  width: 100%;
+}
+
 /* Panel derecho fijo: acompaña el scroll de la página y tiene su propio scroll interno. */
 .sideColumn {
   position: sticky;
@@ -504,6 +516,12 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.screenshotPreview {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--rule);
 }
 
 .rowItem {

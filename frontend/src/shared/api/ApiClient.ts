@@ -1,28 +1,45 @@
 import {
   agentRunListSchema,
   agentRunSchema,
+  agentSettingsMapSchema,
+  agentSettingsSchema,
   agentStatusSchema,
   API_ROUTES,
   apiErrorSchema,
+  appSettingsSchema,
   healthSchema,
   loadScriptSchema,
+  projectListSchema,
+  projectSchema,
+  providerModelListSchema,
   sessionAnalysisSchema,
   sessionReportSchema,
   sessionReviewSchema,
   sessionSchema,
   type AddMarkerInput,
+  type AgentId,
   type AgentRun,
+  type AgentSettings,
+  type AgentSettingsMap,
   type AgentStatus,
+  type AppSettingsDto,
   type CaptureEvent,
+  type CreateProjectInput,
   type CreateSessionInput,
   type FindingDecisionValue,
   type Health,
   type LoadScriptDto,
+  type ProjectDto,
+  type ProviderModel,
+  type RealAgentProviderId,
   type SessionAnalysis,
   type SessionDto,
   type SessionReportDto,
   type SessionReview,
   type SetCriterionVerdictInput,
+  type SpecialistId,
+  type UpdateAppSettingsInput,
+  type UpdateProjectInput,
 } from '@rastro/shared';
 import { z } from 'zod';
 import type { BackendConfig } from '../config/backendConfig';
@@ -86,9 +103,13 @@ export class ApiClient {
     return (await this.request(API_ROUTES.sessionAgents(id), { method: 'GET' }, agentRunListSchema)).runs;
   }
 
-  /** Lanza los agentes; responde enseguida con la corrida "en curso". */
-  startAgentRun(id: string): Promise<AgentRun> {
-    return this.request(API_ROUTES.sessionAgents(id), { method: 'POST' }, agentRunSchema);
+  /** Lanza los agentes; responde enseguida con la corrida "en curso". `note`: recomendación puntual para esta corrida. */
+  startAgentRun(id: string, note?: string, agentId?: SpecialistId): Promise<AgentRun> {
+    return this.request(
+      API_ROUTES.sessionAgents(id),
+      { method: 'POST', body: JSON.stringify({ ...(note ? { note } : {}), ...(agentId ? { agentId } : {}) }) },
+      agentRunSchema,
+    );
   }
 
   /** Retoma un análisis fallido: solo se consulta a los agentes que faltan. */
@@ -153,9 +174,62 @@ export class ApiClient {
     return this.request(API_ROUTES.stopRecording(id), { method: 'POST' }, sessionSchema);
   }
 
+  setSessionBaseline(id: string, baselineSessionId: string | undefined): Promise<SessionDto> {
+    return this.request(
+      API_ROUTES.sessionBaseline(id),
+      { method: 'PUT', body: JSON.stringify({ baselineSessionId }) },
+      sessionSchema,
+    );
+  }
+
   /** El elemento <video> no puede enviar headers: el token va por query (solo en esta ruta). */
   videoUrl(id: string): string {
     return `${this.config.url}${API_ROUTES.sessionVideo(id)}?token=${encodeURIComponent(this.config.token)}`;
+  }
+
+  /** El elemento <img> tampoco puede enviar headers: mismo esquema que el video. */
+  screenshotUrl(id: string, file: string): string {
+    return `${this.config.url}${API_ROUTES.sessionScreenshot(id, file)}?token=${encodeURIComponent(this.config.token)}`;
+  }
+
+  async listProjects(): Promise<ProjectDto[]> {
+    return (await this.request(API_ROUTES.projects, { method: 'GET' }, projectListSchema)).projects;
+  }
+
+  createProject(input: CreateProjectInput): Promise<ProjectDto> {
+    return this.request(API_ROUTES.projects, { method: 'POST', body: JSON.stringify(input) }, projectSchema);
+  }
+
+  updateProject(id: string, input: UpdateProjectInput): Promise<ProjectDto> {
+    return this.request(API_ROUTES.project(id), { method: 'PATCH', body: JSON.stringify(input) }, projectSchema);
+  }
+
+  async deleteProject(id: string): Promise<void> {
+    await this.request(API_ROUTES.project(id), { method: 'DELETE' });
+  }
+
+  getAgentSettings(): Promise<AgentSettingsMap> {
+    return this.request(API_ROUTES.agentSettings, { method: 'GET' }, agentSettingsMapSchema);
+  }
+
+  updateAgentSettings(id: AgentId, settings: AgentSettings): Promise<AgentSettings> {
+    return this.request(
+      API_ROUTES.agentSetting(id),
+      { method: 'PUT', body: JSON.stringify(settings) },
+      agentSettingsSchema,
+    );
+  }
+
+  getAppSettings(): Promise<AppSettingsDto> {
+    return this.request(API_ROUTES.settings, { method: 'GET' }, appSettingsSchema);
+  }
+
+  updateAppSettings(settings: UpdateAppSettingsInput): Promise<void> {
+    return this.request(API_ROUTES.settings, { method: 'PUT', body: JSON.stringify(settings) }, z.any());
+  }
+
+  async getProviderModels(provider: RealAgentProviderId): Promise<ProviderModel[]> {
+    return (await this.request(API_ROUTES.settingsModels(provider), { method: 'GET' }, providerModelListSchema)).models;
   }
 
   liveUrl(): string {

@@ -108,13 +108,20 @@ export class OpenRouterAgentModel implements AgentModel {
     private readonly retryDelayMs = 1000,
   ) {}
 
-  async run<T>({ agentId, system, brief, task, schema }: AgentModelRequest<T>): Promise<{ output: T; usage: AgentModelUsage }> {
+  async run<T>({ agentId, system, brief, task, schema, images }: AgentModelRequest<T>): Promise<{ output: T; usage: AgentModelUsage }> {
+    const userContent =
+      images && images.length > 0
+        ? [
+            { type: 'text', text: task },
+            ...images.map((image) => ({ type: 'image_url', image_url: { url: `data:${image.mimeType};base64,${image.data}` } })),
+          ]
+        : task;
     const body = {
       model: this.model,
       messages: [
         // Reglas + resumen primero y siempre iguales: el proveedor puede reutilizar ese prefijo (caché).
         { role: 'system', content: `${system}\n\n${brief}` },
-        { role: 'user', content: task },
+        { role: 'user', content: userContent },
       ],
       response_format: {
         type: 'json_schema',

@@ -6,3 +6,6 @@ export * from './findings.js';
 export * from './a11yTexts.js';
 export * from './review.js';
 export * from './agents.js';
+export * from './agent-settings.js';
+export * from './project.js';
+export * from './providers.js';

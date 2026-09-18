@@ -1,6 +1,7 @@
-import { AGENT_CATALOG, type AgentId } from '@rastro/shared';
+import type { AgentId } from '@rastro/shared';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { useAgentCatalog } from '../../agents-overview/AgentCatalogContext';
 import styles from './AgentTooltip.module.css';
 
 const GAP = 10;
@@ -26,7 +27,8 @@ interface AgentTooltipProps {
  * color.  Rendered as a portal so it escapes any `overflow: hidden` ancestors.
  */
 export function AgentTooltip({ agent, children, extra }: AgentTooltipProps) {
-  const { name, role, reads, color } = AGENT_CATALOG[agent];
+  const { catalog } = useAgentCatalog();
+  const { name, role, reads, color } = catalog[agent];
   const triggerRef = useRef<HTMLSpanElement>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);

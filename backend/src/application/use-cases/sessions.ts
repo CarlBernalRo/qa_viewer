@@ -1,6 +1,15 @@
 import type { CreateSessionInput, CaptureEvent, SessionDto } from '@rastro/shared';
 import { DomainError, InvalidStateError, NotFoundError } from '../../domain/errors.js';
-import type { Clock, EventQuery, EventStore, IdGenerator, MediaStore, SessionRepository } from '../../domain/ports.js';
+import type {
+  Clock,
+  EventQuery,
+  EventStore,
+  IdGenerator,
+  MediaStore,
+  ScreenshotStore,
+  SessionRepository,
+  SessionStorageInspector,
+} from '../../domain/ports.js';
 import { Session } from '../../domain/session/Session.js';
 
 export class CreateSession {
@@ -26,23 +35,30 @@ export class CreateSession {
 }
 
 export class ListSessions {
-  constructor(private readonly sessions: SessionRepository) {}
+  constructor(
+    private readonly sessions: SessionRepository,
+    private readonly storage: SessionStorageInspector,
+  ) {}
 
   async execute(): Promise<SessionDto[]> {
     const all = await this.sessions.list();
-    return all
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-      .map((session) => session.toDto());
+    const sorted = all.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return Promise.all(
+      sorted.map(async (session) => ({ ...session.toDto(), sizeBytes: await this.storage.sizeBytes(session.id) })),
+    );
   }
 }
 
 export class GetSession {
-  constructor(private readonly sessions: SessionRepository) {}
+  constructor(
+    private readonly sessions: SessionRepository,
+    private readonly storage: SessionStorageInspector,
+  ) {}
 
   async execute(id: string): Promise<SessionDto> {
     const session = await this.sessions.findById(id);
     if (!session) throw new NotFoundError('una sesión', id);
-    return session.toDto();
+    return { ...session.toDto(), sizeBytes: await this.storage.sizeBytes(id) };
   }
 }
 
@@ -74,6 +90,21 @@ export class GetSessionVideo {
   }
 }
 
+export class GetSessionScreenshot {
+  constructor(
+    private readonly sessions: SessionRepository,
+    private readonly screenshots: ScreenshotStore,
+  ) {}
+
+  async execute(id: string, file: string): Promise<Buffer> {
+    const session = await this.sessions.findById(id);
+    if (!session) throw new NotFoundError('una sesión', id);
+    const buffer = await this.screenshots.read(id, file);
+    if (!buffer) throw new NotFoundError('una captura de pantalla', file);
+    return buffer;
+  }
+}
+
 export class DeleteSession {
   constructor(
     private readonly sessions: SessionRepository,
@@ -87,6 +118,27 @@ export class DeleteSession {
       throw new InvalidStateError('Detén la grabación antes de eliminar la sesión.');
     }
     await this.sessions.delete(id);
+  }
+}
+
+/** Sesión base contra la que el agente de Regresión compara. `undefined` quita la comparación. */
+export class SetSessionBaseline {
+  constructor(private readonly sessions: SessionRepository) {}
+
+  async execute(id: string, baselineSessionId: string | undefined): Promise<SessionDto> {
+    const session = await this.sessions.findById(id);
+    if (!session) throw new NotFoundError('una sesión', id);
+    if (baselineSessionId) {
+      if (baselineSessionId === id) throw new DomainError('INVALID_BASELINE', 'Una sesión no puede ser su propia base.');
+      const baseline = await this.sessions.findById(baselineSessionId);
+      if (!baseline) throw new NotFoundError('una sesión', baselineSessionId);
+      if (baseline.status !== 'completed') {
+        throw new InvalidStateError('La sesión base debe estar completa.');
+      }
+    }
+    session.setBaseline(baselineSessionId);
+    await this.sessions.save(session);
+    return session.toDto();
   }
 }
 

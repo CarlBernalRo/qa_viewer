@@ -1,5 +1,8 @@
+import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { retryWhileBusy } from '../../src/infrastructure/persistence/fs-utils.js';
+import { folderSize, retryWhileBusy } from '../../src/infrastructure/persistence/fs-utils.js';
 
 const busy = () => Object.assign(new Error('EBUSY: resource busy or locked'), { code: 'EBUSY' });
 
@@ -41,5 +44,19 @@ describe('retryWhileBusy', () => {
       }),
     ).rejects.toThrow('ENOENT');
     expect(calls).toBe(1);
+  });
+});
+
+describe('folderSize', () => {
+  it('suma los bytes de todos los archivos, incluidos los de subcarpetas', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'rastro-folder-size-'));
+    await writeFile(join(dir, 'video.webm'), Buffer.alloc(100));
+    await mkdir(join(dir, 'agent-checkpoints'));
+    await writeFile(join(dir, 'agent-checkpoints', 'run1.json'), Buffer.alloc(50));
+    await expect(folderSize(dir)).resolves.toBe(150);
+  });
+
+  it('devuelve 0 si la carpeta no existe', async () => {
+    await expect(folderSize(join(tmpdir(), 'rastro-no-existe-jamas'))).resolves.toBe(0);
   });
 });

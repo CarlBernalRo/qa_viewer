@@ -15,6 +15,7 @@ export { InfoTip } from './InfoTip';
 export { JsonView } from './JsonView';
 export { Panel } from './Panel';
 export { SegmentedControl, type SegmentOption } from './SegmentedControl';
+export { hasProviderIcon, ProviderBrandIcon } from './providerIcons';
 export { Skeleton, SkeletonGroup } from './Skeleton';
 export { StatusBadge } from './StatusBadge';
 export { Stepper } from './Stepper';

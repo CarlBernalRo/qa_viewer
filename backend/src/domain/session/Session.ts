@@ -22,6 +22,7 @@ interface SessionProps {
   stats: SessionStats;
   hasVideo: boolean;
   videoOffsetMs?: number;
+  baselineSessionId?: string;
 }
 
 /**
@@ -76,6 +77,15 @@ export class Session {
 
   get capture(): CaptureConfig {
     return this.props.capture;
+  }
+
+  get baselineSessionId(): string | undefined {
+    return this.props.baselineSessionId;
+  }
+
+  /** `undefined` quita la comparación. */
+  setBaseline(sessionId: string | undefined): void {
+    this.props.baselineSessionId = sessionId;
   }
 
   get stats(): SessionStats {

@@ -1,5 +1,6 @@
 import type { CaptureEvent } from '@rastro/shared';
 import type { ReactNode } from 'react';
+import { useApi } from '../../app/providers/BackendProvider';
 import { formatClock, formatDuration } from '../../shared/lib/format';
 import { EVENT_KIND_LABELS } from '../../shared/lib/labels';
 import { BodyView, CodeBlock, HeadersTable, Panel } from '../../shared/ui';
@@ -27,7 +28,8 @@ function statusTone(status: number): string {
   return styles.statusOk ?? '';
 }
 
-function Detail({ event, model }: { event: CaptureEvent; model: TimelineModel }) {
+function Detail({ event, model, sessionId }: { event: CaptureEvent; model: TimelineModel; sessionId: string }) {
+  const api = useApi();
   switch (event.kind) {
     case 'http-request':
     case 'http-response':
@@ -120,11 +122,30 @@ function Detail({ event, model }: { event: CaptureEvent; model: TimelineModel })
       return <Rows rows={[['Métrica', event.name], ['Valor', event.name === 'CLS' ? event.value : `${event.value} ms`]]} />;
     case 'a11y-scan':
       return <A11yScanDetail scan={event} />;
+    case 'screenshot':
+      return (
+        <>
+          <Rows rows={[['URL', <span className="mono">{event.url}</span>]]} />
+          <img
+            src={api.screenshotUrl(sessionId, event.file)}
+            alt={`Captura de ${event.url}`}
+            className={styles.screenshotPreview}
+          />
+        </>
+      );
   }
 }
 
 /** Panel derecho: fijo y con su propio scroll. */
-export function EventInspector({ event, model }: { event: CaptureEvent | null; model: TimelineModel }) {
+export function EventInspector({
+  event,
+  model,
+  sessionId,
+}: {
+  event: CaptureEvent | null;
+  model: TimelineModel;
+  sessionId: string;
+}) {
   if (!event) {
     return (
       <Panel title="Detalle del evento" fill>
@@ -138,7 +159,7 @@ export function EventInspector({ event, model }: { event: CaptureEvent | null; m
   return (
     <Panel title={EVENT_KIND_LABELS[event.kind]} subtitle={formatClock(event.t)} fill>
       <div className={styles.inspector}>
-        <Detail event={event} model={model} />
+        <Detail event={event} model={model} sessionId={sessionId} />
       </div>
     </Panel>
   );

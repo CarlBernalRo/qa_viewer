@@ -91,10 +91,12 @@ interface BriefInput {
   review: SessionReview;
   analysis: SessionAnalysis;
   events: readonly CaptureEvent[];
+  /** Recomendación puntual que el QA escribió justo antes de lanzar este análisis (no persiste, solo esta corrida). */
+  note?: string;
 }
 
 /** Lo que los tres agentes necesitan saber: objetivo, criterios, lo que decidió el QA, hallazgos y recorrido. */
-export function sharedBrief({ session, review, analysis, events }: BriefInput, refs: EvidenceRefs): string {
+export function sharedBrief({ session, review, analysis, events, note }: BriefInput, refs: EvidenceRefs): string {
   const { objective, capture } = session;
   const lines: string[] = [
     '# Sesión de QA',
@@ -106,6 +108,7 @@ export function sharedBrief({ session, review, analysis, events }: BriefInput, r
     lines.push(`Duración: ${seconds(new Date(session.endedAt).getTime() - new Date(session.startedAt).getTime())}`);
   }
   if (objective.linkedIssue) lines.push(`Historia vinculada: ${objective.linkedIssue}`);
+  if (note) lines.push('', '## Recomendación del QA para este análisis', note);
 
   lines.push('', '## Objetivo', objective.statement, '', '## Criterios de aceptación');
   for (const criterion of objective.criteria) {
@@ -356,6 +359,108 @@ export function envDigest(session: SessionDto, events: readonly CaptureEvent[], 
     lines.push(`- ${clock(event.t)} ${refs.ref(event.id)} ${clip(event.text, 200)}`);
   }
   if (!anyLog) lines.push('Ninguna.');
+  return lines.join('\n');
+}
+
+/** Evidencia del agente UI/UX: qué pantallas distintas se capturaron (las imágenes van aparte, adjuntas). */
+export function uxDigest(events: readonly CaptureEvent[], refs: EvidenceRefs): string {
+  const shots = events.filter((event) => event.kind === 'screenshot');
+  const lines = ['## Capturas de pantalla adjuntas (una por pantalla distinta)'];
+  if (shots.length === 0) lines.push('No se tomó ninguna (el canal de capturas no estaba activo o no hubo pantallas).');
+  for (const shot of shots) {
+    lines.push(`- ${clock(shot.t)} ${refs.ref(shot.id)} ${shot.url}`);
+  }
+  return lines.join('\n');
+}
+
+interface SessionSnapshot {
+  session: SessionDto;
+  events: readonly CaptureEvent[];
+}
+
+/** Clave normalizada para agrupar mensajes de consola/excepciones sin que un número los separe. */
+function errorKey(text: string): string {
+  return text.replace(/\d+/g, '#').replace(/\s+/g, ' ').trim().slice(0, 200);
+}
+
+function errorMessages(events: readonly CaptureEvent[]): Set<string> {
+  const messages = new Set<string>();
+  for (const event of events) {
+    if (event.kind === 'exception') messages.add(errorKey(event.message));
+    else if (event.kind === 'console' && event.level === 'error') messages.add(errorKey(event.text));
+  }
+  return messages;
+}
+
+/**
+ * Evidencia del agente Regresión: compara esta sesión con la sesión base configurada (endpoints
+ * nuevos o que desaparecieron, cambios de status, errores de consola nuevos). Sin sesión base,
+ * lo dice explícitamente: el agente no debe inventar una comparación.
+ */
+export function regDigest(current: SessionSnapshot, baseline: SessionSnapshot | null, refs: EvidenceRefs): string {
+  if (!baseline) {
+    return [
+      '## Comparación con sesión base',
+      'No hay sesión base configurada para esta sesión: no hay con qué comparar. No emitas ningún veredicto de comparación, marca cada criterio de tu área como inconclusive y dilo explícitamente en el resumen.',
+    ].join('\n');
+  }
+
+  const currentEvidence = new SessionEvidence({ objective: current.session.objective, capture: current.session.capture, events: current.events });
+  const baselineEvidence = new SessionEvidence({ objective: baseline.session.objective, capture: baseline.session.capture, events: baseline.events });
+
+  const groupBy = (evidence: SessionEvidence): Map<string, RequestTrace[]> => {
+    const groups = new Map<string, RequestTrace[]>();
+    for (const trace of evidence.requests) {
+      if (!API_TYPES.has(trace.request.resourceType) && !isProblem(trace)) continue;
+      const key = evidence.endpoint(trace.request.method, trace.request.url);
+      const group = groups.get(key);
+      if (group) group.push(trace);
+      else groups.set(key, [trace]);
+    }
+    return groups;
+  };
+  const currentEndpoints = groupBy(currentEvidence);
+  const baselineEndpoints = groupBy(baselineEvidence);
+
+  const lines = [
+    '## Comparación con sesión base',
+    `Sesión base: «${baseline.session.objective.sessionName}» (${baseline.session.capture.environment}, ${new Date(baseline.session.createdAt).toLocaleDateString('es')})`,
+    '',
+    '### Endpoints nuevos en esta sesión (no estaban en la base)',
+  ];
+  const added = [...currentEndpoints.keys()].filter((key) => !baselineEndpoints.has(key));
+  if (added.length === 0) lines.push('Ninguno.');
+  for (const key of added) {
+    const traces = currentEndpoints.get(key) ?? [];
+    lines.push(`- ${key} · status ${[...new Set(traces.map(statusText))].join(', ')} · ${refs.list(traces.map((t) => t.request.id), 3)}`);
+  }
+
+  lines.push('', '### Endpoints que estaban en la base y ya no aparecen aquí');
+  const removed = [...baselineEndpoints.keys()].filter((key) => !currentEndpoints.has(key));
+  lines.push(removed.length === 0 ? 'Ninguno.' : removed.map((key) => `- ${key}`).join('\n'));
+
+  lines.push('', '### Endpoints con status distinto al de la base');
+  let anyChanged = false;
+  for (const [key, traces] of currentEndpoints) {
+    const baseTraces = baselineEndpoints.get(key);
+    if (!baseTraces) continue;
+    const currentStatuses = new Set(traces.map(statusText));
+    const baseStatuses = new Set(baseTraces.map(statusText));
+    const changed = [...currentStatuses].some((status) => !baseStatuses.has(status));
+    if (!changed) continue;
+    anyChanged = true;
+    lines.push(
+      `- ${key} · ahora: ${[...currentStatuses].join(', ')} (antes: ${[...baseStatuses].join(', ')}) · ${refs.list(traces.map((t) => t.request.id), 3)}`,
+    );
+  }
+  if (!anyChanged) lines.push('Ninguno.');
+
+  lines.push('', '### Errores de consola o excepciones nuevos (no estaban en la base)');
+  const currentErrors = errorMessages(current.events);
+  const baselineErrors = errorMessages(baseline.events);
+  const newErrors = [...currentErrors].filter((message) => !baselineErrors.has(message));
+  lines.push(newErrors.length === 0 ? 'Ninguno.' : newErrors.map((message) => `- ${clip(message, 200)}`).join('\n'));
+
   return lines.join('\n');
 }
 

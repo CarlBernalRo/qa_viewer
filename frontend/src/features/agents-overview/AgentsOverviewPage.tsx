@@ -1,4 +1,4 @@
-import { AGENT_ROSTER, AGENT_ROSTER_ORDER, type AgentRosterId, type AgentRun, type SessionDto } from '@rastro/shared';
+import { AGENT_ROSTER_ORDER, type AgentRosterId, type AgentRosterMeta, type AgentRun, type SessionDto } from '@rastro/shared';
 import { useQueries } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { Link } from 'react-router';
@@ -9,6 +9,7 @@ import { queryKeys } from '../../shared/api/queryKeys';
 import { AppShell, EmptyState, ErrorMessage, InfoTip, Panel, Skeleton, SkeletonGroup } from '../../shared/ui';
 import { RosterAvatar } from '../session-detail/agents/RosterAvatar';
 import { useAgentStatus, useSessions } from '../sessions/api';
+import { useAgentCatalog } from './AgentCatalogContext';
 import styles from './AgentsOverviewPage.module.css';
 
 const RUN_STATUS_LABELS: Record<AgentRun['status'], string> = {
@@ -22,12 +23,12 @@ interface Row {
   run: AgentRun | undefined;
 }
 
-function RosterCard({ id, index }: { id: AgentRosterId; index: number }) {
-  const meta = AGENT_ROSTER[id];
+function RosterCard({ id, index, meta }: { id: AgentRosterId; index: number; meta: AgentRosterMeta }) {
   return (
     <Link to={`/agentes/${id}`} className={cx(styles.rosterCard, !meta.implemented && styles.rosterCardSoon)}>
       <div className={styles.rosterHead}>
         <RosterAvatar
+          agent={id}
           color={meta.color}
           name={meta.name}
           eyeShape={meta.eyeShape}
@@ -50,6 +51,7 @@ function RosterCard({ id, index }: { id: AgentRosterId; index: number }) {
 
 export function AgentsOverviewPage() {
   const api = useApi();
+  const { roster } = useAgentCatalog();
   const status = useAgentStatus();
   const sessions = useSessions();
   const completed = useMemo(() => (sessions.data ?? []).filter((session) => session.status === 'completed'), [sessions.data]);
@@ -76,7 +78,7 @@ export function AgentsOverviewPage() {
         <header className={styles.header}>
           <h1 className={styles.title}>Equipo de agentes</h1>
           <p className={styles.lede}>
-            El equipo objetivo de la visión de producto. Hoy corren de verdad 8 especialistas y el QA Lead, más Carga y
+            El equipo completo de la visión de producto: 10 especialistas y el QA Lead ya corren de verdad, más Carga y
             Reportero como generadores determinísticos (sin IA) desde el menú Acciones de la sesión.
           </p>
         </header>
@@ -95,16 +97,16 @@ export function AgentsOverviewPage() {
           title="Especialistas"
           subtitle="Sin agentes configurados no corre ninguno; con agentes, el modo Sugeridos siempre usa el equipo completo."
           actions={
-            <InfoTip label="Por qué UI/UX y Regresión quedan como catálogo">
-              UI/UX necesita mandarle imágenes al modelo (hoy todo es texto). Regresión necesita "Comparaciones"
-              (marcar una sesión como base y comparar contra otra, etapa 4). El resto del equipo, incluidos Carga y
-              Reportero, ya funciona de verdad.
+            <InfoTip label="Qué le falta al equipo">
+              UI/UX y Regresión ya funcionan de verdad. UI/UX recibe una captura por cada pantalla distinta (canal
+              "Capturas de pantalla" al grabar); Regresión necesita que elijas una sesión base desde el detalle de la
+              sesión, si no, lo dice explícitamente y no opina.
             </InfoTip>
           }
         >
           <div className={styles.rosterGrid}>
             {AGENT_ROSTER_ORDER.map((id, index) => (
-              <RosterCard key={id} id={id} index={index} />
+              <RosterCard key={id} id={id} index={index} meta={roster[id]} />
             ))}
           </div>
         </Panel>

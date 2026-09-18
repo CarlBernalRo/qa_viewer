@@ -3,8 +3,10 @@ import {
   type AgentId,
   type AgentRun,
   type CaptureEvent,
+  type AgentSettings,
   type FindingDecisionRecord,
   type LiveMessage,
+  type ProjectDto,
   type SessionReview,
 } from '@rastro/shared';
 import { RecordingRegistry, type AppDeps } from '../src/application/index.js';
@@ -29,12 +31,58 @@ import type {
   RecordingSink,
   ReportRenderer,
   ReportStore,
+  ScreenshotStore,
   SessionReportData,
+  AgentSettingsStore,
+  ProjectRepository,
   SessionRepository,
   SessionReviewStore,
+  SessionStorageInspector,
   StartRecordingOptions,
 } from '../src/domain/ports.js';
 import { Session } from '../src/domain/session/Session.js';
+
+export class InMemorySessionStorageInspector implements SessionStorageInspector {
+  async sizeBytes(): Promise<number> {
+    return 0;
+  }
+}
+
+export class InMemoryAgentSettingsStore implements AgentSettingsStore {
+  private readonly store = new Map<AgentId, AgentSettings>();
+
+  async get(agentId: AgentId): Promise<AgentSettings> {
+    return this.store.get(agentId) ?? {};
+  }
+
+  async getAll(): Promise<Partial<Record<AgentId, AgentSettings>>> {
+    return Object.fromEntries(this.store);
+  }
+
+  async set(agentId: AgentId, settings: AgentSettings): Promise<void> {
+    this.store.set(agentId, settings);
+  }
+}
+
+export class InMemoryProjectRepository implements ProjectRepository {
+  readonly store = new Map<string, ProjectDto>();
+
+  async save(project: ProjectDto): Promise<void> {
+    this.store.set(project.id, structuredClone(project));
+  }
+
+  async findById(id: string): Promise<ProjectDto | null> {
+    return this.store.get(id) ?? null;
+  }
+
+  async list(): Promise<ProjectDto[]> {
+    return [...this.store.values()];
+  }
+
+  async delete(id: string): Promise<void> {
+    this.store.delete(id);
+  }
+}
 
 export class InMemorySessionRepository implements SessionRepository {
   readonly store = new Map<string, ReturnType<Session['toDto']>>();
@@ -89,6 +137,18 @@ export class FakeMediaStore implements MediaStore {
 
   async videoPath(sessionId: string): Promise<string | null> {
     return this.videos.has(sessionId) ? `/videos/${sessionId}.webm` : null;
+  }
+}
+
+export class InMemoryScreenshotStore implements ScreenshotStore {
+  readonly files = new Map<string, Buffer>();
+
+  async prepareDir(sessionId: string): Promise<string> {
+    return `/tmp/${sessionId}/screenshots`;
+  }
+
+  async read(sessionId: string, file: string): Promise<Buffer | null> {
+    return this.files.get(`${sessionId}/${file}`) ?? null;
   }
 }
 
@@ -280,6 +340,7 @@ export function createTestDeps(maxConcurrent = 1) {
     sessions: new InMemorySessionRepository(),
     events: new InMemoryEventStore(),
     media: new FakeMediaStore(),
+    screenshots: new InMemoryScreenshotStore(),
     decisions: new InMemoryFindingDecisionStore(),
     reviews: new InMemorySessionReviewStore(),
     renderer: new FakeReportRenderer(),
@@ -289,6 +350,10 @@ export function createTestDeps(maxConcurrent = 1) {
     agentModelName: 'gemini-2.5-pro',
     agentProvider: 'Google Gemini',
     agentRuns: new InMemoryAgentRunStore(),
+    storage: new InMemorySessionStorageInspector(),
+    projects: new InMemoryProjectRepository(),
+    agentSettings: new InMemoryAgentSettingsStore(),
+    envPath: '/tmp/rastro-test.env',
     clock: new ManualClock(),
     ids: new SequentialIds(),
     notifier: new CollectingNotifier(),

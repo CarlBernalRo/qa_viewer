@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { parseEnv } from 'node:util';
+import { agentProviderSchema, AGENT_PROVIDER_META, type AgentProviderId, type RealAgentProviderId } from '@rastro/shared';
 import { z } from 'zod';
 
 const LOOPBACK_HOSTS = new Set(['127.0.0.1', '::1', 'localhost']);
@@ -46,9 +47,11 @@ const envSchema = z.object({
   /** Carpeta de los informes PDF. Por defecto, Descargas/Rastro del usuario. */
   RASTRO_REPORTS_DIR: z.string().min(1).optional(),
   /** Proveedor de los agentes. "auto": OpenRouter si hay OPENROUTER_API_KEY; si no, Gemini directo. */
-  RASTRO_AGENT_PROVIDER: z.enum(['auto', 'gemini', 'openrouter']).default('auto'),
-  /** Modelo de los agentes. Por defecto: gemini-2.5-pro (Gemini) o google/gemini-2.5-pro (OpenRouter). */
+  RASTRO_AGENT_PROVIDER: agentProviderSchema.default('auto'),
+  /** Modelo de los agentes. Por defecto, el que corresponda al proveedor elegido. */
   RASTRO_AGENT_MODEL: z.string().min(1).optional(),
+  /** Servidor de Ollama (local, o remoto si se expuso con un proxy). */
+  OLLAMA_BASE_URL: z.string().min(1).default('http://127.0.0.1:11434'),
   /** PID del proceso que lanzó el backend (Tauri). Si muere, el backend se apaga solo. */
   RASTRO_PARENT_PID: z.coerce.number().int().positive().optional(),
 });
@@ -76,6 +79,8 @@ export interface AppConfig {
     model: string;
     /** Hay clave del proveedor en el entorno (la configuración no guarda ni muestra su valor). */
     credentials: boolean;
+    /** Solo para Ollama: dónde está el servidor. */
+    baseUrl?: string;
   };
   parentPid?: number;
 }
@@ -96,37 +101,44 @@ export function loadDotEnv(path = '.env'): void {
   }
 }
 
-export type AgentProvider = 'gemini' | 'openrouter';
+export type AgentProvider = RealAgentProviderId;
 
 /**
- * Las claves de los proveedores se leen aparte y solo donde se crea el cliente: no forman
- * parte de AppConfig, así nunca terminan en un log de la configuración.
+ * La clave de un proveedor se lee aparte y solo donde se crea el cliente: no forma parte de
+ * AppConfig, así nunca termina en un log de la configuración.
  */
+export function providerApiKey(provider: RealAgentProviderId, source: NodeJS.ProcessEnv = process.env): string | undefined {
+  return source[AGENT_PROVIDER_META[provider].envKey]?.trim() || undefined;
+}
+
+/** Compatibilidad: antes eran las dos únicas funciones de clave. */
 export function geminiApiKey(source: NodeJS.ProcessEnv = process.env): string | undefined {
-  return source['GEMINI_API_KEY']?.trim() || undefined;
+  return providerApiKey('gemini', source);
 }
 
 export function openRouterApiKey(source: NodeJS.ProcessEnv = process.env): string | undefined {
-  return source['OPENROUTER_API_KEY']?.trim() || undefined;
+  return providerApiKey('openrouter', source);
 }
 
-function resolveAgents(
-  choice: 'auto' | AgentProvider,
-  model: string | undefined,
-  source: NodeJS.ProcessEnv,
-): AppConfig['agents'] {
-  const provider: AgentProvider = choice === 'auto' ? (openRouterApiKey(source) ? 'openrouter' : 'gemini') : choice;
+export function ollamaBaseUrl(source: NodeJS.ProcessEnv = process.env): string {
+  return source['OLLAMA_BASE_URL']?.trim() || 'http://127.0.0.1:11434';
+}
+
+function resolveAgents(choice: AgentProviderId, model: string | undefined, source: NodeJS.ProcessEnv): AppConfig['agents'] {
+  const provider: RealAgentProviderId = choice === 'auto' ? (providerApiKey('openrouter', source) ? 'openrouter' : 'gemini') : choice;
+  const meta = AGENT_PROVIDER_META[provider];
+  let resolvedModel = model ?? meta.defaultModel;
   if (provider === 'openrouter') {
-    const raw = model ?? 'google/gemini-2.5-pro';
     // En OpenRouter los modelos llevan el prefijo del proveedor: gemini-2.5-pro → google/gemini-2.5-pro.
-    const named = !raw.includes('/') && raw.startsWith('gemini') ? `google/${raw}` : raw;
-    return { provider, providerName: 'OpenRouter', model: named, credentials: Boolean(openRouterApiKey(source)) };
+    resolvedModel = !resolvedModel.includes('/') && resolvedModel.startsWith('gemini') ? `google/${resolvedModel}` : resolvedModel;
   }
   return {
     provider,
-    providerName: 'Google Gemini',
-    model: model ?? 'gemini-2.5-pro',
-    credentials: Boolean(geminiApiKey(source)),
+    providerName: meta.label,
+    model: resolvedModel,
+    // Ollama funciona sin clave contra un servidor local: no hace falta credencial para estar "configurado".
+    credentials: meta.keyOptional ? true : Boolean(providerApiKey(provider, source)),
+    ...(provider === 'ollama' ? { baseUrl: ollamaBaseUrl(source) } : {}),
   };
 }
 

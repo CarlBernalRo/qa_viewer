@@ -41,11 +41,15 @@ export class GeminiAgentModel implements AgentModel {
     this.client = new GoogleGenAI({ apiKey });
   }
 
-  async run<T>({ system, brief, task, schema }: AgentModelRequest<T>): Promise<{ output: T; usage: AgentModelUsage }> {
+  async run<T>({ system, brief, task, schema, images }: AgentModelRequest<T>): Promise<{ output: T; usage: AgentModelUsage }> {
+    const parts = [
+      { text: task },
+      ...(images ?? []).map((image) => ({ inlineData: { mimeType: image.mimeType, data: image.data } })),
+    ];
     const response = await this.withRetries(() =>
       this.client.models.generateContent({
         model: this.model,
-        contents: [{ role: 'user', parts: [{ text: task }] }],
+        contents: [{ role: 'user', parts }],
         config: {
           // Reglas + resumen de la sesión van primero y son idénticos para los tres agentes:
           // así Gemini puede reutilizar ese prefijo (caché implícita) en el segundo y el tercero.

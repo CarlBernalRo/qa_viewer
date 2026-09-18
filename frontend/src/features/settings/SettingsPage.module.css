@@ -1,0 +1,163 @@
+.container {
+  max-width: 760px;
+  padding: 24px;
+}
+
+.header {
+  margin-bottom: var(--space-6);
+}
+
+.header h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: var(--ink);
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.loading {
+  color: var(--muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-3);
+}
+
+@keyframes settingsCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  animation: settingsCardIn 260ms ease both;
+  transition: border-color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+
+.card:hover {
+  border-color: var(--rule-strong);
+  transform: translateY(-1px);
+}
+
+.cardSelected {
+  border-color: var(--link);
+  box-shadow: 0 0 0 1px var(--link);
+}
+
+.cardBadge {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+  transition: transform 200ms ease;
+}
+
+.cardSelected .cardBadge {
+  transform: scale(1.1);
+}
+
+.cardIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.cardName {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.cardStatus {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--ok-soft, #e4f2e9);
+  color: var(--ok);
+}
+
+.cardStatusActive {
+  background: var(--link);
+  color: #fff;
+}
+
+.cardStatusOff {
+  background: var(--ground);
+  color: var(--muted);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  animation: settingsCardIn 200ms ease both;
+}
+
+.panelText {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.modelRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modelRow > :last-child {
+  align-self: flex-start;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.success {
+  color: var(--ok);
+  font-size: 14px;
+  font-weight: 500;
+}

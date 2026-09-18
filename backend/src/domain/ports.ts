@@ -2,11 +2,13 @@ import type { ZodType } from 'zod';
 import type {
   AgentId,
   AgentRun,
+  AgentSettings,
   CaptureConfig,
   CaptureEvent,
   CaptureEventKind,
   FindingDecisionRecord,
   LiveMessage,
+  ProjectDto,
   RawCaptureEvent,
   SessionAnalysis,
   SessionDto,
@@ -24,6 +26,26 @@ export interface SessionRepository {
   list(): Promise<Session[]>;
   /** Borra la sesión y todo lo que se guardó con ella (eventos y video). */
   delete(id: string): Promise<void>;
+}
+
+/** Cuánto pesa en disco todo lo que dejó una sesión (video, eventos, corridas de agentes…). */
+export interface SessionStorageInspector {
+  sizeBytes(sessionId: string): Promise<number>;
+}
+
+/** Proyectos (empresa/cliente) que agrupan sesiones. Índice único, no uno por sesión. */
+export interface ProjectRepository {
+  save(project: ProjectDto): Promise<void>;
+  findById(id: string): Promise<ProjectDto | null>;
+  list(): Promise<ProjectDto[]>;
+  delete(id: string): Promise<void>;
+}
+
+/** Overrides de avatar/prompt por agente, persistentes entre corridas. Índice único. */
+export interface AgentSettingsStore {
+  get(agentId: AgentId): Promise<AgentSettings>;
+  getAll(): Promise<Partial<Record<AgentId, AgentSettings>>>;
+  set(agentId: AgentId, settings: AgentSettings): Promise<void>;
 }
 
 export interface EventQuery {
@@ -45,6 +67,14 @@ export interface MediaStore {
   /** Mueve el video final a su lugar definitivo. Devuelve false si no había video. */
   importVideo(sessionId: string, sourcePath: string | undefined): Promise<boolean>;
   videoPath(sessionId: string): Promise<string | null>;
+}
+
+/** Capturas de pantalla que deja la grabación, para el agente UI/UX. */
+export interface ScreenshotStore {
+  /** Carpeta definitiva donde el grabador va dejando las capturas a medida que las toma. */
+  prepareDir(sessionId: string): Promise<string>;
+  /** null si el archivo no existe (p. ej., una sesión vieja sin ese canal). */
+  read(sessionId: string, file: string): Promise<Buffer | null>;
 }
 
 export type RecordingEndReason = 'stopped' | 'browser-closed' | 'crashed';
@@ -72,6 +102,7 @@ export interface StartRecordingOptions {
   sessionId: string;
   config: CaptureConfig;
   videoDir: string;
+  screenshotsDir: string;
 }
 
 export interface BrowserRecorder {
@@ -112,6 +143,12 @@ export interface AgentModelUsage {
   cacheWriteTokens: number;
 }
 
+export interface AgentModelImage {
+  mimeType: string;
+  /** Base64, sin el prefijo `data:`. */
+  data: string;
+}
+
 export interface AgentModelRequest<T> {
   agentId: AgentId;
   /** Reglas comunes a todos los agentes. */
@@ -122,6 +159,8 @@ export interface AgentModelRequest<T> {
   task: string;
   /** Forma de la respuesta (salida estructurada). */
   schema: ZodType<T>;
+  /** Capturas de pantalla para el agente UI/UX (los demás no las usan). */
+  images?: AgentModelImage[];
 }
 
 /** El modelo de lenguaje que usan los agentes. */

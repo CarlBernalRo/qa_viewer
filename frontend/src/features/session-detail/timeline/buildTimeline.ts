@@ -213,6 +213,10 @@ export function buildTimeline(events: readonly CaptureEvent[]): TimelineModel {
         );
         break;
       }
+      case 'screenshot':
+        // Una captura por pantalla distinta: va en el carril de pantallas.
+        push('navigation', event, 'Captura de pantalla');
+        break;
     }
   }
 

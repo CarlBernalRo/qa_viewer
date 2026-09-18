@@ -17,8 +17,12 @@ import { FileAgentRunStore } from '../src/infrastructure/persistence/FileAgentRu
 import { FileEventStore } from '../src/infrastructure/persistence/FileEventStore.js';
 import { FileFindingDecisionStore } from '../src/infrastructure/persistence/FileFindingDecisionStore.js';
 import { FileMediaStore } from '../src/infrastructure/persistence/FileMediaStore.js';
+import { FileScreenshotStore } from '../src/infrastructure/persistence/FileScreenshotStore.js';
+import { FileAgentSettingsStore } from '../src/infrastructure/persistence/FileAgentSettingsStore.js';
+import { FileProjectRepository } from '../src/infrastructure/persistence/FileProjectRepository.js';
 import { FileSessionReviewStore } from '../src/infrastructure/persistence/FileSessionReviewStore.js';
 import { FileSessionRepository } from '../src/infrastructure/persistence/FileSessionRepository.js';
+import { FileSessionStorageInspector } from '../src/infrastructure/persistence/FileSessionStorageInspector.js';
 import { SessionPaths } from '../src/infrastructure/persistence/SessionPaths.js';
 import { PlaywrightRecorder } from '../src/infrastructure/recording/playwright/PlaywrightRecorder.js';
 import { FileReportStore } from '../src/infrastructure/reports/FileReportStore.js';
@@ -71,6 +75,7 @@ async function main(): Promise<void> {
     sessions: new FileSessionRepository(paths, quietLogger),
     events: new FileEventStore(paths, quietLogger),
     media: new FileMediaStore(paths),
+    screenshots: new FileScreenshotStore(paths),
     decisions: new FileFindingDecisionStore(paths),
     reviews: new FileSessionReviewStore(paths),
     renderer: new PlaywrightPdfRenderer(),
@@ -81,6 +86,10 @@ async function main(): Promise<void> {
     agentModelName: 'gemini-2.5-pro',
     agentProvider: 'Google Gemini',
     agentRuns: new FileAgentRunStore(paths),
+    storage: new FileSessionStorageInspector(paths),
+    projects: new FileProjectRepository(join(dataDir, 'projects.json')),
+    agentSettings: new FileAgentSettingsStore(join(dataDir, 'agent-settings.json')),
+    envPath: join(dataDir, '.env'),
     clock: new SystemClock(),
     ids: new CryptoIdGenerator(),
     notifier: { publish: () => {} },
@@ -107,7 +116,7 @@ async function main(): Promise<void> {
       capture: {
         startUrl: `http://127.0.0.1:${port}/`,
         environment: 'DEV',
-        channels: ['actions', 'network', 'websocket', 'console', 'performance', 'accessibility', 'video'],
+        channels: ['actions', 'network', 'websocket', 'console', 'performance', 'accessibility', 'video', 'screenshots'],
         redaction: { presets: ['card-numbers', 'tokens-cookies', 'emails'], customPatterns: [] },
         analysisMode: 'none',
       },
@@ -155,6 +164,12 @@ async function main(): Promise<void> {
     check(click?.kind === 'user-action' && typeof click.viewport.dpr === 'number', 'la acción trae el zoom de pantalla (devicePixelRatio)');
     check(Boolean(imageAlt), 'axe-core detectó la imagen sin texto alternativo');
     if (imageAlt) log(`    «${imageAlt.help}»`);
+    const screenshot = events.find((event) => event.kind === 'screenshot');
+    check(Boolean(screenshot), 'se capturó una screenshot de la pantalla');
+    if (screenshot?.kind === 'screenshot') {
+      const { size } = await stat(paths.screenshotFile(session.id, screenshot.file));
+      check(size > 0, `la screenshot pesa ${Math.round(size / 1024)} KB`);
+    }
     const analysis = await useCases.analyzeSession.execute(session.id);
     check(analysis.findings.some((finding) => finding.ruleId === 'a11y-violation'), 'el análisis generó el hallazgo de accesibilidad');
     const review = await useCases.getSessionReview.execute(session.id);

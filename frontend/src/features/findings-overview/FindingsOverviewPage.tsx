@@ -1,13 +1,14 @@
 import type { Finding, FindingSeverity, SessionAnalysis, SessionDto } from '@rastro/shared';
 import { useQueries } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { useApi } from '../../app/providers/BackendProvider';
 import { formatClock, formatDate } from '../../shared/lib/format';
 import { FINDING_SEVERITY_LABELS } from '../../shared/lib/labels';
 import { cx } from '../../shared/lib/cx';
 import { queryKeys } from '../../shared/api/queryKeys';
-import { AppShell, EmptyState, ErrorMessage, Panel, Skeleton, SkeletonGroup } from '../../shared/ui';
+import { AppShell, EmptyState, ErrorMessage, Panel, Select, Skeleton, SkeletonGroup } from '../../shared/ui';
+import { useProjects } from '../projects/api';
 import { useSessions } from '../sessions/api';
 import styles from './FindingsOverviewPage.module.css';
 
@@ -21,8 +22,15 @@ interface Row {
 export function FindingsOverviewPage() {
   const api = useApi();
   const sessions = useSessions();
+  const projects = useProjects();
+  const [projectFilter, setProjectFilter] = useState('');
   // Los hallazgos son deterministas y no se guardan: se recalculan por sesión, como en el detalle.
-  const completed = useMemo(() => (sessions.data ?? []).filter((session) => session.status === 'completed'), [sessions.data]);
+  const completed = useMemo(() => {
+    const done = (sessions.data ?? []).filter((session) => session.status === 'completed');
+    if (!projectFilter) return done;
+    if (projectFilter === '__none__') return done.filter((session) => !session.capture.projectId);
+    return done.filter((session) => session.capture.projectId === projectFilter);
+  }, [sessions.data, projectFilter]);
 
   const analyses = useQueries({
     queries: completed.map((session) => ({
@@ -60,6 +68,24 @@ export function FindingsOverviewPage() {
           <h1 className={styles.title}>Hallazgos</h1>
           <p className={styles.lede}>Reglas fijas (sin IA) sobre todas las sesiones grabadas, no descartados.</p>
         </header>
+
+        {projects.data && projects.data.length > 0 && (
+          <div className={styles.filters}>
+            <Select
+              aria-label="Filtrar por proyecto"
+              value={projectFilter}
+              onChange={(event) => setProjectFilter(event.target.value)}
+            >
+              <option value="">Todos los proyectos</option>
+              <option value="__none__">Sin proyecto</option>
+              {projects.data.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </Select>
+          </div>
+        )}
 
         <ErrorMessage error={firstError} />
 

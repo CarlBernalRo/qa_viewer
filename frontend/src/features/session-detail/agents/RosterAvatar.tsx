@@ -1,8 +1,9 @@
 import type { AgentAnimation, AgentEyeShape, AgentGesture } from '@rastro/shared';
 import styles from './AgentAvatar.module.css';
-import { AgentEyes, AgentHead } from './agentVisuals';
+import { AgentEyes, AgentHead, AgentTop } from './agentVisuals';
 
 interface RosterAvatarProps {
+  agent?: string;
   color: string;
   name: string;
   eyeShape: AgentEyeShape;
@@ -22,6 +23,7 @@ interface RosterAvatarProps {
  * `AgentAvatar`).
  */
 export function RosterAvatar({
+  agent,
   color,
   name,
   eyeShape,
@@ -37,8 +39,7 @@ export function RosterAvatar({
       <rect x="2" y="14" width="3" height="6" rx="1.5" fill={color} />
       <rect x="27" y="14" width="3" height="6" rx="1.5" fill={color} />
       <AgentHead gesture={gesture} animate={animate} delayMs={delayMs}>
-        <line x1="16" y1="3.5" x2="16" y2="8" stroke={color} strokeWidth="2" strokeLinecap="round" />
-        <circle cx="16" cy="3" r="2.2" fill={color} />
+        <AgentTop agent={agent} color={color} />
         <rect x="5" y="8" width="22" height="19" rx="6" fill={color} />
         <rect x="8.5" y="12.5" width="15" height="9" rx="4.5" fill="#ffffff" />
         <AgentEyes shape={eyeShape} color={color} animation={animation} animate={animate} delayMs={delayMs} />

@@ -6,6 +6,8 @@ import {
   type AgentRun,
   type AgentStatus,
   type AgentStep,
+  type CaptureEvent,
+  type SessionDto,
   type SpecialistId,
   type SpecialistReport,
 } from '@rastro/shared';
@@ -13,12 +15,15 @@ import { FeatureNotAvailableError, InvalidStateError, NotFoundError } from '../.
 import type {
   AgentCheckpoint,
   AgentModel,
+  AgentModelImage,
   AgentModelUsage,
   AgentRunStore,
+  AgentSettingsStore,
   Clock,
   EventStore,
   IdGenerator,
   Logger,
+  ScreenshotStore,
   SessionRepository,
   SessionReviewStore,
 } from '../../domain/ports.js';
@@ -32,8 +37,10 @@ import {
   funcDigest,
   perfDigest,
   realtimeDigest,
+  regDigest,
   securityDigest,
   sharedBrief,
+  uxDigest,
 } from '../agents/brief.js';
 import { AGENT_SYSTEM, leadTask, specialistTask } from '../agents/prompts.js';
 import type { AnalyzeSession } from './analysis.js';
@@ -84,6 +91,8 @@ export class StartAgentRun {
     private readonly analyze: AnalyzeSession,
     private readonly reviews: SessionReviewStore,
     private readonly runs: AgentRunStore,
+    private readonly agentSettings: AgentSettingsStore,
+    private readonly screenshots: ScreenshotStore,
     private readonly model: AgentModel | null,
     private readonly clock: Clock,
     private readonly ids: IdGenerator,
@@ -99,11 +108,11 @@ export class StartAgentRun {
     await this.active.get(sessionId);
   }
 
-  /** Análisis nuevo: arma el contexto y consulta a los tres agentes. */
-  async execute(sessionId: string): Promise<AgentRun> {
+  /** Análisis nuevo: arma el contexto y consulta a los tres agentes. `note`: recomendación puntual del QA para esta corrida. */
+  async execute(sessionId: string, note?: string, agentId?: SpecialistId): Promise<AgentRun> {
     const { model, session } = await this.reserve(sessionId);
     try {
-      return await this.start(model, session);
+      return await this.start(model, session, note, agentId);
     } finally {
       this.reserved.delete(sessionId);
     }
@@ -120,7 +129,11 @@ export class StartAgentRun {
       }
       const checkpoint = await this.runs.loadCheckpoint(sessionId, runId);
       // Sin punto de control (análisis de una versión anterior) no hay de dónde retomar: se empieza de nuevo.
-      if (!checkpoint) return await this.start(model, session);
+      if (!checkpoint) {
+        // Al retomar desde cero, usamos los especialistas que estaban previstos en ese run.
+        const prevAgentId = run.steps.length === 2 ? (run.steps[0]?.agentId as SpecialistId | undefined) : undefined;
+        return await this.start(model, session, undefined, prevAgentId);
+      }
 
       run.status = 'running';
       run.model = model.model;
@@ -152,8 +165,9 @@ export class StartAgentRun {
     return { model, session };
   }
 
-  private async start(model: AgentModel, session: Session): Promise<AgentRun> {
-    const order: readonly AgentId[] = [...specialistsFor(session), 'lead'];
+  private async start(model: AgentModel, session: Session, note?: string, agentId?: SpecialistId): Promise<AgentRun> {
+    const specialists = agentId ? [agentId] : specialistsFor(session);
+    const order: readonly AgentId[] = [...specialists, 'lead'];
     const run: AgentRun = {
       id: this.ids.eventId(),
       sessionId: session.id,
@@ -166,11 +180,17 @@ export class StartAgentRun {
       usage: { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 },
     };
     await this.runs.save(run);
-    return this.launch(model, session, run, null);
+    return this.launch(model, session, run, null, note);
   }
 
-  private launch(model: AgentModel, session: Session, run: AgentRun, checkpoint: AgentCheckpoint | null): AgentRun {
-    const work = this.process(model, session, run, checkpoint)
+  private launch(
+    model: AgentModel,
+    session: Session,
+    run: AgentRun,
+    checkpoint: AgentCheckpoint | null,
+    note?: string,
+  ): AgentRun {
+    const work = this.process(model, session, run, checkpoint, note)
       .catch(async (error: unknown) => {
         const message = error instanceof Error ? error.message : String(error);
         this.logger.warn('El análisis de agentes falló', { sessionId: session.id, runId: run.id, error: message });
@@ -196,17 +216,18 @@ export class StartAgentRun {
     await this.runs.save(run);
   }
 
-  /** Lo que reciben los agentes. Se arma una vez y se guarda: al retomar se usa el mismo. */
-  private async buildContext(session: Session): Promise<AgentCheckpoint> {
-    const [events, review, analysis] = await Promise.all([
+  /** Lo que reciben los agentes. Se arma una vez y se guarda: al retomar se usa el mismo (con la misma recomendación, si hubo). */
+  private async buildContext(session: Session, note?: string): Promise<AgentCheckpoint> {
+    const [events, review, analysis, baseline] = await Promise.all([
       this.events.read(session.id),
       this.reviews.read(session.id),
       this.analyze.execute(session.id),
+      this.loadBaseline(session.baselineSessionId),
     ]);
     const dto = session.toDto();
     const refs = new EvidenceRefs();
     // El resumen se arma primero y es idéntico para todos los agentes: así se reutiliza en caché.
-    const brief = sharedBrief({ session: dto, review, analysis, events }, refs);
+    const brief = sharedBrief({ session: dto, review, analysis, events, ...(note ? { note } : {}) }, refs);
     const digests = {
       api: apiDigest(dto, events, refs),
       frontend: frontendDigest(events, refs),
@@ -216,8 +237,31 @@ export class StartAgentRun {
       rt: realtimeDigest(dto, events, refs),
       func: funcDigest(events, refs),
       env: envDigest(dto, events, refs),
+      ux: uxDigest(events, refs),
+      reg: regDigest({ session: dto, events }, baseline, refs),
     };
     return { brief, digests, refs: refs.entries(), reports: {} };
+  }
+
+  /** null si no hay sesión base configurada, o si ya no existe (se borró desde entonces). */
+  private async loadBaseline(baselineSessionId?: string): Promise<{ session: SessionDto; events: readonly CaptureEvent[] } | null> {
+    if (!baselineSessionId) return null;
+    const baseline = await this.sessions.findById(baselineSessionId);
+    if (!baseline) return null;
+    const events = await this.events.read(baselineSessionId);
+    return { session: baseline.toDto(), events };
+  }
+
+  /** Imágenes para el agente UI/UX: una por pantalla capturada, hasta un tope para no disparar el costo. */
+  private async loadScreenshots(sessionId: string, events: readonly CaptureEvent[]): Promise<AgentModelImage[]> {
+    const MAX_IMAGES = 8;
+    const shots = events.filter((event) => event.kind === 'screenshot').slice(0, MAX_IMAGES);
+    const images: AgentModelImage[] = [];
+    for (const shot of shots) {
+      const buffer = await this.screenshots.read(sessionId, shot.file);
+      if (buffer) images.push({ mimeType: 'image/jpeg', data: buffer.toString('base64') });
+    }
+    return images;
   }
 
   private async process(
@@ -225,23 +269,27 @@ export class StartAgentRun {
     session: Session,
     run: AgentRun,
     checkpoint: AgentCheckpoint | null,
+    note?: string,
   ): Promise<void> {
-    const context = checkpoint ?? (await this.buildContext(session));
+    const context = checkpoint ?? (await this.buildContext(session, note));
     if (!checkpoint) await this.runs.saveCheckpoint(session.id, run.id, context);
     const refs = EvidenceRefs.fromEntries(context.refs);
     const criteria = new Set(session.objective.criteria.map((criterion) => criterion.id));
 
-    const specialists = specialistsFor(session);
+    const specialists = run.steps.map(s => s.agentId).filter(id => id !== 'lead') as SpecialistId[];
     for (const agentId of specialists) {
       // Ya respondió en un intento anterior: no se vuelve a consultar.
       if (context.reports[agentId]) continue;
       await this.setStep(run, agentId, { status: 'running' });
+      const settings = await this.agentSettings.get(agentId);
+      const images = agentId === 'ux' ? await this.loadScreenshots(session.id, await this.events.read(session.id)) : undefined;
       const result = await model.run({
         agentId,
         system: AGENT_SYSTEM,
         brief: context.brief,
-        task: specialistTask(agentId, context.digests[agentId]),
+        task: specialistTask(agentId, context.digests[agentId], settings),
         schema: specialistReportSchema,
+        ...(images && images.length > 0 ? { images } : {}),
       });
       addUsage(run.usage, result.usage);
       context.reports[agentId] = result.output;
@@ -253,6 +301,7 @@ export class StartAgentRun {
         criteria: result.output.criteria
           .filter((item) => criteria.has(item.criterionId))
           .map((item) => ({ ...item, evidence: refs.resolve(item.evidence) })),
+        approvalPercentage: result.output.approvalPercentage,
         finishedAt: this.clock.now().toISOString(),
       });
     }

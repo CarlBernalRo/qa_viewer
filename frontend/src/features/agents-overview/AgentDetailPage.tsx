@@ -1,4 +1,4 @@
-import { AGENT_ROSTER, type AgentId, type AgentRosterId, type AgentRun, type SessionDto } from '@rastro/shared';
+import type { AgentId, AgentRosterId, AgentRun, SessionDto } from '@rastro/shared';
 import { useQueries } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { Link, useParams } from 'react-router';
@@ -9,6 +9,8 @@ import { queryKeys } from '../../shared/api/queryKeys';
 import { AppShell, EmptyState, ErrorMessage, Panel, Skeleton, SkeletonGroup } from '../../shared/ui';
 import { RosterAvatar } from '../session-detail/agents/RosterAvatar';
 import { useSessions } from '../sessions/api';
+import { AgentSettingsForm } from './AgentSettingsForm';
+import { useAgentCatalog } from './AgentCatalogContext';
 import styles from './AgentDetailPage.module.css';
 
 const STEP_LABELS: Record<string, string> = {
@@ -23,15 +25,17 @@ interface Appearance {
   run: AgentRun;
   stepStatus: string;
   findingsCount: number;
+  approvalPercentage: number | undefined;
 }
 
 export function AgentDetailPage() {
   const { id } = useParams<{ id: string }>();
   const api = useApi();
   const sessions = useSessions();
+  const { roster } = useAgentCatalog();
 
   const rosterId = id as AgentRosterId | undefined;
-  const meta = rosterId && rosterId in AGENT_ROSTER ? AGENT_ROSTER[rosterId] : undefined;
+  const meta = rosterId && rosterId in roster ? roster[rosterId] : undefined;
   // Solo los especialistas de IA coinciden con AgentId: son los únicos con corridas reales que rastrear.
   const agentId = meta?.capability === 'analysis' ? (rosterId as AgentId) : null;
 
@@ -57,13 +61,16 @@ export function AgentDetailPage() {
       const step = run.steps.find((item) => item.agentId === agentId);
       if (!step) return;
       const findingsCount = run.findings.filter((finding) => finding.agents.includes(agentId)).length;
-      list.push({ session, run, stepStatus: step.status, findingsCount });
+      list.push({ session, run, stepStatus: step.status, findingsCount, approvalPercentage: step.approvalPercentage });
     });
     return list;
   }, [agentId, completed, runs]);
 
   const totalFindings = appearances.reduce((sum, item) => sum + item.findingsCount, 0);
   const doneCount = appearances.filter((item) => item.stepStatus === 'done').length;
+  const approvals = appearances.map((item) => item.approvalPercentage).filter((value) => value !== undefined);
+  const avgApproval =
+    approvals.length > 0 ? Math.round(approvals.reduce((sum, value) => sum + value, 0) / approvals.length) : undefined;
 
   if (!meta) {
     return (
@@ -140,12 +147,23 @@ export function AgentDetailPage() {
           )}
         </Panel>
 
+        {agentId && (
+          <Panel
+            title="Personalizar"
+            subtitle="Avatar y cómo se arma su prompt. Se guarda para todas las corridas futuras, no solo esta sesión."
+          >
+            <AgentSettingsForm agentId={agentId} meta={meta} />
+          </Panel>
+        )}
+
         {meta.capability === 'analysis' && (
           <Panel
             title="Actividad"
             subtitle={
               appearances.length > 0
-                ? `${doneCount}/${appearances.length} corridas terminadas · ${totalFindings} hallazgos en total`
+                ? `${doneCount}/${appearances.length} corridas terminadas · ${totalFindings} hallazgos en total${
+                    avgApproval !== undefined ? ` · ${avgApproval}% de aprobación promedio` : ''
+                  }`
                 : undefined
             }
             padded={false}
@@ -167,7 +185,7 @@ export function AgentDetailPage() {
               />
             ) : (
               <ul className={styles.list}>
-                {appearances.map(({ session, stepStatus, findingsCount }) => (
+                {appearances.map(({ session, stepStatus, findingsCount, approvalPercentage }) => (
                   <li key={session.id} className={styles.row}>
                     <Link to={`/sessions/${session.id}`} className={styles.rowLink} title="Abrir en el detalle de la sesión">
                       <span className={styles.rowTitle}>{session.objective.sessionName}</span>
@@ -175,6 +193,7 @@ export function AgentDetailPage() {
                         {STEP_LABELS[stepStatus] ?? stepStatus}
                       </span>
                       <span className={styles.rowMeta}>
+                        {approvalPercentage !== undefined ? `${approvalPercentage}% aprobación · ` : ''}
                         {findingsCount} hallazgos · {formatDate(session.createdAt)}
                       </span>
                     </Link>

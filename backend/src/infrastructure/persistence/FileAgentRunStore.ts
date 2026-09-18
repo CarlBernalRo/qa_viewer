@@ -16,6 +16,8 @@ const checkpointSchema = z.object({
     rt: z.string(),
     func: z.string(),
     env: z.string(),
+    ux: z.string(),
+    reg: z.string(),
   }),
   refs: z.array(z.tuple([z.string(), z.string()])),
   reports: z.object({
@@ -27,6 +29,8 @@ const checkpointSchema = z.object({
     rt: specialistReportSchema.optional(),
     func: specialistReportSchema.optional(),
     env: specialistReportSchema.optional(),
+    ux: specialistReportSchema.optional(),
+    reg: specialistReportSchema.optional(),
   }),
 });
 
@@ -51,13 +55,18 @@ export class FileAgentRunStore implements AgentRunStore {
   }
 
   async loadCheckpoint(sessionId: string, runId: string): Promise<AgentCheckpoint | null> {
+    let raw: string;
     try {
-      const raw = await readFile(this.paths.agentCheckpointFile(sessionId, runId), 'utf8');
-      return checkpointSchema.parse(JSON.parse(raw));
+      raw = await readFile(this.paths.agentCheckpointFile(sessionId, runId), 'utf8');
     } catch (error) {
       if (isNotFound(error)) return null;
       throw error;
     }
+    // Un punto de control de antes de que se agregara un especialista (o cualquier otro cambio de
+    // forma) no tiene todas las claves que el schema actual exige: es tan inútil para retomar como
+    // si no existiera, así que se trata igual (el llamador arranca de cero).
+    const parsed = checkpointSchema.safeParse(JSON.parse(raw));
+    return parsed.success ? parsed.data : null;
   }
 
   async save(run: AgentRun): Promise<void> {

@@ -5,10 +5,11 @@ import { FeatureNotAvailableError, InvalidStateError } from '../../src/domain/er
 import { createTestDeps, FakeAgentModel } from '../fakes.js';
 import { sampleInput } from '../samples.js';
 
-const specialist = (summary: string): SpecialistReport => ({
+const specialist = (summary: string, approvalPercentage = 40): SpecialistReport => ({
   summary,
   criteria: [{ criterionId: 'CA1', assessment: 'supports_fail', reason: 'El pago devolvió 500', evidence: ['E1'] }],
   observations: [],
+  approvalPercentage,
 });
 
 const lead: LeadReport = {
@@ -30,7 +31,7 @@ const lead: LeadReport = {
   ],
 };
 
-/** El equipo completo (8 especialistas + QA Lead), todos respondiendo "ok" salvo lo que se pise en overrides. */
+/** El equipo completo (10 especialistas + QA Lead), todos respondiendo "ok" salvo lo que se pise en overrides. */
 function fullTeamModel(overrides: Partial<Record<AgentId, unknown>> = {}): FakeAgentModel {
   return new FakeAgentModel({
     api: specialist('api ok'),
@@ -41,12 +42,26 @@ function fullTeamModel(overrides: Partial<Record<AgentId, unknown>> = {}): FakeA
     rt: specialist('rt ok'),
     func: specialist('func ok'),
     env: specialist('env ok'),
+    ux: specialist('ux ok'),
+    reg: specialist('reg ok'),
     lead,
     ...overrides,
   });
 }
 
-const FULL_TEAM_ORDER: readonly AgentId[] = ['api', 'frontend', 'sec', 'a11y', 'perf', 'rt', 'func', 'env', 'lead'];
+const FULL_TEAM_ORDER: readonly AgentId[] = [
+  'api',
+  'frontend',
+  'sec',
+  'a11y',
+  'perf',
+  'rt',
+  'func',
+  'env',
+  'ux',
+  'reg',
+  'lead',
+];
 
 async function recorded(model: FakeAgentModel | null, captureOverrides: Parameters<typeof sampleInput>[0] = {}) {
   const deps = createTestDeps();
@@ -103,15 +118,38 @@ describe('agentes', () => {
     expect(apiStep?.criteria).toMatchObject([{ criterionId: 'CA1', assessment: 'supports_fail', reason: 'El pago devolvió 500' }]);
     expect(apiStep?.criteria?.[0]?.evidence).toHaveLength(1);
     expect(eventIds.has(apiStep?.criteria?.[0]?.evidence[0] ?? '')).toBe(true);
-    // 8 especialistas + QA Lead = 9 llamadas; solo la primera (api) escribe caché, el resto lo lee.
-    expect(run?.usage).toEqual({ inputTokens: 9000, outputTokens: 1800, cacheReadTokens: 6400, cacheWriteTokens: 800 });
+    expect(apiStep?.approvalPercentage).toBe(40);
+    // 10 especialistas + QA Lead = 11 llamadas; solo la primera (api) escribe caché, el resto lo lee.
+    expect(run?.usage).toEqual({ inputTokens: 11000, outputTokens: 2200, cacheReadTokens: 8000, cacheWriteTokens: 800 });
 
     // El resumen es idéntico para todos (para que se cachee) y cada agente recibe su evidencia.
     expect(new Set(model.calls.map((call) => call.brief)).size).toBe(1);
     expect(model.calls.map((call) => call.agentId)).toEqual(FULL_TEAM_ORDER);
     expect(model.calls[0]?.task).toContain('POST /api/pay');
     expect(model.calls[1]?.task).toContain('TypeError: order is undefined');
-    expect(model.calls[8]?.task).toContain('"summary": "Falla el POST"');
+    expect(model.calls[10]?.task).toContain('"summary":"Falla el POST"');
+  });
+
+  it('el override de configuración del agente y la recomendación de la corrida llegan al prompt real', async () => {
+    const model = fullTeamModel();
+    const { useCases, id } = await recorded(model);
+    await useCases.updateAgentSettings.execute('api', {
+      mainObjective: 'Objetivo a medida para API REST.',
+      secondaryObjectives: ['Presta atención extra a los reintentos.'],
+    });
+
+    await useCases.startAgentRun.execute(id, 'Fíjate especialmente en el checkout.');
+    await useCases.startAgentRun.settled(id);
+
+    const apiCall = model.calls.find((call) => call.agentId === 'api');
+    expect(apiCall?.task).toContain('Objetivo a medida para API REST.');
+    expect(apiCall?.task).toContain('Presta atención extra a los reintentos.');
+    // La recomendación de la corrida va en el resumen compartido, no en la tarea de un agente en particular.
+    expect(apiCall?.brief).toContain('Fíjate especialmente en el checkout.');
+
+    // Front-end no tiene override propio: sigue usando el rol fijo del catálogo.
+    const frontendCall = model.calls.find((call) => call.agentId === 'frontend');
+    expect(frontendCall?.task).not.toContain('Objetivo a medida para API REST.');
   });
 
   it('"Elegir yo" con un solo especialista no consulta a los que no se eligieron', async () => {
@@ -153,6 +191,8 @@ describe('agentes', () => {
       'pending',
       'pending',
       'pending',
+      'pending',
+      'pending',
     ]);
   });
 
@@ -185,11 +225,14 @@ describe('agentes', () => {
       'rt',
       'func',
       'env',
+      'ux',
+      'reg',
       'lead',
     ]);
     expect(new Set(model.calls.map((call) => call.brief)).size).toBe(1);
     expect(runs[0]?.proposals[0]?.evidence.every((eventId) => eventIds.has(eventId))).toBe(true);
-    expect(runs[0]?.usage.inputTokens).toBe(9000);
+    // El intento fallido de "frontend" no suma uso: 11 llamadas exitosas (10 especialistas + lead).
+    expect(runs[0]?.usage.inputTokens).toBe(11000);
   });
 
   it('un análisis sin punto de control (versión anterior) se reintenta desde cero', async () => {

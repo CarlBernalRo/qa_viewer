@@ -141,6 +141,15 @@ describe('resumen para los agentes', () => {
     expect(brief).toContain('Duración: 30,0 s');
   });
 
+  it('incluye la recomendación del QA para esta corrida cuando llega una', () => {
+    const withNote = sharedBrief({ session, review, analysis, events, note: 'Fíjate especialmente en el checkout.' }, new EvidenceRefs());
+    expect(withNote).toContain('## Recomendación del QA para este análisis');
+    expect(withNote).toContain('Fíjate especialmente en el checkout.');
+
+    const withoutNote = sharedBrief({ session, review, analysis, events }, new EvidenceRefs());
+    expect(withoutNote).not.toContain('Recomendación del QA para este análisis');
+  });
+
   it('el agente API REST recibe las llamadas HTTP agrupadas, con lo enviado y la respuesta de error', () => {
     const digest = apiDigest(session, events, new EvidenceRefs());
     expect(digest).toContain('POST /api/orders · 1 llamada · status 500');

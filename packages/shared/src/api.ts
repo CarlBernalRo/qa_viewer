@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { findingDecisionSchema } from './findings.js';
 import { sessionStatsSchema, sessionStatusSchema } from './session.js';
+import { specialistIdSchema } from './agents.js';
+import { agentProviderSchema } from './providers.js';
 
 /** Rutas HTTP del backend, compartidas para que el cliente no tenga strings sueltos. */
 export const API_ROUTES = {
@@ -13,6 +15,8 @@ export const API_ROUTES = {
   session: (id: string) => `/api/sessions/${encodeURIComponent(id)}`,
   sessionEvents: (id: string) => `/api/sessions/${encodeURIComponent(id)}/events`,
   sessionVideo: (id: string) => `/api/sessions/${encodeURIComponent(id)}/video`,
+  sessionScreenshot: (id: string, file: string) =>
+    `/api/sessions/${encodeURIComponent(id)}/screenshots/${encodeURIComponent(file)}`,
   sessionFindings: (id: string) => `/api/sessions/${encodeURIComponent(id)}/findings`,
   sessionReview: (id: string) => `/api/sessions/${encodeURIComponent(id)}/review`,
   sessionMarkers: (id: string) => `/api/sessions/${encodeURIComponent(id)}/markers`,
@@ -23,12 +27,36 @@ export const API_ROUTES = {
   sessionReport: (id: string) => `/api/sessions/${encodeURIComponent(id)}/report`,
   sessionReportOpen: (id: string) => `/api/sessions/${encodeURIComponent(id)}/report/open`,
   sessionLoadScript: (id: string) => `/api/sessions/${encodeURIComponent(id)}/load-script`,
+  sessionBaseline: (id: string) => `/api/sessions/${encodeURIComponent(id)}/baseline`,
   findingDecision: (sessionId: string, findingId: string) =>
     `/api/sessions/${encodeURIComponent(sessionId)}/findings/${encodeURIComponent(findingId)}/decision`,
   startRecording: (id: string) => `/api/sessions/${encodeURIComponent(id)}/recording/start`,
   stopRecording: (id: string) => `/api/sessions/${encodeURIComponent(id)}/recording/stop`,
   live: '/api/live',
+  projects: '/api/projects',
+  project: (id: string) => `/api/projects/${encodeURIComponent(id)}`,
+  agentSettings: '/api/agent-settings',
+  agentSetting: (id: string) => `/api/agent-settings/${encodeURIComponent(id)}`,
+  settings: '/api/settings',
+  settingsModels: (provider: string) => `/api/settings/models?provider=${encodeURIComponent(provider)}`,
 } as const;
+
+export const appSettingsSchema = z.object({
+  agentProvider: agentProviderSchema,
+  agentModel: z.string().optional(),
+  geminiApiKey: z.string().optional(),
+  openrouterApiKey: z.string().optional(),
+  openaiApiKey: z.string().optional(),
+  anthropicApiKey: z.string().optional(),
+  groqApiKey: z.string().optional(),
+  mistralApiKey: z.string().optional(),
+  deepseekApiKey: z.string().optional(),
+  ollamaApiKey: z.string().optional(),
+});
+export type AppSettingsDto = z.infer<typeof appSettingsSchema>;
+
+export const updateAppSettingsInputSchema = appSettingsSchema;
+export type UpdateAppSettingsInput = z.infer<typeof updateAppSettingsInputSchema>;
 
 export const apiErrorSchema = z.object({
   error: z.object({
@@ -45,6 +73,17 @@ export const setFindingDecisionInputSchema = z.object({
   note: z.string().trim().max(500).optional(),
 });
 export type SetFindingDecisionInput = z.infer<typeof setFindingDecisionInputSchema>;
+
+/** Recomendación puntual del QA para esta corrida de agentes (no persiste como config del agente). */
+export const startAgentRunInputSchema = z.object({
+  note: z.string().trim().max(1000).optional(),
+  agentId: specialistIdSchema.optional(),
+});
+export type StartAgentRunInput = z.infer<typeof startAgentRunInputSchema>;
+
+/** Sesión base contra la que el agente de Regresión compara. `baselineSessionId: undefined` quita la comparación. */
+export const setSessionBaselineInputSchema = z.object({ baselineSessionId: z.string().optional() });
+export type SetSessionBaselineInput = z.infer<typeof setSessionBaselineInputSchema>;
 
 /** Informe PDF exportado: dónde quedó guardado. */
 export const sessionReportSchema = z.object({

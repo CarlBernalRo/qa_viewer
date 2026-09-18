@@ -143,6 +143,14 @@ export const captureEventSchema = z.discriminatedUnion('kind', [
   }),
   z.object({
     ...base,
+    kind: z.literal('screenshot'),
+    /** Pantalla capturada. */
+    url: z.string(),
+    /** Nombre de archivo dentro de la carpeta de capturas de la sesión (sin ruta). */
+    file: z.string(),
+  }),
+  z.object({
+    ...base,
     kind: z.literal('a11y-scan'),
     /** Pantalla revisada. `t` es cuando terminó la revisión; empezó `durationMs` antes. */
     url: z.string(),
@@ -181,6 +189,7 @@ const CHANNEL_BY_KIND: Record<CaptureEventKind, CaptureChannel> = {
   exception: 'console',
   'web-vital': 'performance',
   'a11y-scan': 'accessibility',
+  screenshot: 'screenshots',
 };
 
 export function channelOf(kind: CaptureEventKind): CaptureChannel {

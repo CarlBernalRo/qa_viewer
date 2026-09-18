@@ -1,22 +1,18 @@
+import { join } from 'node:path';
 import { createUseCases, RecordingRegistry } from './application/index.js';
-import {
-  ConfigError,
-  geminiApiKey,
-  loadDotEnv,
-  openRouterApiKey,
-  parseConfig,
-  type AppConfig,
-} from './infrastructure/config/env.js';
+import { ConfigError, loadDotEnv, parseConfig, type AppConfig } from './infrastructure/config/env.js';
 import { createPinoLogger, PinoLoggerAdapter } from './infrastructure/logging/logger.js';
-import type { AgentModel } from './domain/ports.js';
-import { GeminiAgentModel } from './infrastructure/agents/GeminiAgentModel.js';
-import { OpenRouterAgentModel } from './infrastructure/agents/OpenRouterAgentModel.js';
+import { createAgentModel } from './infrastructure/agents/createAgentModel.js';
 import { FileAgentRunStore } from './infrastructure/persistence/FileAgentRunStore.js';
+import { FileAgentSettingsStore } from './infrastructure/persistence/FileAgentSettingsStore.js';
 import { FileEventStore } from './infrastructure/persistence/FileEventStore.js';
 import { FileFindingDecisionStore } from './infrastructure/persistence/FileFindingDecisionStore.js';
 import { FileMediaStore } from './infrastructure/persistence/FileMediaStore.js';
+import { FileProjectRepository } from './infrastructure/persistence/FileProjectRepository.js';
 import { FileSessionReviewStore } from './infrastructure/persistence/FileSessionReviewStore.js';
 import { FileSessionRepository } from './infrastructure/persistence/FileSessionRepository.js';
+import { FileSessionStorageInspector } from './infrastructure/persistence/FileSessionStorageInspector.js';
+import { FileScreenshotStore } from './infrastructure/persistence/FileScreenshotStore.js';
 import { SessionPaths } from './infrastructure/persistence/SessionPaths.js';
 import { PlaywrightRecorder } from './infrastructure/recording/playwright/PlaywrightRecorder.js';
 import { FileReportStore } from './infrastructure/reports/FileReportStore.js';
@@ -38,16 +34,6 @@ function readConfig(): AppConfig {
     }
     throw error;
   }
-}
-
-/** El adaptador del proveedor elegido; su clave se lee solo aquí. null si falta la clave. */
-function createAgentModel(agents: AppConfig['agents']): AgentModel | null {
-  if (agents.provider === 'openrouter') {
-    const key = openRouterApiKey();
-    return key ? new OpenRouterAgentModel(agents.model, key) : null;
-  }
-  const key = geminiApiKey();
-  return key ? new GeminiAgentModel(agents.model, key) : null;
 }
 
 /** Composition root: el único lugar que conoce las implementaciones concretas. */
@@ -73,6 +59,7 @@ async function main(): Promise<void> {
   const sessions = new FileSessionRepository(paths, logger);
   const events = new FileEventStore(paths, logger);
   const media = new FileMediaStore(paths);
+  const screenshots = new FileScreenshotStore(paths);
   const decisions = new FileFindingDecisionStore(paths);
   const liveHub = new LiveHub(logger);
   const registry = new RecordingRegistry(config.maxConcurrentRecordings);
@@ -87,15 +74,20 @@ async function main(): Promise<void> {
     sessions,
     events,
     media,
+    screenshots,
     decisions,
     reviews: new FileSessionReviewStore(paths),
     renderer: new PlaywrightPdfRenderer(),
     reportStore: new FileReportStore(config.reportsDir),
     opener: new SystemFileOpener(),
-    agentModel: createAgentModel(config.agents),
+    agentModel: createAgentModel(config.agents.provider, config.agents.model),
     agentModelName: config.agents.model,
     agentProvider: config.agents.providerName,
     agentRuns: new FileAgentRunStore(paths),
+    storage: new FileSessionStorageInspector(paths),
+    projects: new FileProjectRepository(join(config.dataDir, 'projects.json')),
+    agentSettings: new FileAgentSettingsStore(join(config.dataDir, 'agent-settings.json')),
+    envPath: join(process.cwd(), '.env'),
     clock: new SystemClock(),
     ids: new CryptoIdGenerator(),
     notifier: liveHub,

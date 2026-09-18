@@ -10,6 +10,7 @@ import type {
   MediaStore,
   RecordingResult,
   RecordingSink,
+  ScreenshotStore,
   SessionRepository,
 } from '../../domain/ports.js';
 import type { RecordingRegistry } from './RecordingRegistry.js';
@@ -18,6 +19,7 @@ export interface RecordingDeps {
   sessions: SessionRepository;
   events: EventStore;
   media: MediaStore;
+  screenshots: ScreenshotStore;
   clock: Clock;
   ids: IdGenerator;
   notifier: LiveNotifier;

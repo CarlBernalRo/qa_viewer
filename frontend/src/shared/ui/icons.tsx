@@ -108,3 +108,11 @@ export const IconSettings = (props: IconProps) => (
     <circle cx="13" cy="14" r="2" fill="var(--ground, #F1F2EF)" />
   </Svg>
 );
+
+export const IconProjects = (props: IconProps) => (
+  <Svg {...props}>
+    <rect x="3" y="7" width="14" height="9" rx="1.5" />
+    <path d="M7 7V5.5A1.5 1.5 0 0 1 8.5 4h3A1.5 1.5 0 0 1 13 5.5V7" />
+    <path d="M3 11h14" />
+  </Svg>
+);

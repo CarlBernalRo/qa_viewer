@@ -6,6 +6,7 @@ import type {
   SessionReview,
   SessionStats,
   SetCriterionVerdictInput,
+  SpecialistId,
 } from '@rastro/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../app/providers/BackendProvider';
@@ -58,12 +59,13 @@ export function useAgentRuns(id: string, enabled: boolean) {
   });
 }
 
-/** Analizar de nuevo, o retomar un análisis fallido (`runId`) desde el agente que falta. */
+/** Analizar de nuevo (con una recomendación opcional), o retomar un análisis fallido (`retryRunId`) desde el agente que falta. */
 export function useStartAgentRun(id: string) {
   const api = useApi();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (retryRunId?: string) => (retryRunId ? api.retryAgentRun(id, retryRunId) : api.startAgentRun(id)),
+    mutationFn: (input: { retryRunId?: string; note?: string; agentId?: SpecialistId } | undefined) =>
+      input?.retryRunId ? api.retryAgentRun(id, input.retryRunId) : api.startAgentRun(id, input?.note, input?.agentId),
     onSuccess: (run) =>
       queryClient.setQueryData<AgentRun[]>(queryKeys.sessionAgents(id), (runs = []) => [
         run,
@@ -152,6 +154,16 @@ export function useDeleteSession() {
       queryClient.removeQueries({ queryKey: queryKeys.sessionEvents(id) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.sessions });
     },
+  });
+}
+
+/** Sesión base contra la que compara el agente de Regresión. `undefined` quita la comparación. */
+export function useSetSessionBaseline(id: string) {
+  const api = useApi();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (baselineSessionId: string | undefined) => api.setSessionBaseline(id, baselineSessionId),
+    onSuccess: (session) => queryClient.setQueryData(queryKeys.session(id), session),
   });
 }
 
